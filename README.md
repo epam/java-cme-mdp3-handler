@@ -267,7 +267,7 @@ TBD
 ## Tests
 
 There are acceptance tests in the project. Test scenarios are based on [Cucumber](https://cucumber.io/) and test data files with MDP Messages (received via CME Certification Environment).
-To run tests from Gradle:
+To run tests from Gradle (warning: unpack data files in /src/cucumber/sim/data):
 
 ```
 > gradlew cucumber
