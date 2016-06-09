@@ -1,0 +1,18 @@
+1.0.0 (11/03/2016)
+NEW    Migration to Chronicle Bytes in internal implementation.
+
+0.9.3 (12/08/2015)
+NEW    Increment queue size and initial buffer size on queue slot can be changed in MdpChannelBuilder.
+       Methods: usingQueueSlotInitBufferSize and usingIncrQueueSize.
+       Default value of slot buffer is 2K and enough to store typical MDP Incremental Refresh message.
+       Will be automatically reallocated in case of big message.
+
+FIXED  OutOfMemory exception of to create a few Channel instances because not optimized increment queue pre-allocation.
+
+NEW    Low level onPacket callback of ChannelListener.
+
+NEW    Security Description and Message Sequence Num parameters in onIncrementalRefresh method of ChannelListener.
+       (Note: will be null value until at least one received Security Definition message for the given Security)
+
+NEW    Security Description parameter in onFullRefresh method of ChannelListener.
+       (Note: will be null value until at least one received Security Definition message for the given Security)

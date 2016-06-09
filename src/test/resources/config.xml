@@ -1,0 +1,2225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration environment="New Release Certification" updated="2014/07/03-09:02:54">
+    <channel id="310" label="CME Globex Equity Futures">
+        <products></products>
+        <connections>
+            <connection id="310H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="310IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.1</ip>
+                <host-ip>69.50.112.90</host-ip>
+                <port>14310</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="310IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.128</ip>
+                <host-ip>69.50.112.90</host-ip>
+                <port>15310</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="310NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.85</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>6310</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="310NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.212</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>7310</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="310SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.43</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>6310</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="310SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.170</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>7310</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="311" label="CME Globex Equity Options">
+        <products></products>
+        <connections>
+            <connection id="311H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="311IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.31.2</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>17511</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="311IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.129</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15511</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="311NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.31.44</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>14311</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="311NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.213</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>7311</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="311SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.31.23</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>14411</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="311SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.171</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>7311</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="312" label="CME Globex Interest Rate Futures">
+        <products></products>
+        <connections>
+            <connection id="312H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="312IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.3</ip>
+                <host-ip>69.50.112.92</host-ip>
+                <port>14312</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="312IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.130</ip>
+                <host-ip>69.50.112.92</host-ip>
+                <port>15312</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="312NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.87</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6312</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="312NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.214</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7312</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="312SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.45</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6312</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="312SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.172</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7312</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="313" label="CME Globex Interest Rate Options">
+        <products></products>
+        <connections>
+            <connection id="313H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="313IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.4</ip>
+                <host-ip>69.50.112.93</host-ip>
+                <port>14313</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="313IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.131</ip>
+                <host-ip>69.50.112.93</host-ip>
+                <port>15313</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="313NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.88</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6313</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="313NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.215</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7313</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="313SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.46</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6313</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="313SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.173</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7313</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="314" label="CME Globex FX Futures">
+        <products></products>
+        <connections>
+            <connection id="314H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="314IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.5</ip>
+                <host-ip>69.50.112.91</host-ip>
+                <port>14314</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="314IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.132</ip>
+                <host-ip>69.50.112.91</host-ip>
+                <port>15314</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="314NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.89</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6314</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="314NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.216</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7314</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="314SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.47</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6314</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="314SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.174</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7314</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="315" label="CME Globex FX Options">
+        <products></products>
+        <connections>
+            <connection id="315H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="315IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.6</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>14315</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="315IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.133</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>15315</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="315NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.90</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>6315</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="315NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.217</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>7315</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="315SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.48</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>6315</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="315SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.175</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>7315</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="316" label="CME Globex Commodity Futures">
+        <products></products>
+        <connections>
+            <connection id="316H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="316IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.7</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>14316</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="316IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.134</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>15316</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="316NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.91</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>6316</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="316NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.218</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>7316</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="316SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.49</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>6316</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="316SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.176</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>7316</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="317" label="CME Globex Commodity Options">
+        <products></products>
+        <connections>
+            <connection id="317H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="317IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.8</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>14317</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="317IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.135</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>15317</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="317NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.92</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>6317</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="317NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.219</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>7317</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="317SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.50</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>6317</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="317SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.177</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>7317</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="318" label="CME Globex Equity Futures - excludes E-mini S&amp;P 500">
+        <products></products>
+        <connections>
+            <connection id="318H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="318IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.9</ip>
+                <host-ip>69.50.112.91</host-ip>
+                <port>14318</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="318IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.136</ip>
+                <host-ip>69.50.112.91</host-ip>
+                <port>15318</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="318NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.93</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>6318</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="318NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.220</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>7318</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="318SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.51</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>6318</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="318SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.178</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>7318</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="319" label="CME Globex Equity Options - excludes E-mini S&amp;P 500">
+        <products></products>
+        <connections>
+            <connection id="319H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="319IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.10</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14319</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="319IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.137</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15319</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="319NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.94</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>6319</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="319NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.221</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>7319</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="319SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.52</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>6319</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="319SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.179</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>7319</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="320" label="CME Globex FX Futures II">
+        <products></products>
+        <connections>
+            <connection id="320H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="320IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.11</ip>
+                <host-ip>69.50.112.91</host-ip>
+                <port>14320</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="320IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.138</ip>
+                <host-ip>69.50.112.91</host-ip>
+                <port>15320</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="320NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.95</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6320</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="320NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.222</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7320</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="320SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.53</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6320</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="320SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.180</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7320</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="321" label="CME Globex FX Options II">
+        <products></products>
+        <connections>
+            <connection id="321H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="321IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.12</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>14321</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="321IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.139</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>15321</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="321NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.96</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6321</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="321NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.223</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7321</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="321SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.54</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6321</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="321SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.181</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7321</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="340" label="CBOT Globex Commodity Futures">
+        <products></products>
+        <connections>
+            <connection id="340H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="340IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.13</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>14340</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="340IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.140</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>15340</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="340NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.81</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>6340</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="340NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.224</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>7340</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="340SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.55</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>6340</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="340SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.182</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>7340</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="341" label="CBOT Globex Commodity Options">
+        <products></products>
+        <connections>
+            <connection id="341H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="341IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.14</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>14341</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="341IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.141</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>15341</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="341NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.98</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6341</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="341NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.225</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7341</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="341SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.56</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6341</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="341SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.183</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7341</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="342" label="CBOT Globex Equity Index Futures">
+        <products></products>
+        <connections>
+            <connection id="342H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="342IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.15</ip>
+                <host-ip>69.50.112.90</host-ip>
+                <port>14342</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="342IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.142</ip>
+                <host-ip>69.50.112.90</host-ip>
+                <port>15342</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="342NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.99</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>6342</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="342NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.226</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>7342</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="342SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.57</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>6342</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="342SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.184</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>7342</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="343" label="CBOT Globex Equity Index Options">
+        <products></products>
+        <connections>
+            <connection id="343H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="343IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.16</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>14343</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="343IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.143</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>15343</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="343NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.100</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>6343</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="343NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.227</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>7343</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="343SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.58</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>6343</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="343SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.185</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>7343</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="344" label="CBOT Globex Interest Rate Futures">
+        <products></products>
+        <connections>
+            <connection id="344H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="344IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.17</ip>
+                <host-ip>69.50.112.92</host-ip>
+                <port>14344</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="344IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.144</ip>
+                <host-ip>69.50.112.92</host-ip>
+                <port>15344</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="344NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.101</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>6344</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="344NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.228</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>7344</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="344SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.59</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>6344</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="344SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.186</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>7344</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="345" label="CBOT Globex Interest Rate Options">
+        <products></products>
+        <connections>
+            <connection id="345H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="345IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.18</ip>
+                <host-ip>69.50.112.89</host-ip>
+                <port>14345</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="345IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.145</ip>
+                <host-ip>69.50.112.89</host-ip>
+                <port>15345</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="345NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.102</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>6345</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="345NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.229</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>7345</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="345SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.60</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>6345</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="345SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.187</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>7345</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="346" label="CBOT Globex Commodity Futures II">
+        <products></products>
+        <connections>
+            <connection id="346H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="346IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.84</ip>
+                <host-ip>69.50.112.89</host-ip>
+                <port>14346</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="346IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.80</ip>
+                <host-ip>69.50.112.89</host-ip>
+                <port>15346</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="346NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.97</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>6346</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="346NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.251</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>7346</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="346SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.82</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>6346</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="346SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.83</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>7346</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="360" label="COMEX Globex Futures">
+        <products></products>
+        <connections>
+            <connection id="360H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="360IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.19</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>14360</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="360IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.146</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>15360</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="360NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.103</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>6360</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="360NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.230</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>7360</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="360SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.61</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>6360</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="360SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.188</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>7360</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="361" label="COMEX Globex Options">
+        <products></products>
+        <connections>
+            <connection id="361H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="361IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.20</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14361</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="361IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.147</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15361</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="361NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.104</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6361</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="361NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.231</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7361</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="361SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.62</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6361</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="361SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.189</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7361</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="380" label="NYMEX Globex Emissions Futures">
+        <products></products>
+        <connections>
+            <connection id="380H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="380IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.21</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14380</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="380IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.148</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15380</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="380NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.105</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6380</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="380NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.232</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7380</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="380SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.63</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6380</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="380SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.190</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7380</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="381" label="NYMEX Globex Emissions Options">
+        <products></products>
+        <connections>
+            <connection id="381H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="381IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.22</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14381</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="381IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.149</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15381</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="381NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.106</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6381</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="381NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.233</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7381</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="381SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.64</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6381</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="381SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.191</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7381</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="382" label="NYMEX Globex Crude &amp; Crude Refined Futures">
+        <products></products>
+        <connections>
+            <connection id="382H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="382IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.23</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14382</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="382IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.150</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15382</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="382NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.107</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>6382</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="382NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.234</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>7382</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="382SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.65</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>6382</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="382SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.192</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>7382</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="383" label="NYMEX Globex Crude &amp; Crude Refined Options">
+        <products></products>
+        <connections>
+            <connection id="383H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="383IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.24</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14383</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="383IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.151</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15383</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="383NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.108</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>6383</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="383NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.235</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>7383</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="383SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.66</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>6383</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="383SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.193</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>7383</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="384" label="NYMEX Globex Metals, Softs, &amp; Alternative Market Futures">
+        <products></products>
+        <connections>
+            <connection id="384H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="384IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.25</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>14384</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="384IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.152</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>15384</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="384NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.109</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>6384</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="384NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.236</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>7384</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="384SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.67</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>6384</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="384SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.194</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>7384</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="385" label="NYMEX Globex Metals, Softs, &amp; Alternative Market Options">
+        <products></products>
+        <connections>
+            <connection id="385H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="385IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.26</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14385</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="385IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.153</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15385</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="385NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.110</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>6385</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="385NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.237</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>7385</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="385SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.68</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>6385</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="385SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.195</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>7385</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="386" label="NYMEX Globex Nat Gas &amp; other Non-Crude Energy Futures">
+        <products></products>
+        <connections>
+            <connection id="386H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="386IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.27</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>14386</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="386IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.154</ip>
+                <host-ip>69.50.112.94</host-ip>
+                <port>15386</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="386NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.111</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>6386</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="386NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.238</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>7386</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="386SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.69</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>6386</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="386SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.196</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>7386</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="387" label="NYMEX Globex Nat Gas &amp; other Non-Crude Energy Options">
+        <products></products>
+        <connections>
+            <connection id="387H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="387IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.28</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14387</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="387IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.155</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15387</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="387NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.112</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>6387</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="387NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.239</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>7387</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="387SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.70</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>6387</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="387SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.197</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>7387</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="410" label="CME Europe Globex Futures">
+        <products></products>
+        <connections>
+            <connection id="410H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="410IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.29</ip>
+                <host-ip>69.50.112.93</host-ip>
+                <port>14410</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="410IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.156</ip>
+                <host-ip>69.50.112.93</host-ip>
+                <port>15410</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="410NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.113</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6410</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="410NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.240</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7410</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="410SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.71</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6410</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="410SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.198</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7410</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="430" label="BMD Globex Futures">
+        <products></products>
+        <connections>
+            <connection id="430H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="430IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.30</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14430</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="430IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.157</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15430</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="430NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.114</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6430</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="430NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.241</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7430</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="430SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.72</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6430</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="430SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.199</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7430</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="431" label="BMD Globex Options">
+        <products></products>
+        <connections>
+            <connection id="431H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="431IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.31</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14431</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="431IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.158</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15431</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="431NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.115</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>6431</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="431NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.242</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>7431</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="431SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.73</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>6431</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="431SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.200</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>7431</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="440" label="DME Globex Futures">
+        <products></products>
+        <connections>
+            <connection id="440H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="440IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.32</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14440</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="440IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.159</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15440</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="440NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.116</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>6440</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="440NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.243</ip>
+                <host-ip>69.50.112.83</host-ip>
+                <port>7440</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="440SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.74</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>6440</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="440SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.201</ip>
+                <host-ip>69.50.112.79</host-ip>
+                <port>7440</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="441" label="DME Globex Options">
+        <products></products>
+        <connections>
+            <connection id="441H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="441IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.33</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14441</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="441IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.160</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15441</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="441NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.117</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>6441</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="441NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.244</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>7441</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="441SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.75</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>6441</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="441SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.202</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>7441</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="450" label="KRX Globex Futures">
+        <products></products>
+        <connections>
+            <connection id="450H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="450IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.34</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>14450</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="450IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.161</ip>
+                <host-ip>69.50.112.95</host-ip>
+                <port>15450</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="450NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.118</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>6450</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="450NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.245</ip>
+                <host-ip>69.50.112.82</host-ip>
+                <port>7450</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="450SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.76</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>6450</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="450SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.203</ip>
+                <host-ip>69.50.112.78</host-ip>
+                <port>7450</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="460" label="MGEX Globex Futures">
+        <products></products>
+        <connections>
+            <connection id="460H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="460IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.35</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>14460</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="460IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.162</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>15460</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="460NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.119</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>6460</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="460NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.246</ip>
+                <host-ip>69.50.112.84</host-ip>
+                <port>7460</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="460SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.77</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>6460</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="460SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.204</ip>
+                <host-ip>69.50.112.80</host-ip>
+                <port>7460</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+    <channel id="461" label="MGEX Globex Options">
+        <products></products>
+        <connections>
+            <connection id="461H0A">
+                <type feed-type="H">Historical Replay</type>
+                <protocol>TCP/IP</protocol>
+                <host-ip>69.50.112.160</host-ip>
+                <port>9000</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="461IA">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.36</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>14461</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="461IB">
+                <type feed-type="I">Incremental</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.163</ip>
+                <host-ip>69.50.112.88</host-ip>
+                <port>15461</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="461NA">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.120</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>6461</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="461NB">
+                <type feed-type="N">Instrument Replay</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.247</ip>
+                <host-ip>69.50.112.85</host-ip>
+                <port>7461</port>
+                <feed>B</feed>
+            </connection>
+            <connection id="461SA">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.78</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>6461</port>
+                <feed>A</feed>
+            </connection>
+            <connection id="461SB">
+                <type feed-type="S">Snapshot</type>
+                <protocol>UDP/IP</protocol>
+                <ip>224.0.28.205</ip>
+                <host-ip>69.50.112.81</host-ip>
+                <port>7461</port>
+                <feed>B</feed>
+            </connection>
+        </connections>
+    </channel>
+</configuration>
