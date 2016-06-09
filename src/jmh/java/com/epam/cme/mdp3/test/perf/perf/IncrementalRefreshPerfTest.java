@@ -24,6 +24,8 @@ import com.epam.cme.mdp3.sbe.message.meta.SbeFieldType;
 import com.epam.cme.mdp3.sbe.message.meta.SbePrimitiveType;
 import com.epam.cme.mdp3.test.SbeDataDumpHelper;
 import net.openhft.chronicle.bytes.NativeBytesStore;
+import net.openhft.chronicle.core.time.SystemTimeProvider;
+import net.openhft.chronicle.core.util.Histogram;
 import org.openjdk.jmh.annotations.*;
 
 import java.nio.ByteBuffer;
@@ -31,6 +33,7 @@ import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.DoubleFunction;
 
 import static com.epam.cme.mdp3.mktdata.MdConstants.INCR_RFRSH_MD_ENTRY_TYPE;
 import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
@@ -167,6 +170,25 @@ public class IncrementalRefreshPerfTest {
             return rptSeqNums.keySet();
         }
 
+        private void printPacket(final MdpPacket mdpPacket) {
+            final Iterator<MdpMessage> mdpMessageIterator = mdpPacket.iterator();
+            while (mdpMessageIterator.hasNext()) {
+                final MdpMessage mdpMessage = mdpMessageIterator.next();
+                final MdpMessageType messageType = mdpHandlerBuilder.getMdpMessageTypes().getMessageType(mdpMessage.getSchemaId());
+                mdpMessage.setMessageType(messageType);
+
+                if (mdpMessage.getGroup(MdConstants.INCR_RFRSH_GRP_TAG, incrGroup)) {
+                    while (incrGroup.hashNext()) {
+                        incrGroup.next();
+                        final MDEntryType mdEntryType = MDEntryType.fromFIX(incrGroup.getChar(INCR_RFRSH_MD_ENTRY_TYPE));
+                        final int secId = incrGroup.getInt32(MdConstants.SECURITY_ID);
+                        final long rptSeqNum = incrGroup.getUInt32(RPT_SEQ_NUM);
+                        System.out.printf("\tmdEntryType=%1$s; secId=%2$d; rptSeqNum=%3$d%n", mdEntryType, secId, rptSeqNum);
+                    }
+                }
+            }
+        }
+
         private void printTestPacket(final List<byte[]> testPackets) {
             final MdpPacket mdpPacket = MdpPacket.instance();
             try {
@@ -180,22 +202,7 @@ public class IncrementalRefreshPerfTest {
                     mdpPacket.length(testPacketBytes.length);
 
                     System.out.println("Test MDP Packet #" + mdpPacket.getMsgSeqNum());
-                    final Iterator<MdpMessage> mdpMessageIterator = mdpPacket.iterator();
-                    while (mdpMessageIterator.hasNext()) {
-                        final MdpMessage mdpMessage = mdpMessageIterator.next();
-                        final MdpMessageType messageType = mdpHandlerBuilder.getMdpMessageTypes().getMessageType(mdpMessage.getSchemaId());
-                        mdpMessage.setMessageType(messageType);
-
-                        if (mdpMessage.getGroup(MdConstants.INCR_RFRSH_GRP_TAG, incrGroup)) {
-                            while (incrGroup.hashNext()) {
-                                incrGroup.next();
-                                final MDEntryType mdEntryType = MDEntryType.fromFIX(incrGroup.getChar(INCR_RFRSH_MD_ENTRY_TYPE));
-                                final int secId = incrGroup.getInt32(MdConstants.SECURITY_ID);
-                                final long rptSeqNum = incrGroup.getUInt32(RPT_SEQ_NUM);
-                                System.out.printf("\tmdEntryType=%1$s; secId=%2$d; rptSeqNum=%3$d%n", mdEntryType, secId, rptSeqNum);
-                            }
-                        }
-                    }
+                    printPacket(mdpPacket);
                 }
             } finally {
                 mdpPacket.release();
@@ -216,7 +223,9 @@ public class IncrementalRefreshPerfTest {
             System.out.println("Loading test data dump...Done");
 
             System.out.println("Generating test MDP packets...");
-            final MdpPacket samplePckt = findSample(testData, 10, 14, 4, 7);
+            final MdpPacket samplePckt = findSample(testData, 12, 14, 5, 6);
+            System.out.println("The found MDP Packet sample:");
+            printPacket(samplePckt);
             final Set<Integer> secIds = generateTestPackets(samplePckt, 5000000);
             System.out.println("Generating test MDP packets...Done");
 
@@ -243,8 +252,8 @@ public class IncrementalRefreshPerfTest {
 
         @TearDown(Level.Trial)
         public void doShutdown() throws Exception {
-            testPacket.release();
-            mdpHandler.close();
+            if (testPacket != null) testPacket.release();
+            if (mdpHandler != null) mdpHandler.close();
         }
     }
 
@@ -252,9 +261,40 @@ public class IncrementalRefreshPerfTest {
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     @Fork(1)
-    @Warmup(iterations = 3, time = 5, timeUnit = TimeUnit.SECONDS)
-    @Measurement(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
+    @Warmup(iterations = 2, time = 3, timeUnit = TimeUnit.SECONDS)
+    @Measurement(iterations = 3, time = 4, timeUnit = TimeUnit.SECONDS)
     public void testJitter(IncrementalRefreshTestState testState) {
         testState.handleTestPacket();
+    }
+
+    public static void main(String args[]) {
+        final IncrementalRefreshTestState testState = new IncrementalRefreshTestState();
+        final DoubleFunction<Double> df = (d) -> d / 1000;
+
+        try {
+            try {
+                testState.doSetup();
+                Histogram h = new Histogram(32, 4);
+                long prev = System.nanoTime();
+                for (int i = 0; i < 100000; i++) {
+                    testState.handleTestPacket();
+                    long now = System.nanoTime();
+                    long time = now - prev;
+                    prev = now;
+                }
+                for (int i = 0; i < 500000; i++) {
+                    testState.handleTestPacket();
+                    long now = System.nanoTime();
+                    long time = now - prev;
+                    h.sample(time);
+                    prev = now;
+                }
+                System.out.println(h.toLongMicrosFormat(df));
+            } finally {
+                testState.doShutdown();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

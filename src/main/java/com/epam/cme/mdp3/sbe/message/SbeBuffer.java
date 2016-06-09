@@ -26,11 +26,11 @@ public interface SbeBuffer {
      */
     void wrapForParse(final ByteBuffer bb);
 
-    int copyTo(BytesStore store);
+    void copyTo(BytesStore store);
 
-    int copyFrom(BytesStore store);
+    void copyFrom(BytesStore store);
 
-    int copyFrom(SbeBuffer buffer);
+    void copyFrom(SbeBuffer buffer);
 
     SbeBuffer copy();
 

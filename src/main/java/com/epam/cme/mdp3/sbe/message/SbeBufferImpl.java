@@ -12,14 +12,14 @@
 
 package com.epam.cme.mdp3.sbe.message;
 
-import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
-    protected Bytes<ByteBuffer> bytes;
+    //protected Bytes<ByteBuffer> bytes;
+    protected BytesStore bytes;
 
     @Override
     public void wrap(final SbeBuffer sb) {
@@ -31,27 +31,24 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
     }
 
     @Override
-    public int copyTo(BytesStore store) {
-        return (int) this.bytes.copyTo(store);
+    public void copyTo(BytesStore store) {
+        store.write(0, this.bytes, 0, this.length());
     }
 
     @Override
-    public int copyFrom(BytesStore store) {
-        final int len = (int) store.copyTo(this.bytes);
-        this.length = len;
-        return len;
+    public void copyFrom(BytesStore store) {
+        this.bytes.write(0, store, 0, store.length());
+        this.length = store.length();
     }
 
     @Override
-    public int copyFrom(SbeBuffer buffer) {
+    public void copyFrom(SbeBuffer buffer) {
         final SbeBufferImpl bufferImpl = (SbeBufferImpl) buffer;
         if (this.bytes == null) {
-            this.bytes = Bytes.wrapForRead(ByteBuffer.allocateDirect((int) bufferImpl.bytes.realCapacity()).order(ByteOrder.LITTLE_ENDIAN));
+            //this.bytes = Bytes.wrapForRead(ByteBuffer.allocateDirect((int) bufferImpl.bytes.realCapacity()).order(ByteOrder.LITTLE_ENDIAN));
+            this.bytes = BytesStore.wrap(ByteBuffer.allocateDirect((int) bufferImpl.bytes.realCapacity()).order(ByteOrder.LITTLE_ENDIAN));
         }
-        final int len = (int) bufferImpl.bytes.copyTo(this.bytes);
-        this.offset(buffer.offset());
-        this.length = buffer.length();
-        return len;
+        this.bytes.write(0, bufferImpl.bytes, 0, bufferImpl.bytes.length());
     }
 
     @Override
@@ -64,7 +61,8 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
     @Override
     public void wrapForParse(final ByteBuffer bb) {
         this.length = bb.limit();
-        this.bytes = Bytes.wrapForRead(bb);
+        //this.bytes = Bytes.wrapForRead(bb);
+        this.bytes = BytesStore.wrap(bb);
     }
 
     @Override
@@ -91,6 +89,7 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
     @Override
     public SbeBuffer length(final int length) {
         this.length = length;
+        //this.bytes.
         return this;
     }
 
@@ -102,53 +101,53 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
     @Override
     public SbeBuffer position(int pos) {
         this.position = offset() + pos;
-        this.bytes.readPosition(position);
+        //this.bytes.readPosition(position);
         return this;
     }
 
     @Override
     public char getChar() {
-        return (char) bytes.readByte();
+        return (char) bytes.readByte(this.position);
     }
 
     @Override
     public short getUInt8() {
-        return (short) bytes.readUnsignedByte();
+        return (short) bytes.readUnsignedByte(this.position);
     }
 
     @Override
     public byte getInt8() {
-        return bytes.readByte();
+        return bytes.readByte(this.position);
     }
 
     @Override
     public short getInt16() {
-        return bytes.readShort();
+        return bytes.readShort(this.position);
     }
 
     @Override
     public int getUInt16() {
-        return bytes.readUnsignedShort();
+        return bytes.readUnsignedShort(this.position);
     }
 
     @Override
     public int getInt32() {
-        return bytes.readInt();
+        return bytes.readInt(this.position);
     }
 
     @Override
     public long getUInt32() {
-        return bytes.readUnsignedInt();
+        return bytes.readUnsignedInt(this.position);
     }
 
     @Override
     public long getInt64() {
-        return bytes.readLong();
+        return bytes.readLong(this.position);
     }
 
     @Override
     public long getUInt64() {
-        return bytes.readLong();
+        return bytes.readLong(this.position);
     }
 
     @Override
@@ -158,7 +157,7 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
         }
 
         for (int i = 0; i < len; i++) {
-            chars[i] = (char) bytes.readByte();
+            chars[i] = (char) bytes.readByte(this.position+i);
         }
     }
 
