@@ -280,7 +280,7 @@ Performance test has the following scenario:
 
 2. Generate a sequence of test packets from the sample packet (e.g. change sequence numbers of packet and securities)
 
-3. Perform test. Each iteration feels buffers with next test packet and calls MDP Handler to process it
+3. Perform test. Each iteration fills buffers with next test packet and calls MDP Handler to process it
 
 To run tests from Gradle (warning: unpack data files in /src/cucumber/sim/data):
 
