@@ -127,7 +127,7 @@ public class ChannelController {
         try {
             this.lastIncrPcktReceived = System.currentTimeMillis();
 
-            if (fromQueue || (msgSeqNum == this.prcdSeqNum+1 && this.incrementQueue.push(msgSeqNum, mdpPacket))) {
+            if (fromQueue || this.incrementQueue.push(msgSeqNum, mdpPacket)) {
                 handleIncrementalMessages(feedContext, msgSeqNum, mdpPacket);
             }
         } finally {

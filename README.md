@@ -273,6 +273,55 @@ To run tests from Gradle (warning: unpack data files in /src/cucumber/sim/data):
 > gradlew cucumber
 ```
 
+There is also performance test of incremental refresh handling in the project. Test is based on JMH and use test data file with MDP Messages (received via CME Certification Environment).
+Performance test has the following scenario:
+1. Find sample incremental refresh MDP packet from data file (for instance, incremental entries from 10 to 14, refreshed securities from 4 to 6)
+2. Generate a sequence of test packets from the sample packet (e.g. change sequence numbers of packet and securities)
+3. Perform test. Each iteration feels buffers with next test packet and calls MDP Handler to process it
+To run tests from Gradle (warning: unpack data files in /src/cucumber/sim/data):
+
+```
+> gradlew jmh
+```
+
+Example of results:
+
+```
+...
+Loading test data dump...
+Loading test data dump...Done
+Generating test MDP packets...
+The found MDP Packet sample:
+        msgSeqNum=59343896; secId=556449; rptSeqNum=910008; mdEntryType=Bid; mdAction=Change; level=1; entrySize=137; orderNum=5; priceMa12000000000
+        msgSeqNum=59343896; secId=556449; rptSeqNum=910009; mdEntryType=Bid; mdAction=Change; level=2; entrySize=147; orderNum=7; priceMantissa=11750000000
+        msgSeqNum=59343896; secId=556449; rptSeqNum=910010; mdEntryType=Offer; mdAction=Change; level=1; entrySize=147; orderNum=6; priceMantissa=12500000000
+        msgSeqNum=59343896; secId=556449; rptSeqNum=910011; mdEntryType=Offer; mdAction=Change; level=2; entrySize=79; orderNum=4; priceMantissa=12750000000
+        msgSeqNum=59343896; secId=221807; rptSeqNum=824039; mdEntryType=Offer; mdAction=Change; level=1; entrySize=73; orderNum=3; priceMantissa=17250000000
+        msgSeqNum=59343896; secId=221807; rptSeqNum=824040; mdEntryType=Offer; mdAction=Change; level=2; entrySize=57; orderNum=4; priceMantissa=17500000000
+        msgSeqNum=59343896; secId=575632; rptSeqNum=831830; mdEntryType=Bid; mdAction=Change; level=1; entrySize=128; orderNum=2; priceMantissa=8500000000
+        msgSeqNum=59343896; secId=575632; rptSeqNum=831831; mdEntryType=Bid; mdAction=Change; level=2; entrySize=159; orderNum=6; priceMantissa=8250000000
+        msgSeqNum=59343896; secId=127203; rptSeqNum=815942; mdEntryType=Offer; mdAction=Change; level=1; entrySize=73; orderNum=3; priceMantissa=15750000000
+        msgSeqNum=59343896; secId=127203; rptSeqNum=815943; mdEntryType=Offer; mdAction=Change; level=2; entrySize=61; orderNum=4; priceMantissa=16000000000
+        msgSeqNum=59343896; secId=248452; rptSeqNum=953666; mdEntryType=Bid; mdAction=Change; level=1; entrySize=132; orderNum=7; priceMantissa=16250000000
+        msgSeqNum=59343896; secId=248452; rptSeqNum=953667; mdEntryType=Bid; mdAction=Change; level=2; entrySize=12; orderNum=4; priceMantissa=16000000000
+Generating test MDP packets...Done
+Creating Data Handler instance...
+Creating Data Handler instance...Done
+...
+   Percentiles, us/op:
+      p(0.0000) =      1.230 us/op
+     p(50.0000) =      1.642 us/op
+     p(90.0000) =      2.052 us/op
+     p(95.0000) =      2.052 us/op
+     p(99.0000) =      2.872 us/op
+     p(99.9000) =     13.536 us/op
+     p(99.9900) =     20.741 us/op
+     p(99.9990) =     53.138 us/op
+     p(99.9999) =     63.168 us/op
+    p(100.0000) =     63.168 us/op 
+```
+
+
 ## Contributors
 
 OLEG VERAMEI

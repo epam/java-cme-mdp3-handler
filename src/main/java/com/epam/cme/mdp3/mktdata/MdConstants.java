@@ -22,4 +22,11 @@ public class MdConstants {
     public final static int RPT_SEQ_NUM = 83;
     public final static int INCR_RFRSH_GRP_TAG = 268;
     public final static int INCR_RFRSH_MD_ENTRY_TYPE = 269;
+    public final static int INCR_RFRSH_MD_ACTION = 279;
+    public final static int INCR_RFRSH_MD_PRICE_LEVEL = 1023;
+    public final static int INCR_RFRSH_MD_ENTRY_PX = 270;
+    public final static int INCR_RFRSH_MD_ENTRY_SIZE = 271;
+    public final static int INCR_RFRSH_MD_ORDER_NUM = 346;
+
+
 }

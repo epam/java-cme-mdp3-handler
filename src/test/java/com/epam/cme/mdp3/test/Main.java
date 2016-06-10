@@ -18,6 +18,9 @@ import com.epam.cme.mdp3.core.control.InstrumentState;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
+import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
+import static com.epam.cme.mdp3.mktdata.MdConstants.SECURITY_ID;
+
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
@@ -65,12 +68,12 @@ public class Main {
 
         @Override
         public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, final FieldSet incrRefreshEntry) {
-            logger.info("[{}] onIncrementalRefresh: SecurityId: {}-{}. RptSeqNum(83): {}", msgSeqNum, securityId, secDesc, incrRefreshEntry.getUInt32(83));
+            logger.info("[{}] onIncrementalRefresh: SecurityId: {}-{}. RptSeqNum(83): {}", msgSeqNum, securityId, secDesc, incrRefreshEntry.getUInt32(RPT_SEQ_NUM));
         }
 
         @Override
         public void onSnapshotFullRefresh(final String channelId, String secDesc, final MdpMessage snptMessage) {
-            logger.info("onFullRefresh: SecurityId: {}-{}. RptSeqNum(83): {}", snptMessage.getInt32(48), secDesc, snptMessage.getUInt32(83));
+            logger.info("onFullRefresh: SecurityId: {}-{}. RptSeqNum(83): {}", snptMessage.getInt32(SECURITY_ID), secDesc, snptMessage.getUInt32(RPT_SEQ_NUM));
         }
 
         @Override
@@ -80,7 +83,7 @@ public class Main {
 
         @Override
         public void onSecurityStatus(String channelId, int securityId, MdpMessage secStatusMessage) {
-            logger.info("onSecurityStatus. SecurityId: {}, RptSeqNum(83): {}", securityId, secStatusMessage.getUInt32(83));
+            logger.info("onSecurityStatus. SecurityId: {}, RptSeqNum(83): {}", securityId, secStatusMessage.getUInt32(RPT_SEQ_NUM));
         }
     }
 
