@@ -275,9 +275,13 @@ To run tests from Gradle (warning: unpack data files in /src/cucumber/sim/data):
 
 There is also performance test of incremental refresh handling in the project. Test is based on JMH and use test data file with MDP Messages (received via CME Certification Environment).
 Performance test has the following scenario:
+
 1. Find sample incremental refresh MDP packet from data file (for instance, incremental entries from 10 to 14, refreshed securities from 4 to 6)
+
 2. Generate a sequence of test packets from the sample packet (e.g. change sequence numbers of packet and securities)
+
 3. Perform test. Each iteration feels buffers with next test packet and calls MDP Handler to process it
+
 To run tests from Gradle (warning: unpack data files in /src/cucumber/sim/data):
 
 ```
