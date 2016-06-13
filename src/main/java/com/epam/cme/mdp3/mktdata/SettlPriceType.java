@@ -16,13 +16,12 @@ public class SettlPriceType {
     private SettlPriceType() {
     }
 
-    public static final byte NOTHING = 0;
-    public static final byte FINAL = (byte) Math.pow(2, 0);
-    public static final byte ACTUAL = (byte) Math.pow(2, 1);
-    public static final byte ROUNDED = (byte) Math.pow(2, 2);
-    public static final byte INTRADAY = (byte) Math.pow(2, 3);
-    public static final byte NULLVALUE = (byte) Math.pow(2, 7);
-
+    public static final short NOTHING = 0;
+    public static final short FINAL = 1;
+    public static final short ACTUAL = 1 << 1;
+    public static final short ROUNDED = 1 << 2;
+    public static final short INTRADAY = 1 << 3;
+    public static final short NULLVALUE = 1 << 7;
 
     public static boolean hasIndicator(final int flags, final int flag) {
         return (flags & flag) == flag;

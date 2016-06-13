@@ -17,15 +17,15 @@ package com.epam.cme.mdp3;
  */
 public class MdEventFlags {
     public static final int NOTHING = 0;
-    public static final int MESSAGE = (int) Math.pow(2, 0);
-    public static final int BOOK = (int) Math.pow(2, 10);
-    public static final int TOP = (int) Math.pow(2, 11);
-    public static final int IMPLIEDBOOK = (int) Math.pow(2, 12);
-    public static final int IMPLIEDTOP = (int) Math.pow(2, 13);
-    public static final int CONSOLIDATEDBOOK = (int) Math.pow(2, 14);
-    public static final int CONSOLIDATEDTOP = (int) Math.pow(2, 15);
-    public static final int TRADESUMMARY = (int) Math.pow(2, 16);
-    public static final int STATISTICS = (int) Math.pow(2, 17);
+    public static final int MESSAGE = 1;
+    public static final int BOOK = 1 << 10;
+    public static final int TOP = 1 << 11;
+    public static final int IMPLIEDBOOK = 1 << 12;
+    public static final int IMPLIEDTOP = 1 << 13;
+    public static final int CONSOLIDATEDBOOK = 1 << 14;
+    public static final int CONSOLIDATEDTOP = 1 << 15;
+    public static final int TRADESUMMARY = 1 << 16;
+    public static final int STATISTICS = 1 << 17;
     public static final int ALL_OPTS = BOOK | TOP | IMPLIEDBOOK | IMPLIEDTOP | CONSOLIDATEDBOOK | CONSOLIDATEDTOP |
             TRADESUMMARY | STATISTICS;
 

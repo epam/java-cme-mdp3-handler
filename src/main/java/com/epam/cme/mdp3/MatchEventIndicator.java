@@ -46,14 +46,14 @@ package com.epam.cme.mdp3;
  */
 public class MatchEventIndicator {
     public static final short NOTHING = 0;
-    public static final short LASTTRADEMSG = (short) Math.pow(2, 0);
-    public static final short LASTVOLUMEMSG = (short) Math.pow(2, 1);
-    public static final short LASTQUOTEMSG = (short) Math.pow(2, 2);
-    public static final short LASTSTATSMSG = (short) Math.pow(2, 3);
-    public static final short LASTIMPLIEDMSG = (short) Math.pow(2, 4);
-    public static final short RECOVERYMSG = (short) Math.pow(2, 5);
-    public static final short RESERVED = (short) Math.pow(2, 6);
-    public static final short ENDOFEVENT = (short) Math.pow(2, 7);
+    public static final short LASTTRADEMSG = 1;
+    public static final short LASTVOLUMEMSG = 1 << 1;
+    public static final short LASTQUOTEMSG = 1 << 2;
+    public static final short LASTSTATSMSG = 1 << 3;
+    public static final short LASTIMPLIEDMSG = 1 << 4;
+    public static final short RECOVERYMSG = 1 << 5;
+    public static final short RESERVED = 1 << 6;
+    public static final short ENDOFEVENT = 1 << 7;
 
     private MatchEventIndicator() {
     }
