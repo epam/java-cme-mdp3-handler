@@ -336,4 +336,4 @@ Email: aleh_veramei@epam.com
 
 ## License
 
-[GNU General Public License v3](https://en.wikipedia.org/wiki/GNU_General_Public_License).
+[GNU Lesser General Public License, version 3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html).

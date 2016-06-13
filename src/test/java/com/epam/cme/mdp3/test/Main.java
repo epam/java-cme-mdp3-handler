@@ -88,7 +88,7 @@ public class Main {
     }
 
     public static void main(String args[]) {
-        try {
+       try {
             final MdpChannel mdpChannel311 = new MdpChannelBuilder("311",
                     Main.class.getResource("/config.xml").toURI(),
                     Main.class.getResource("/templates_FixBinary.xml").toURI())
