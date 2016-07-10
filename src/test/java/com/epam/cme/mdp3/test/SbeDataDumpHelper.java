@@ -49,7 +49,8 @@ public class SbeDataDumpHelper {
 
         @Override
         public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-            if (file.getName(file.getNameCount() - 1).toString().startsWith(dataFilePrefix)) {
+            final String fileName = file.getName(file.getNameCount() - 1).toString();
+            if (fileName.startsWith(dataFilePrefix) && fileName.endsWith(".bin")) {
                 dataFilePath = file;
                 return FileVisitResult.TERMINATE;
             } else {

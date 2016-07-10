@@ -10,7 +10,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.epam.cme.mdp3.test.perf.perf;
+package com.epam.cme.mdp3.test.perf;
 
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
@@ -27,8 +27,6 @@ import com.epam.cme.mdp3.sbe.message.meta.SbePrimitiveType;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypeBuildException;
 import com.epam.cme.mdp3.test.SbeDataDumpHelper;
 import net.openhft.chronicle.bytes.NativeBytesStore;
-import net.openhft.chronicle.core.time.SystemTimeProvider;
-import net.openhft.chronicle.core.util.Histogram;
 import org.openjdk.jmh.annotations.*;
 
 import java.net.URISyntaxException;
@@ -37,7 +35,6 @@ import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.DoubleFunction;
 
 import static com.epam.cme.mdp3.mktdata.MdConstants.*;
 import static com.epam.cme.mdp3.sbe.message.SbeConstants.MESSAGE_SEQ_NUM_OFFSET;
@@ -253,6 +250,10 @@ public class IncrementalRefreshPerfTest {
 
             System.out.println("\nLoading test data dump...");
             final Path mdpFeedData = SbeDataDumpHelper.lookupDataFile(TEST_CHANNEL_ID, "AX");
+            if (mdpFeedData == null) {
+                System.err.println("Failed to load test data\n");
+                System.exit(0);
+            }
             final byte[] testData = SbeDataDumpHelper.loadTestPackets(mdpFeedData);
             System.out.println("Loading test data dump...Done");
 
