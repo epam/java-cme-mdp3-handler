@@ -75,7 +75,7 @@ public abstract class AbstractFieldSet implements FieldSet {
             case Int64:
                 return fieldType.getInt64PresenceVal() == this.buffer().getInt64();
             case UInt64:
-                return fieldType.getUInt16PresenceVal() == this.buffer().getUInt64();
+                return this.buffer().isUInt64NULL();
             default:
                 throw new IllegalStateException();
         }
