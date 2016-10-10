@@ -67,4 +67,6 @@ public interface SbeBuffer {
     long getUInt64();
 
     void getChars(final char[] chars, final int len);
+
+    boolean isUInt64NULL();
 }

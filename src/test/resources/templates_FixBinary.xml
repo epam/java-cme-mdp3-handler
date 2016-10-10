@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
-<ns2:messageSchema xmlns:ns2="http://www.fixprotocol.org/ns/simple/1.0"
-                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" package="mktdata" id="1" version="5"
-                   semanticVersion="FIX5SP2" description="20140806" byteOrder="littleEndian" xsi:schemaLocation="">
+<ns2:messageSchema xmlns:ns2="http://www.fixprotocol.org/ns/simple/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" package="mktdata" id="1" version="8" semanticVersion="FIX5SP2" description="20160701" byteOrder="littleEndian" xsi:schemaLocation="http://www.fixtradingcommunity.org/pg/file/fplpo/read/1196759/simple-binary-encoding-rc2xsd SimpleBinary-RC2.xsd">
     <types>
         <type name="Asset" description="Asset" length="6" primitiveType="char" semanticType="String"/>
         <type name="CFICode" length="6" primitiveType="char" semanticType="String"/>
@@ -36,6 +33,7 @@
         <type name="uInt32" description="uInt32" primitiveType="uint32"/>
         <type name="uInt32NULL" description="uInt32NULL" presence="optional" nullValue="4294967295" primitiveType="uint32"/>
         <type name="uInt64" description="uInt64" primitiveType="uint64"/>
+        <type name="uInt64NULL" description="Unsigned Int 64 with null value" presence="optional" nullValue="18446744073709551615" primitiveType="uint64" sinceVersion="7"/>
         <type name="uInt8" description="uInt8" primitiveType="uint8"/>
         <type name="uInt8NULL" description="uInt8NULL" presence="optional" nullValue="255" primitiveType="uint8"/>
         <composite name="DecimalQty" description="A number representing quantity" semanticType="Qty">
@@ -64,9 +62,9 @@
             <type name="blockLength" primitiveType="uint16"/>
             <type name="numInGroup" primitiveType="uint8"/>
         </composite>
-        <composite name="groupSize8Byte" description="8 Byte aligned repeating group dimensions" sinceVersion="5" semanticType="NumInGroup">
+        <composite name="groupSize8Byte" description="8 Byte aligned repeating group dimensions" semanticType="NumInGroup">
             <type name="blockLength" description="Length" primitiveType="uint16"/>
-            <type name="numInGroup" description="NumInGroup" primitiveType="uint8" offset="7"/>
+            <type name="numInGroup" description="NumInGroup" offset="7" primitiveType="uint8"/>
         </composite>
         <composite name="groupSizeEncoding" description="Repeating group dimensions">
             <type name="blockLength" primitiveType="uint16" semanticType="Length"/>
@@ -74,7 +72,7 @@
         </composite>
         <composite name="messageHeader" description="Template ID and length of message root">
             <type name="blockLength" primitiveType="uint16"/>
-            <type name="schemaId" primitiveType="uint16"/>
+            <type name="templateId" primitiveType="uint16"/>
             <type name="schemaId" primitiveType="uint16"/>
             <type name="version" primitiveType="uint16"/>
         </composite>
@@ -104,15 +102,15 @@
             <validValue name="Bid" description="Bid">0</validValue>
             <validValue name="Offer" description="Offer">1</validValue>
             <validValue name="Trade" description="Trade">2</validValue>
-            <validValue name="OpeningPrice" description="Opening Price">4</validValue>
+            <validValue name="OpenPrice" description="Open Price">4</validValue>
             <validValue name="SettlementPrice" description="Settlement Price">6</validValue>
             <validValue name="TradingSessionHighPrice" description="Trading Session High Price">7</validValue>
             <validValue name="TradingSessionLowPrice" description="Trading Session Low Price">8</validValue>
-            <validValue name="TradeVolume" description="Trade Volume">B</validValue>
+            <validValue name="ClearedVolume" description="Cleared Volume">B</validValue>
             <validValue name="OpenInterest" description="Open Interest">C</validValue>
             <validValue name="ImpliedBid" description="Implied Bid">E</validValue>
             <validValue name="ImpliedOffer" description="Implied Offer">F</validValue>
-            <validValue name="EmptyBook" description="Empty Book">J</validValue>
+            <validValue name="BookReset" description="Book Reset">J</validValue>
             <validValue name="SessionHighBid" description="Session High Bid">N</validValue>
             <validValue name="SessionLowOffer" description="Session Low Offer">O</validValue>
             <validValue name="FixingPrice" description="Fixing Price">W</validValue>
@@ -150,6 +148,11 @@
         <enum name="OpenCloseSettlFlag" encodingType="uInt8NULL">
             <validValue name="DailyOpenPrice" description="Daily Open Price">0</validValue>
             <validValue name="IndicativeOpeningPrice" description="Indicative Opening Price">5</validValue>
+        </enum>
+        <enum name="OrderUpdateAction" encodingType="uInt8">
+            <validValue name="New" description="New" sinceVersion="7">0</validValue>
+            <validValue name="Update" description="Update" sinceVersion="7">1</validValue>
+            <validValue name="Delete" description="Delete" sinceVersion="7">2</validValue>
         </enum>
         <enum name="PutOrCall" encodingType="uInt8">
             <validValue name="Put" description="Put Option" sinceVersion="3">0</validValue>
@@ -237,14 +240,14 @@
     <ns2:message name="AdminLogout16" id="16" description="AdminLogout" blockLength="180" semanticType="5">
         <field name="Text" id="58" type="Text" description="Free format text string. May include logout confirmation or reason for logout" offset="0" semanticType="String"/>
     </ns2:message>
-    <ns2:message name="MDInstrumentDefinitionFuture27" id="27" description="MDInstrumentDefinitionFuture" blockLength="214" semanticType="d" sinceVersion="2">
+    <ns2:message name="MDInstrumentDefinitionFuture27" id="27" description="MDInstrumentDefinitionFuture" blockLength="216" semanticType="d" sinceVersion="2">
         <field name="MatchEventIndicator" id="5799" type="MatchEventIndicator" description="Bitmap field of eight Boolean type indicators reflecting the end of updates for a given Globex event" offset="0" semanticType="MultipleCharValue"/>
         <field name="TotNumReports" id="911" type="uInt32NULL" description="Total number of instruments in the Replay loop. Used on Replay Feed only " offset="1" semanticType="int"/>
         <field name="SecurityUpdateAction" id="980" type="SecurityUpdateAction" description="Last Security update action on Incremental feed, 'D' or 'M' is used when a mid-week deletion or modification (i.e. extension) occurs" offset="5" semanticType="char"/>
         <field name="LastUpdateTime" id="779" type="uInt64" description="Timestamp of when the instrument was last added, modified or deleted" offset="6" semanticType="UTCTimestamp"/>
         <field name="MDSecurityTradingStatus" id="1682" type="SecurityTradingStatus" description="Identifies the current state of the instrument. In Security Definition message this tag is available in the Instrument Replay feed only " offset="14" semanticType="int"/>
         <field name="ApplID" id="1180" type="Int16" description="The channel ID as defined in the XML Configuration file" offset="15" semanticType="int"/>
-        <field name="MarketSegmentID" id="1300" type="uInt8" description="Last Security update action on Incremental feed, 'D' or 'M' is used when a mid-week deletion or modification (i.e. extension) occurs" offset="17" semanticType="int"/>
+        <field name="MarketSegmentID" id="1300" type="uInt8" description="Identifies the market segment, populated for all CME Globex instruments" offset="17" semanticType="int"/>
         <field name="UnderlyingProduct" id="462" type="uInt8" description="Product complex" offset="18" semanticType="int"/>
         <field name="SecurityExchange" id="207" type="SecurityExchange" description="Exchange used to identify a security" offset="19" semanticType="Exchange"/>
         <field name="SecurityGroup" id="1151" type="SecurityGroup" description="Security Group Code." offset="23" semanticType="String"/>
@@ -282,6 +285,7 @@
         <field name="FlowScheduleType" id="1439" type="Int8NULL" description="The schedule according to which the electricity is delivered in a physical contract, or priced in a financial contract. Specifies whether the contract is defined according to the Easter Peak, Eastern Off-Peak, Western Peak or Western Off-Peak." offset="204" semanticType="int"/>
         <field name="MinPriceIncrementAmount" id="1146" type="PRICENULL" description="Monetary value equivalent to the minimum price fluctuation" offset="205" semanticType="Price"/>
         <field name="UserDefinedInstrument" id="9779" type="UserDefinedInstrument" description="User-defined instruments flag" offset="213" sinceVersion="3" semanticType="char"/>
+        <field name="TradingReferenceDate" id="5796" type="LocalMktDate" description="Indicates session date corresponding to the settlement price in tag 1150-TradingReferencePrice" offset="214" sinceVersion="6" semanticType="LocalMktDate"/>
         <group name="NoEvents" id="864" description="Number of repeating EventType entries" blockLength="9" dimensionType="groupSize">
             <field name="EventType" id="865" type="EventType" description="Code to represent the type of event" offset="0" semanticType="int"/>
             <field name="EventTime" id="1145" type="uInt64" description="Date and Time of instument Activation or Expiration event sent as number of nanoseconds since Unix epoch" offset="1" semanticType="UTCTimestamp"/>
@@ -299,7 +303,7 @@
             <field name="MinLotSize" id="1231" type="DecimalQty" description="Minimum quantity accepted for order entry. If tag 1093-LotType=4, this value is the minimum quantity for order entry expressed in the applicable units, specified in tag 996-UnitOfMeasure, e.g. megawatts" offset="1" semanticType="Qty"/>
         </group>
     </ns2:message>
-    <ns2:message name="MDInstrumentDefinitionSpread29" id="29" description="MDInstrumentDefinitionSpread" blockLength="193" semanticType="d" sinceVersion="2">
+    <ns2:message name="MDInstrumentDefinitionSpread29" id="29" description="MDInstrumentDefinitionSpread" blockLength="195" semanticType="d" sinceVersion="2">
         <field name="MatchEventIndicator" id="5799" type="MatchEventIndicator" description="Bitmap field of eight Boolean type indicators reflecting the end of updates for a given Globex event" offset="0" semanticType="MultipleCharValue"/>
         <field name="TotNumReports" id="911" type="uInt32NULL" description="Total number of instruments in the Replay loop. Used on Replay Feed only" offset="1" semanticType="int"/>
         <field name="SecurityUpdateAction" id="980" type="SecurityUpdateAction" description="Last Security update action on Incremental feed, 'D' or 'M' is used when a mid-week deletion or modification (i.e. extension) occurs" offset="5" semanticType="char"/>
@@ -338,6 +342,7 @@
         <field name="MaxPriceVariation" id="1143" type="PRICENULL" description="Differential value for price banding" offset="183" semanticType="Price"/>
         <field name="MainFraction" id="37702" type="uInt8NULL" description="Price Denominator of Main Fraction" offset="191" semanticType="int"/>
         <field name="SubFraction" id="37703" type="uInt8NULL" description="Price Denominator of Sub Fraction" offset="192" semanticType="int"/>
+        <field name="TradingReferenceDate" id="5796" type="LocalMktDate" description="Indicates session date corresponding to the settlement price in tag 1150-TradingReferencePrice" offset="193" sinceVersion="6" semanticType="LocalMktDate"/>
         <group name="NoEvents" id="864" description="Number of repeating EventType entries" blockLength="9" dimensionType="groupSize">
             <field name="EventType" id="865" type="EventType" description="Code to represent the type of event" offset="0" semanticType="int"/>
             <field name="EventTime" id="1145" type="uInt64" description="Date and time of instument Activation or Expiration event sent as number of nanoseconds since Unix epoch" offset="1" semanticType="UTCTimestamp"/>
@@ -387,6 +392,13 @@
             <field name="MDUpdateAction" id="279" type="MDUpdateAction" description=" Market Data update action" offset="25" semanticType="int"/>
             <field name="MDEntryType" id="269" type="MDEntryTypeBook" description="Market Data entry type" offset="26" semanticType="char"/>
         </group>
+        <group name="NoOrderIDEntries" id="37705" description="Number of OrderID entries" blockLength="24" sinceVersion="7" dimensionType="groupSize8Byte">
+            <field name="OrderID" id="37" type="uInt64" description="Unique Order ID" offset="0" semanticType="int"/>
+            <field name="MDOrderPriority" id="37707" type="uInt64NULL" description="Order priority for execution on the order book" offset="8" semanticType="int"/>
+            <field name="MDDisplayQty" id="37706" type="Int32NULL" description="Visible qty of order" offset="16" semanticType="int"/>
+            <field name="ReferenceID" id="9633" type="uInt8NULL" description="Reference to corresponding Price and Security ID, sequence of MD entry in the message" offset="20" semanticType="int"/>
+            <field name="OrderUpdateAction" id="37708" type="OrderUpdateAction" description="Order book update action to be applied to the order referenced by OrderID" offset="21" semanticType="int"/>
+        </group>
     </ns2:message>
     <ns2:message name="MDIncrementalRefreshDailyStatistics33" id="33" description="MDIncrementalRefreshDailyStatistics" blockLength="11" semanticType="X" sinceVersion="2">
         <field name="TransactTime" id="60" type="uInt64" description="Start of event processing time in number of nanoseconds since Unix epoch" offset="0" semanticType="UTCTimestamp"/>
@@ -425,6 +437,7 @@
             <field name="OpenCloseSettlFlag" id="286" type="OpenCloseSettlFlag" description="Flag describing IOP and Open Price entries" offset="16" semanticType="int"/>
             <field name="MDUpdateAction" id="279" type="MDUpdateAction" description="Market Data update action " offset="17" semanticType="int"/>
             <field name="MDEntryType" id="269" type="MDEntryTypeStatistics" description="Market Data entry type   " offset="18" semanticType="char"/>
+            <field name="MDEntrySize" id="271" type="Int32NULL" description="Indicative Opening Quantity " offset="19" sinceVersion="8" semanticType="Qty"/>
         </group>
     </ns2:message>
     <ns2:message name="MDIncrementalRefreshTrade36" id="36" description="MDIncrementalRefreshTrade" blockLength="11" semanticType="X" sinceVersion="2">
@@ -488,7 +501,7 @@
             <field name="Side" id="54" type="Int8NULL" description="Side requested" offset="29" semanticType="int"/>
         </group>
     </ns2:message>
-    <ns2:message name="MDInstrumentDefinitionOption41" id="41" description="MDInstrumentDefinitionOption" blockLength="211" semanticType="d" sinceVersion="3">
+    <ns2:message name="MDInstrumentDefinitionOption41" id="41" description="MDInstrumentDefinitionOption" blockLength="213" semanticType="d" sinceVersion="3">
         <field name="MatchEventIndicator" id="5799" type="MatchEventIndicator" description="Bitmap field of eight Boolean type indicators reflecting the end of updates for a given Globex event" offset="0" semanticType="MultipleCharValue"/>
         <field name="TotNumReports" id="911" type="uInt32NULL" description="Total number of instruments in the Replay loop. Used on Replay Feed only " offset="1" semanticType="int"/>
         <field name="SecurityUpdateAction" id="980" type="SecurityUpdateAction" description="Last Security update action on Incremental feed, 'D' or 'M' is used when a mid-week deletion or modification (i.e. extension) occurs" offset="5" semanticType="char"/>
@@ -531,6 +544,7 @@
         <field name="LowLimitPrice" id="1148" type="PRICENULL" description="Allowable low limit price for the trading day " offset="194" semanticType="Price"/>
         <field name="HighLimitPrice" id="1149" type="PRICENULL" description="Allowable high limit price for the trading day" offset="202" semanticType="Price"/>
         <field name="UserDefinedInstrument" id="9779" type="UserDefinedInstrument" description="User-defined instruments flag" offset="210" semanticType="char"/>
+        <field name="TradingReferenceDate" id="5796" type="LocalMktDate" description="Indicates session date corresponding to the settlement price in tag 1150-TradingReferencePrice" offset="211" sinceVersion="6" semanticType="LocalMktDate"/>
         <group name="NoEvents" id="864" description="Number of EventType entries" blockLength="9" dimensionType="groupSize">
             <field name="EventType" id="865" type="EventType" description="Code to represent the type of event" offset="0" semanticType="int"/>
             <field name="EventTime" id="1145" type="uInt64" description="Date and Time of instument Activation or Expiration event sent as number of nanoseconds since Unix epoch" offset="1" semanticType="UTCTimestamp"/>
@@ -552,6 +566,11 @@
             <field name="UnderlyingSecurityIDSource" id="305" type="SecurityIDSource" description="This value is always '8' for CME" semanticType="char"/>
             <field name="UnderlyingSymbol" id="311" type="UnderlyingSymbol" description="Underlying Instrument Symbol (Contract Name)" offset="4" semanticType="String"/>
         </group>
+        <group name="NoRelatedInstruments" id="1647" description="Number of related instruments group" blockLength="24" sinceVersion="7" dimensionType="groupSize">
+            <field name="RelatedSecurityID" id="1650" type="Int32" description="Related Security ID" offset="0" semanticType="int"/>
+            <field name="RelatedSecurityIDSource" id="1651" type="SecurityIDSource" description="Related Security ID source" semanticType="char"/>
+            <field name="RelatedSymbol" id="1649" type="Symbol" description="Related instrument Symbol" offset="4" semanticType="String"/>
+        </group>
     </ns2:message>
     <ns2:message name="MDIncrementalRefreshTradeSummary42" id="42" description="MDIncrementalRefreshTradeSummary" blockLength="11" semanticType="X" sinceVersion="5">
         <field name="TransactTime" id="60" type="uInt64" description="Start of event processing time in number of nanoseconds since Unix epoch" offset="0" semanticType="UTCTimestamp"/>
@@ -565,10 +584,40 @@
             <field name="AggressorSide" id="5797" type="AggressorSide" description="Indicates which side is the aggressor or if there is no aggressor" offset="24" semanticType="int"/>
             <field name="MDUpdateAction" id="279" type="MDUpdateAction" description="Market Data update action" offset="25" semanticType="int"/>
             <field name="MDEntryType" id="269" type="MDEntryTypeTrade" description="Market Data entry type" semanticType="char"/>
+            <field name="MDTradeEntryID" id="37711" type="uInt32NULL" description="Market Data Trade entry ID" offset="26" sinceVersion="7" semanticType="int"/>
         </group>
         <group name="NoOrderIDEntries" id="37705" description="Number of OrderID entries" blockLength="16" dimensionType="groupSize8Byte">
             <field name="OrderID" id="37" type="uInt64" description="Unique order identifier as assigned by the exchange" offset="0" semanticType="int"/>
             <field name="LastQty" id="32" type="Int32" description="Quantity bought or sold on this last fill" offset="8" semanticType="Qty"/>
         </group>
     </ns2:message>
+    <ns2:message name="MDIncrementalRefreshOrderBook43" id="43" description="MDIncrementalRefreshOrderBook" blockLength="11" semanticType="X" sinceVersion="7">
+        <field name="TransactTime" id="60" type="uInt64" description="Start of event processing time in number of nanoseconds since Unix epoch" offset="0" semanticType="UTCTimestamp"/>
+        <field name="MatchEventIndicator" id="5799" type="MatchEventIndicator" description="Bitmap field of eight Boolean type indicators reflecting the end of updates for a given Globex event" offset="8" semanticType="MultipleCharValue"/>
+        <group name="NoMDEntries" id="268" description="Number of entries in Market Data message" blockLength="40" dimensionType="groupSize">
+            <field name="OrderID" id="37" type="uInt64NULL" description="Order ID" offset="0" semanticType="String"/>
+            <field name="MDOrderPriority" id="37707" type="uInt64NULL" description="Order priority for execution on the order book" offset="8" semanticType="int"/>
+            <field name="MDEntryPx" id="270" type="PRICENULL" description="Order price" offset="16" semanticType="Price"/>
+            <field name="MDDisplayQty" id="37706" type="Int32NULL" description="Visible order qty" offset="24" semanticType="Qty"/>
+            <field name="SecurityID" id="48" type="Int32" description="Security ID " offset="28" semanticType="int"/>
+            <field name="MDUpdateAction" id="279" type="MDUpdateAction" description="Order book update action to be applied to the order referenced by OrderID" offset="32" semanticType="int"/>
+            <field name="MDEntryType" id="269" type="MDEntryTypeBook" description="Market Data entry type " offset="33" semanticType="char"/>
+        </group>
+    </ns2:message>
+    <ns2:message name="SnapshotFullRefreshOrderBook44" id="44" description="SnapshotFullRefreshOrderBook" blockLength="28" semanticType="W" sinceVersion="7">
+        <field name="LastMsgSeqNumProcessed" id="369" type="uInt32" description="Sequence number of the last Incremental feed packet processed. This value is used to synchronize the snapshot loop with the real-time feed" offset="0" semanticType="SeqNum"/>
+        <field name="TotNumReports" id="911" type="uInt32" description="Total number of instruments in the replayed loop" offset="4" semanticType="int"/>
+        <field name="SecurityID" id="48" type="Int32" description="Security ID" offset="8" semanticType="String"/>
+        <field name="NoChunks" id="37709" type="uInt32" description="Total number of packets that constitutes a single instrument order book" offset="12" semanticType="int"/>
+        <field name="CurrentChunk" id="37710" type="uInt32" description="Chunk sequence" offset="16" semanticType="int"/>
+        <field name="TransactTime" id="60" type="uInt64" description="Timestamp of the last event security participated in, sent as number of nanoseconds since Unix epoch" offset="20" semanticType="UTCTimestamp"/>
+        <group name="NoMDEntries" id="268" description="Number of entries in Market Data message" blockLength="29" dimensionType="groupSize">
+            <field name="OrderID" id="37" type="uInt64" description="Unique Order ID" offset="0" semanticType="int"/>
+            <field name="MDOrderPriority" id="37707" type="uInt64NULL" description="Order priority for execution on the order book" offset="8" semanticType="int"/>
+            <field name="MDEntryPx" id="270" type="PRICE" description="Order Price" offset="16" semanticType="Price"/>
+            <field name="MDDisplayQty" id="37706" type="Int32" description="Visible order qty" offset="24" semanticType="Qty"/>
+            <field name="MDEntryType" id="269" type="MDEntryTypeBook" description="Market Data entry type" offset="28" semanticType="char"/>
+        </group>
+    </ns2:message>
 </ns2:messageSchema>
+

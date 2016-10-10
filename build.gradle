@@ -22,10 +22,10 @@ dependencies {
     runtime group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.5'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     runtime group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
-    compile group: 'net.openhft', name: 'chronicle-bytes', version: '1.6.1'
+    compile group: 'net.openhft', name: 'chronicle-bytes', version: '1.7.17'
     compile group: 'net.openhft', name: 'koloboke-api-jdk8', version: '0.6.8'
     runtime group: 'net.openhft', name: 'koloboke-impl-jdk8', version: '0.6.8'
-    compile group: 'net.openhft', name: 'chronicle-core', version: '1.5.1'
+    compile group: 'net.openhft', name: 'chronicle-core', version: '1.7.6'
 
     cucumberCompile 'info.cukes:cucumber-java:1.2.4'
     cucumberCompile 'info.cukes:cucumber-picocontainer:1.2.4'
