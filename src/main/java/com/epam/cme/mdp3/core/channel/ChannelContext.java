@@ -24,6 +24,7 @@ import com.epam.cme.mdp3.sbe.message.SbeString;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 
 import java.util.List;
+import java.util.Set;
 
 public class ChannelContext {
     private final MdpChannelImpl channel;
@@ -232,8 +233,12 @@ public class ChannelContext {
         channel.startSnapshotFeeds();
     }
 
-    public void subscribeToSnapshotsForInstrument(/*final Integer securityId*/) {
-        channel.subscribeToSnapshotsForInstrument(/*securityId*/);
+    public void subscribeToSnapshotsForInstrument(final Integer securityId) {
+        channel.subscribeToSnapshotsForInstrument(securityId);
+    }
+
+    public void unsubscribeToSnapshotsForInstrument(final Integer securityId) {
+        channel.unsubscribeFromSnapshotsForInstrument(securityId);
     }
 
     public PacketQueue getIncrementQueue() {

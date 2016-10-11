@@ -184,7 +184,7 @@ public class SbeFieldType {
                 this.int64PresenceVal = Long.parseLong(nullValue);
                 break;
             case UInt64:
-                this.uInt64PresenceVal = Long.parseLong(nullValue);
+                this.uInt64PresenceVal = Long.parseUnsignedLong(nullValue);
                 break;
             default:
                 throw new IllegalStateException();

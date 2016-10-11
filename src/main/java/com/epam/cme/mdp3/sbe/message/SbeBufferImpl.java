@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
-    //protected Bytes<ByteBuffer> bytes;
+    public static final byte BYTE_MASK = (byte) 0xff;
     protected BytesStore bytes;
 
     @Override
@@ -148,6 +148,15 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
     @Override
     public long getUInt64() {
         return bytes.readLong(this.position);
+    }
+
+    @Override
+    public boolean isUInt64NULL() {
+        for (int i = 0; i < Long.BYTES; i++) {
+            final byte b = bytes.readByte(this.position+i);
+            if (b != BYTE_MASK) return false;
+        }
+        return true;
     }
 
     @Override

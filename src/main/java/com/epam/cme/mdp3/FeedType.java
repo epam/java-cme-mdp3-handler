@@ -16,5 +16,5 @@ package com.epam.cme.mdp3;
  * Type of CME MDP Feed (e.g. Incremental or Snapshot)
  */
 public enum FeedType {
-    H, I, S, N
+    H, I, S, N, SMBO
 }
