@@ -63,16 +63,19 @@ public class MdpFeedWorker implements Runnable {
         try {
             this.feedContext = new MdpFeedContext(this);
             this.ni = this.networkInterface != null ? NetworkInterface.getByName(this.networkInterface) : NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
-            multicastChannel = DatagramChannel.open(StandardProtocolFamily.INET);
-            multicastChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-            multicastChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
-            multicastChannel.setOption(StandardSocketOptions.SO_RCVBUF, this.rcvBufSize);
-            multicastChannel.configureBlocking(false);
-            connect(cfg.getIp(), cfg.getPort());
         } catch (IOException e) {
             logger.error("Failed open DatagramChannel", e);
             throw new MdpFeedException("Failed open DatagramChannel", e);
         }
+    }
+
+    public void open() throws Exception {
+        multicastChannel = DatagramChannel.open(StandardProtocolFamily.INET);
+        multicastChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+        multicastChannel.setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
+        multicastChannel.setOption(StandardSocketOptions.SO_RCVBUF, this.rcvBufSize);
+        multicastChannel.configureBlocking(false);
+        connect(cfg.getIp(), cfg.getPort());
     }
 
     public void addListener(final MdpFeedListener mdpFeedListener) {
@@ -104,8 +107,11 @@ public class MdpFeedWorker implements Runnable {
 
     @Override
     public void run() {
-        if (selector == null) {
-            throw new IllegalStateException("Feed Worker was not initialized properly");
+        try {
+            open();
+        } catch (Exception e) {
+            logger.error("Failed to open Feed", e);
+            return;
         }
         synchronized (this) {
             if (!isActive()) {
@@ -123,9 +129,14 @@ public class MdpFeedWorker implements Runnable {
                 logger.error("Exception in message loop", e);
             }
         }
-        mdpPacket.release();
-        notifyStopped();
-        this.rtmMarks = 0;
+        try {
+            close();
+            mdpPacket.release();
+            notifyStopped();
+            this.rtmMarks = 0;
+        } catch (IOException e) {
+            logger.error("Failed to stop Feed", e);
+        }
         logger.debug("Stop message loop in {}", cfg.toString());
     }
 

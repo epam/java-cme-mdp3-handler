@@ -17,7 +17,6 @@ import com.epam.cme.mdp3.core.cfg.ChannelCfg;
 import com.epam.cme.mdp3.core.control.ChannelController;
 import com.epam.cme.mdp3.core.control.InstrumentController;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
-import com.epam.cme.mdp3.service.DefaultScheduledServiceHolder;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -486,7 +485,8 @@ public class MdpChannelImpl implements MdpChannel {
         stopSnapshotFeedB();
     }
 
-    void subscribeToSnapshotsForInstrument(/*final Integer securityId*/) {
+    void subscribeToSnapshotsForInstrument(final Integer securityId) {
+        channelController.addOutOfSyncInstrument(securityId);
         if (!isSnapshotFeedsActive()) {
             startSnapshotFeeds();
         } else {
@@ -494,8 +494,14 @@ public class MdpChannelImpl implements MdpChannel {
         }
     }
 
-    void unsubscribeFromSnapshotsForInstrument(/*final Integer securityId*/) {
-        throw new UnsupportedOperationException("Will be probably implemented later to stop snapshot if last out of sync Security is just synchronized");
+    void unsubscribeFromSnapshotsForInstrument(final Integer securityId) {
+        if (channelController.removeOutOfSyncInstrument(securityId)) {
+           if (isSnapshotFeedsActive()) {
+               if (!channelController.hasOutOfSyncInstruments()) {
+                   stopSnapshotFeeds();
+               }
+           }
+        }
     }
 
     InstrumentController findController(final int securityId, final String secDesc) {

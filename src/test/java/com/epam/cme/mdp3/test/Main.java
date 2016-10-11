@@ -15,6 +15,7 @@ package com.epam.cme.mdp3.test;
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
 import com.epam.cme.mdp3.core.control.InstrumentState;
+import com.epam.cme.mdp3.mktdata.enums.SecurityTradingStatus;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -37,7 +38,7 @@ public class Main {
 
         @Override
         public void onPacket(String channelId, FeedType feedType, Feed feed, MdpPacket mdpPacket) {
-            logger.info("{} {}: {}", feedType, feed, mdpPacket);
+            //logger.info("{} {}: {}", feedType, feed, mdpPacket);
         }
 
         @Override
@@ -57,7 +58,9 @@ public class Main {
 
         @Override
         public void onInstrumentStateChanged(final String channelId, int securityId, InstrumentState prevState, InstrumentState newState) {
-            logger.info("Channel '{}'s instrument {} state is changed from '{}' to '{}'", channelId, securityId, prevState, newState);
+            if (newState != InstrumentState.INITIAL) {
+                logger.info("Channel '{}'s instrument {} state is changed from '{}' to '{}'", channelId, securityId, prevState, newState);
+            }
         }
 
         @Override
@@ -83,12 +86,12 @@ public class Main {
 
         @Override
         public void onSecurityStatus(String channelId, int securityId, MdpMessage secStatusMessage) {
-            logger.info("onSecurityStatus. SecurityId: {}, RptSeqNum(83): {}", securityId, secStatusMessage.getUInt32(RPT_SEQ_NUM));
+            logger.info("onSecurityStatus. SecurityId: {}, SecurityTradingStatus(326): {}", securityId, SecurityTradingStatus.fromFIX(secStatusMessage.getUInt8(326)));
         }
     }
 
     public static void main(String args[]) {
-       try {
+        try {
             final MdpChannel mdpChannel311 = new MdpChannelBuilder("311",
                     Main.class.getResource("/config.xml").toURI(),
                     Main.class.getResource("/templates_FixBinary.xml").toURI())
@@ -96,7 +99,12 @@ public class Main {
                     .usingGapThreshold(20)
                     .build();
 
-            mdpChannel311.enableAllSecuritiesMode();
+            //mdpChannel311.enableAllSecuritiesMode();
+            mdpChannel311.subscribe(267578, "TEST");
+            mdpChannel311.subscribe(372507, "TEST");
+            mdpChannel311.subscribe(694898, "TEST");
+            mdpChannel311.subscribe(171508, "TEST");
+            mdpChannel311.subscribe(144872, "TEST");
             mdpChannel311.startIncrementalFeedA();
             mdpChannel311.startIncrementalFeedB();
             mdpChannel311.startSnapshotFeedA();

@@ -48,7 +48,7 @@ public class InstrumentController {
 
     private void init(final int subscriptionFlags) {
         mdHandler.setSubscriptionFlags(subscriptionFlags);
-        this.channelContext.subscribeToSnapshotsForInstrument(/*securityId*/);
+        this.channelContext.subscribeToSnapshotsForInstrument(securityId);
         this.channelContext.notifyInstrumentStateListeners(this.securityId, InstrumentState.NEW, InstrumentState.INITIAL);
     }
 
@@ -200,6 +200,11 @@ public class InstrumentController {
 
     private void switchState(final InstrumentState prevState, final InstrumentState newState) {
         this.state = newState;
+        if (newState == InstrumentState.OUTOFSYNC) {
+            this.channelContext.subscribeToSnapshotsForInstrument(securityId);
+        } else if (newState == InstrumentState.SYNC || newState == InstrumentState.DISCONTINUED) {
+            this.channelContext.unsubscribeToSnapshotsForInstrument(securityId);
+        }
         notifyAboutChangedState(prevState, newState);
     }
 
@@ -214,33 +219,34 @@ public class InstrumentController {
 
     void onIncrementalRefresh(final MdpFeedContext feedContext, final long msgSeqNum, final short matchEventIndicator, final FieldSet incrRefreshEntry) {
         final InstrumentState currentState = this.state;
-        final long rptSeqNum = incrRefreshEntry.getUInt32(RPT_SEQ_NUM);
-        logger.debug("Feed {}{} | #{} | RPT#{} | SecurityId={}, state={}, prcd={}",
+        if (incrRefreshEntry.hasField(RPT_SEQ_NUM)) {
+            final long rptSeqNum = incrRefreshEntry.getUInt32(RPT_SEQ_NUM);
+            logger.debug("Feed {}{} | #{} | RPT#{} | SecurityId={}, state={}, prcd={}",
                     feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, rptSeqNum, this.getSecurityId(), this.state, this.prcdRptSeqNum);
-        final long expectedRptSeqNum = this.prcdRptSeqNum + 1;
-        if (currentState == InstrumentState.SYNC) {
-            if (rptSeqNum == expectedRptSeqNum) {
+            final long expectedRptSeqNum = this.prcdRptSeqNum + 1;
+            if (currentState == InstrumentState.SYNC) {
+                if (rptSeqNum == expectedRptSeqNum) {
+                    this.prcdRptSeqNum = rptSeqNum;
+                    handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
+                    handleIncrementalQueue(feedContext, msgSeqNum);
+                } else if (rptSeqNum > (expectedRptSeqNum + gapThreshold)) {
+                    logger.debug("Feed {}{} | PCKT#{} | SecurityId={}, GAP=[{},{}]",
+                            feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.prcdRptSeqNum + 1, rptSeqNum - 1);
+                    this.mdHandler.reset();
+                    switchState(InstrumentState.SYNC, InstrumentState.OUTOFSYNC);
+                }
+            } else if (currentState == InstrumentState.OUTOFSYNC && rptSeqNum == expectedRptSeqNum) {
+                logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got expected increment to restore: #{}",
+                        feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.state, expectedRptSeqNum);
                 this.prcdRptSeqNum = rptSeqNum;
+                switchState(currentState, InstrumentState.SYNC);
                 handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
                 handleIncrementalQueue(feedContext, msgSeqNum);
-            } else if (rptSeqNum > (expectedRptSeqNum + gapThreshold)) {
-                logger.debug("Feed {}{} | PCKT#{} | SecurityId={}, GAP=[{},{}]",
-                            feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.prcdRptSeqNum + 1, rptSeqNum - 1);
-                this.mdHandler.reset();
-                this.channelContext.subscribeToSnapshotsForInstrument(/*securityId*/);
-                switchState(InstrumentState.SYNC, InstrumentState.OUTOFSYNC);
+            } else if (currentState == InstrumentState.INITIAL && prcdRptSeqNum == 0 && rptSeqNum == 1) {
+                this.prcdRptSeqNum = rptSeqNum;
+                switchState(currentState, InstrumentState.SYNC);
+                handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
             }
-        } else if (currentState == InstrumentState.OUTOFSYNC && rptSeqNum == expectedRptSeqNum) {
-            logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got expected increment to restore: #{}",
-                        feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.state, expectedRptSeqNum);
-            this.prcdRptSeqNum = rptSeqNum;
-            switchState(currentState, InstrumentState.SYNC);
-            handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
-            handleIncrementalQueue(feedContext, msgSeqNum);
-        } else if (currentState == InstrumentState.INITIAL && prcdRptSeqNum == 0 && rptSeqNum == 1) {
-            this.prcdRptSeqNum = rptSeqNum;
-            switchState(currentState, InstrumentState.SYNC);
-            handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
         }
     }
 

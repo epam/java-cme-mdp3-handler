@@ -26,7 +26,9 @@ import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -53,6 +55,8 @@ public class ChannelController {
     private boolean wasChannelResetInPrcdPacket = false;
 
     private final EventController eventController = new InMemoryEventController();
+
+    private Set<Integer> outOfSyncInstruments = new HashSet<>(); //out of sync instrument set
 
     private final EventCommitFunction eventCommitFunction = (securityId) -> {
         if (channelContext != null) {
@@ -184,19 +188,23 @@ public class ChannelController {
 
             final MdpMessageType messageType = mdpMessageTypes.getMessageType(mdpMessage.getSchemaId());
             mdpMessage.setMessageType(messageType);
-            final short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
 
             if (messageType.getSemanticMsgType() == SemanticMsgType.MarketDataIncrementalRefresh) {
+                final short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
                 handleMarketDataIncrementalRefresh(feedContext, mdpMessage, msgSeqNum, matchEventIndicator);
+                if (channelContext.hasMdListeners() && MatchEventIndicator.hasEndOfEvent(matchEventIndicator)) {
+                    this.eventController.commit(this.eventCommitFunction);
+                }
             } else if (messageType.getSemanticMsgType() == SemanticMsgType.QuoteRequest) {
                 this.requestForQuoteHandler.handle(feedContext, mdpMessage);
             } else if (messageType.getSemanticMsgType() == SemanticMsgType.SecurityStatus) {
+                final short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
                 this.securityStatusHandler.handle(mdpMessage, matchEventIndicator);
+                if (channelContext.hasMdListeners() && MatchEventIndicator.hasEndOfEvent(matchEventIndicator)) {
+                    this.eventController.commit(this.eventCommitFunction);
+                }
             } else if (messageType.getSemanticMsgType() == SemanticMsgType.SecurityDefinition) {
                 this.channelContext.getInstruments().onMessage(feedContext, mdpMessage);
-            }
-            if (channelContext.hasMdListeners() && MatchEventIndicator.hasEndOfEvent(matchEventIndicator)) {
-                this.eventController.commit(this.eventCommitFunction);
             }
         }
         if (this.wasChannelResetInPrcdPacket) {
@@ -220,19 +228,17 @@ public class ChannelController {
         final long lastMsgSeqNumProcessed = mdpMessage.getUInt32(369);
         logger.trace("Feed {}{} | handleSnapshotMessage: this.prcdSeqNum={}, this.lastMsgSeqNumPrcd369={}, mdpMessage.getUInt32(369)={}",
                     feedContext.getFeedType(), feedContext.getFeed(), this.prcdSeqNum, this.lastMsgSeqNumPrcd369, lastMsgSeqNumProcessed);
-        if (lastMsgSeqNumProcessed > this.prcdSeqNum) {
-            if (snptPktSeqNum == 1 && canStopSnapshotListening(this.snptMsgCountDown)) {
-                stopSnapshotListening(feedContext);
-                return;
-            }
-            handleSnapshotMessage(feedContext, mdpMessage);
-            if (this.snptMsgCountDown == PRCD_SNPT_COUNT_NULL) {
-                final int totalNumReports = (int) mdpMessage.getUInt32(911) * SNAPSHOT_CYCLES_MAX;
-                this.snptMsgCountDown = totalNumReports;
-            }
-            this.snptMsgCountDown--;
-            this.lastMsgSeqNumPrcd369 = lastMsgSeqNumProcessed;
+        if (snptPktSeqNum == 1 && canStopSnapshotListening(this.snptMsgCountDown)) {
+            stopSnapshotListening(feedContext);
+            return;
         }
+        handleSnapshotMessage(feedContext, mdpMessage);
+        if (this.snptMsgCountDown == PRCD_SNPT_COUNT_NULL) {
+            final int totalNumReports = (int) mdpMessage.getUInt32(911) * SNAPSHOT_CYCLES_MAX;
+            this.snptMsgCountDown = totalNumReports;
+        }
+        this.snptMsgCountDown--;
+        this.lastMsgSeqNumPrcd369 = lastMsgSeqNumProcessed;
     }
 
     public void handleSnapshotPacket(final MdpFeedContext feedContext, final MdpPacket mdpPacket) {
@@ -262,8 +268,20 @@ public class ChannelController {
         }
     }
 
+    public void addOutOfSyncInstrument(final Integer instrumentId) {
+        this.outOfSyncInstruments.add(instrumentId);
+    }
+
+    public boolean removeOutOfSyncInstrument(final Integer instrumentId) {
+        return this.outOfSyncInstruments.remove(instrumentId);
+    }
+
+    public boolean hasOutOfSyncInstruments() {
+        return this.outOfSyncInstruments.size() > 0;
+    }
+
     private boolean canStopSnapshotListening(final int msgLeft) {
-        return msgLeft <= 0 && this.getIncrementQueue().exist(this.lastMsgSeqNumPrcd369 + 1);
+        return !hasOutOfSyncInstruments() || msgLeft <= 0;
     }
 
     public void resetSnapshotCycleCount() {
