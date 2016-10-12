@@ -69,6 +69,10 @@ public class MdpFeedWorker implements Runnable {
         }
     }
 
+    public void addListener(final MdpFeedListener mdpFeedListener) {
+        listeners.add(mdpFeedListener);
+    }
+
     public void open() throws Exception {
         multicastChannel = DatagramChannel.open(StandardProtocolFamily.INET);
         multicastChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -76,10 +80,6 @@ public class MdpFeedWorker implements Runnable {
         multicastChannel.setOption(StandardSocketOptions.SO_RCVBUF, this.rcvBufSize);
         multicastChannel.configureBlocking(false);
         connect(cfg.getIp(), cfg.getPort());
-    }
-
-    public void addListener(final MdpFeedListener mdpFeedListener) {
-        listeners.add(mdpFeedListener);
     }
 
     private void connect(final String ip, final int port) throws MdpFeedException {
@@ -107,16 +107,16 @@ public class MdpFeedWorker implements Runnable {
 
     @Override
     public void run() {
+        synchronized (this) {
+            if (!isActive()) {
+                this.rtmMarks |= ACTIVE_MARK;
+            } else return;
+        }
         try {
             open();
         } catch (Exception e) {
             logger.error("Failed to open Feed", e);
             return;
-        }
-        synchronized (this) {
-            if (!isActive()) {
-                this.rtmMarks |= ACTIVE_MARK;
-            } else return;
         }
         notifyStarted();
         final MdpPacket mdpPacket = MdpPacket.instance();
