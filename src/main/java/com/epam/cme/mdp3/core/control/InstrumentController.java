@@ -146,8 +146,8 @@ public class InstrumentController {
             this.prcdRptSeqNum = rptSeqNum;
             channelContext.notifyIncrementalRefreshListeners(matchEventIndicator, this.securityId, this.secDesc, mdpPacket.getMsgSeqNum(), mdpGroupObj);
             mdHandler.handleIncrementalRefreshEntry(mdpGroupObj);
-        } else {
-            // it should be impossible if we are playing queue without gaps. Should be logged and probably handled in more specific way
+        } else if (rptSeqNum > (expectedRptSeqNum + gapThreshold)) {
+            // next messages in queue are also with gap, so we have to resync again
             switchState(InstrumentState.SYNC, InstrumentState.OUTOFSYNC);
             return false;
         }
@@ -182,19 +182,20 @@ public class InstrumentController {
 
         final MdpGroup mdpGroupObj = feedContext.getMdpGroupObj();
         final PacketQueue queue = this.channelContext.getIncrementQueue();
-        long pcktSeqNum = prcdSeqNum + 1;
         final MdpPacket mdpPacket = feedContext.getMdpPacket();
-        while (queue.poll(pcktSeqNum, mdpPacket) > 0) {
-            logger.trace("Feed {}{} | Process packet #{} from queue", feedContext.getFeedType(), feedContext.getFeed(), pcktSeqNum);
 
-            final Iterator<MdpMessage> mdpMessageIterator = mdpPacket.iterator();
-            while (mdpMessageIterator.hasNext()) {
-                final MdpMessage mdpMessage = mdpMessageIterator.next();
-                if (!handleMessageInQueue(mdpPacket, mdpGroupObj, mdpMessage)) {
-                    return;
+        for (long i = prcdSeqNum + 1; i <= queue.getLastSeqNum(); i++) {
+            if (queue.poll(i, mdpPacket) > 0) {
+                logger.trace("Feed {}{} | Process packet #{} from queue", feedContext.getFeedType(), feedContext.getFeed(), i);
+
+                final Iterator<MdpMessage> mdpMessageIterator = mdpPacket.iterator();
+                while (mdpMessageIterator.hasNext()) {
+                    final MdpMessage mdpMessage = mdpMessageIterator.next();
+                    if (!handleMessageInQueue(mdpPacket, mdpGroupObj, mdpMessage)) {
+                        return;
+                    }
                 }
             }
-            pcktSeqNum++;
         }
     }
 

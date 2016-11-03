@@ -17,6 +17,7 @@ import com.epam.cme.mdp3.MdpPacket;
 public class PacketQueue {
     private PacketHolder[] slots;
     private int queueSize;
+    private long lastSeqNum = 0;
 
     public PacketQueue(final int size, final int incrQueueDefPacketSize) {
         this.slots = new PacketHolder[size];
@@ -41,18 +42,28 @@ public class PacketQueue {
     public boolean push(final long seqNum, final MdpPacket mdpPacket) {
         final int pos = (int) seqNum % this.queueSize;
         final PacketHolder packetHolder = this.slots[pos];
-        return packetHolder.put(mdpPacket, seqNum);
+        final boolean res = packetHolder.put(mdpPacket, seqNum);
+        if (res) {
+            this.lastSeqNum = seqNum;
+        }
+        return res;
+    }
+
+    public long getLastSeqNum() {
+        return lastSeqNum;
     }
 
     public void clear() {
         for (int i = 0; i < slots.length; i++) {
             slots[i].reset();
         }
+        this.lastSeqNum = 0;
     }
 
     public void release() {
         for (int i = 0; i < slots.length; i++) {
             slots[i].release();
         }
+        this.lastSeqNum = 0;
     }
 }

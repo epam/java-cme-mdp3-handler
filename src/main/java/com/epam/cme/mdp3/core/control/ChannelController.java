@@ -110,13 +110,13 @@ public class ChannelController {
         final MdpPacket mdpPacket = feedContext.getMdpPacket();
         int queuePktDataLen;
 
-        do {
-            queuePktDataLen = this.incrementQueue.poll(prcdSeqNum + 1, mdpPacket);
+        for (long i = prcdSeqNum + 1; i <= this.incrementQueue.getLastSeqNum(); i++) {
+            queuePktDataLen = this.incrementQueue.poll(i, mdpPacket);
             if (queuePktDataLen > 0) {
                 handleIncrementalPacket(feedContext, mdpPacket, true);
-                this.prcdSeqNum++;
+                this.prcdSeqNum = i;
             }
-        } while (queuePktDataLen > 0);
+        }
     }
 
     public void handleIncrementalPacket(final MdpFeedContext feedContext, final MdpPacket mdpPacket) {
