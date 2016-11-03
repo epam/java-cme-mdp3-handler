@@ -146,8 +146,8 @@ public class InstrumentController {
             this.prcdRptSeqNum = rptSeqNum;
             channelContext.notifyIncrementalRefreshListeners(matchEventIndicator, this.securityId, this.secDesc, mdpPacket.getMsgSeqNum(), mdpGroupObj);
             mdHandler.handleIncrementalRefreshEntry(mdpGroupObj);
-        } else {
-            // it should be impossible if we are playing queue without gaps. Should be logged and probably handled in more specific way
+        } else if (rptSeqNum > (expectedRptSeqNum + gapThreshold)) {
+            // next messages in queue are also with gap, so we have to resync again
             switchState(InstrumentState.SYNC, InstrumentState.OUTOFSYNC);
             return false;
         }
