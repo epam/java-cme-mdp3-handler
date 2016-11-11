@@ -41,9 +41,9 @@ public class MdpChannelBuilder {
     private boolean noScheduler = false;
     private ScheduledExecutorService scheduler;
 
-    private int queueSlotInitBufferSize = 2048;
-    private int incrQueueSize = 65536;
-    private int gapThreshold = 50;
+    private int queueSlotInitBufferSize = 256;
+    private int incrQueueSize = 100;
+    private int gapThreshold = 5;
 
     public MdpChannelBuilder(final String channelId) {
         this.channelId = channelId;

@@ -15,19 +15,16 @@ package com.epam.cme.mdp3.core.control;
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.ChannelContext;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
-import com.epam.cme.mdp3.mktdata.MdConstants;
-import com.epam.cme.mdp3.sbe.message.SbeConstants;
-import com.epam.cme.mdp3.sbe.message.meta.MdpMessageType;
+import com.epam.cme.mdp3.sbe.message.SbeGroupEntry;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
-import java.util.Iterator;
-
+import com.epam.cme.mdp3.core.control.IncrementalRefreshQueue.IncrementalRefreshQueueEntry;
 import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
 
 public class InstrumentController {
     private static final Logger logger = LoggerFactory.getLogger(InstrumentController.class);
-    public static final int DEF_GAP_THRESHOLD = 50;
+    public static final int DEF_GAP_THRESHOLD = 3;
 
     private final Integer securityId;
     private String secDesc;
@@ -36,6 +33,9 @@ public class InstrumentController {
     private long prcdRptSeqNum = 0;
     private final InstrumentMdHandler mdHandler;
     private int gapThreshold = DEF_GAP_THRESHOLD;
+    private final IncrementalRefreshQueue incrRefreshQueue;
+    private final MdpGroupEntry incrGroupEntry = SbeGroupEntry.instance();
+    private final IncrementalRefreshQueueEntry incrQueueEntry = new IncrementalRefreshQueueEntry(incrGroupEntry);
 
     public InstrumentController(final ChannelContext channelContext, final int securityId, final String secDesc, final int subscriptionFlags, final byte maxDepth, final int gapThreshold) {
         this.channelContext = channelContext;
@@ -43,6 +43,7 @@ public class InstrumentController {
         this.secDesc = secDesc;
         this.gapThreshold = gapThreshold;
         mdHandler = new InstrumentMdHandler(channelContext, securityId, subscriptionFlags, maxDepth);
+        incrRefreshQueue = new IncrementalRefreshQueue(channelContext.getIncrQueueSize(), channelContext.getQueueSlotInitBufferSize());
         init(subscriptionFlags);
     }
 
@@ -94,6 +95,7 @@ public class InstrumentController {
 
     public void onChannelReset() {
         this.prcdRptSeqNum = 0;
+        this.incrRefreshQueue.clear();
         if (this.state != InstrumentState.DISCONTINUED) {
             switchState(state, InstrumentState.SYNC);
         }
@@ -105,47 +107,17 @@ public class InstrumentController {
         mdHandler.handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
     }
 
-    void onSnapshotFullRefresh(final MdpFeedContext feedContext, final MdpMessage fullRefreshMsg) {
-        final InstrumentState currentState = this.state;
-        final long snptSeqNum = fullRefreshMsg.getUInt32(83);
-        if (currentState == InstrumentState.INITIAL) {
-            logger.debug("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got initial Snapshot. Initial prcdSeqNum is {}",
-                        feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, snptSeqNum + 1);
-            this.prcdRptSeqNum = snptSeqNum;
-            final long msgSeqNum369 = fullRefreshMsg.getUInt32(369);
-            switchState(currentState, InstrumentState.SYNC);
-            handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
-            handleIncrementalQueue(feedContext, msgSeqNum369);
-        } else if (currentState == InstrumentState.OUTOFSYNC) {
-            if (snptSeqNum > this.prcdRptSeqNum) {
-                logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got Snapshot to restore. Fast forward from {} to {}",
-                            feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, this.prcdRptSeqNum, snptSeqNum + 1);
-                this.prcdRptSeqNum = snptSeqNum;
-                this.mdHandler.reset();
-                final long msgSeqNum369 = fullRefreshMsg.getUInt32(369);
-                switchState(currentState, InstrumentState.SYNC);
-                handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
-                handleIncrementalQueue(feedContext, msgSeqNum369);
-            }
-        } else if (currentState == InstrumentState.SYNC && snptSeqNum > this.prcdRptSeqNum) {
-            logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Snapshot with high sequence comes faster then Increments. Fast forward from {} to {}",
-                        feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, prcdRptSeqNum, snptSeqNum + 1);
-            this.prcdRptSeqNum = snptSeqNum;
-            this.mdHandler.reset();
-            handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
-            final long msgSeqNum369 = fullRefreshMsg.getUInt32(369);
-            handleIncrementalQueue(feedContext, msgSeqNum369);
-        }
-    }
-
-    private boolean handleSecurityRefreshInQueue(final MdpPacket mdpPacket, final MdpGroup mdpGroupObj, final short matchEventIndicator) {
-        final long rptSeqNum = mdpGroupObj.getUInt32(RPT_SEQ_NUM);
+    private boolean handleSecurityRefreshInQueue(final IncrementalRefreshQueueEntry incrQueueEntry) {
+        final long rptSeqNum = incrQueueEntry.groupEntry.getUInt32(RPT_SEQ_NUM);
         final long expectedRptSeqNum = this.prcdRptSeqNum + 1;
+        final short matchEventIndicator = incrQueueEntry.matchEventIndicator;
+        final MdpGroupEntry incrGroupEntry = incrQueueEntry.groupEntry;
 
         if (rptSeqNum == expectedRptSeqNum) {
             this.prcdRptSeqNum = rptSeqNum;
-            channelContext.notifyIncrementalRefreshListeners(matchEventIndicator, this.securityId, this.secDesc, mdpPacket.getMsgSeqNum(), mdpGroupObj);
-            mdHandler.handleIncrementalRefreshEntry(mdpGroupObj);
+            channelContext.notifyIncrementalRefreshListeners(
+                    matchEventIndicator, this.securityId, this.secDesc, incrQueueEntry.incrPcktSeqNum, incrGroupEntry);
+            mdHandler.handleIncrementalRefreshEntry(incrQueueEntry.groupEntry);
         } else if (rptSeqNum > (expectedRptSeqNum + gapThreshold)) {
             // next messages in queue are also with gap, so we have to resync again
             switchState(InstrumentState.SYNC, InstrumentState.OUTOFSYNC);
@@ -154,46 +126,19 @@ public class InstrumentController {
         return true;
     }
 
-    private boolean handleMessageInQueue(final MdpPacket mdpPacket, final MdpGroup mdpGroupObj, final MdpMessage mdpMessage) {
-        final MdpMessageType messageType = channelContext.getMdpMessageTypes().getMessageType(mdpMessage.getSchemaId());
-        mdpMessage.setMessageType(messageType);
-        final short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
-
-        if (messageType.getSemanticMsgType() == SemanticMsgType.MarketDataIncrementalRefresh) {
-            mdpMessage.getGroup(MdConstants.INCR_RFRSH_GRP_TAG, mdpGroupObj);
-            while (mdpGroupObj.hashNext()) {
-                mdpGroupObj.next();
-                final int secId = mdpGroupObj.getInt32(MdConstants.SECURITY_ID);
-
-                if (secId == this.securityId && !handleSecurityRefreshInQueue(mdpPacket, mdpGroupObj, matchEventIndicator)) {
-                    return false;
-                }
-            }
-            if (channelContext.hasMdListeners() && MatchEventIndicator.hasEndOfEvent(matchEventIndicator)) {
-                commitEvent();
-            }
-        }
-        return true;
-    }
-
     private void handleIncrementalQueue(final MdpFeedContext feedContext, final long prcdSeqNum) {
         logger.debug("Feed {}{} | handleIncrementalQueue: after {}",
                 feedContext.getFeedType(), feedContext.getFeed(), prcdSeqNum);
 
-        final MdpGroup mdpGroupObj = feedContext.getMdpGroupObj();
-        final PacketQueue queue = this.channelContext.getIncrementQueue();
-        final MdpPacket mdpPacket = feedContext.getMdpPacket();
+        final IncrementalRefreshQueue queue = this.incrRefreshQueue;
 
-        for (long i = prcdSeqNum + 1; i <= queue.getLastSeqNum(); i++) {
-            if (queue.poll(i, mdpPacket) > 0) {
-                logger.trace("Feed {}{} | Process packet #{} from queue", feedContext.getFeedType(), feedContext.getFeed(), i);
+        for (long i = prcdSeqNum + 1; i <= queue.getLastRptSeqNum(); i++) {
+            if (queue.poll(i, this.incrQueueEntry) > 0) {
+                logger.trace("Feed {}{} | Process incremental entry #{} from queue",
+                        feedContext.getFeedType(), feedContext.getFeed(), i);
 
-                final Iterator<MdpMessage> mdpMessageIterator = mdpPacket.iterator();
-                while (mdpMessageIterator.hasNext()) {
-                    final MdpMessage mdpMessage = mdpMessageIterator.next();
-                    if (!handleMessageInQueue(mdpPacket, mdpGroupObj, mdpMessage)) {
-                        return;
-                    }
+                if (!handleSecurityRefreshInQueue(this.incrQueueEntry)) {
+                    return;
                 }
             }
         }
@@ -218,7 +163,57 @@ public class InstrumentController {
         mdHandler.handleIncrementalRefreshEntry(incrRefreshEntry);
     }
 
-    void onIncrementalRefresh(final MdpFeedContext feedContext, final long msgSeqNum, final short matchEventIndicator, final FieldSet incrRefreshEntry) {
+    private void pushIncrementalRefreshEntryInQueue(final long msgSeqNum, final short matchEventIndicator,
+                                            final long rptSeqNum, final MdpGroupEntry incrRefreshEntry) {
+        this.incrQueueEntry.incrPcktSeqNum = msgSeqNum;
+        this.incrQueueEntry.matchEventIndicator = matchEventIndicator;
+        this.incrQueueEntry.groupEntry = incrRefreshEntry;
+
+        this.incrRefreshQueue.push(rptSeqNum, this.incrQueueEntry);
+    }
+
+    void commitEvent() {
+        mdHandler.commitEvent();
+    }
+
+    public Integer getSecurityId() {
+        return securityId;
+    }
+
+    void onSnapshotFullRefresh(final MdpFeedContext feedContext, final MdpMessage fullRefreshMsg) {
+        final InstrumentState currentState = this.state;
+        final long snptSeqNum = fullRefreshMsg.getUInt32(83);
+        if (currentState == InstrumentState.INITIAL) {
+            logger.debug("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got initial Snapshot. Initial prcdSeqNum is {}",
+                    feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, snptSeqNum + 1);
+            this.prcdRptSeqNum = snptSeqNum;
+            final long msgSeqNum369 = fullRefreshMsg.getUInt32(369);
+            switchState(currentState, InstrumentState.SYNC);
+            handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
+            handleIncrementalQueue(feedContext, msgSeqNum369);
+        } else if (currentState == InstrumentState.OUTOFSYNC) {
+            if (snptSeqNum > this.prcdRptSeqNum) {
+                logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got Snapshot to restore. Fast forward from {} to {}",
+                        feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, this.prcdRptSeqNum, snptSeqNum + 1);
+                this.prcdRptSeqNum = snptSeqNum;
+                this.mdHandler.reset();
+                final long msgSeqNum369 = fullRefreshMsg.getUInt32(369);
+                switchState(currentState, InstrumentState.SYNC);
+                handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
+                handleIncrementalQueue(feedContext, msgSeqNum369);
+            }
+        } else if (currentState == InstrumentState.SYNC && snptSeqNum > this.prcdRptSeqNum) {
+            logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Snapshot with high sequence comes faster then Increments. Fast forward from {} to {}",
+                    feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, prcdRptSeqNum, snptSeqNum + 1);
+            this.prcdRptSeqNum = snptSeqNum;
+            this.mdHandler.reset();
+            handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
+            final long msgSeqNum369 = fullRefreshMsg.getUInt32(369);
+            handleIncrementalQueue(feedContext, msgSeqNum369);
+        }
+    }
+
+    void onIncrementalRefresh(final MdpFeedContext feedContext, final long msgSeqNum, final short matchEventIndicator, final MdpGroupEntry incrRefreshEntry) {
         final InstrumentState currentState = this.state;
         if (incrRefreshEntry.hasField(RPT_SEQ_NUM)) {
             final long rptSeqNum = incrRefreshEntry.getUInt32(RPT_SEQ_NUM);
@@ -230,32 +225,30 @@ public class InstrumentController {
                     this.prcdRptSeqNum = rptSeqNum;
                     handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
                     handleIncrementalQueue(feedContext, msgSeqNum);
-                } else if (rptSeqNum > (expectedRptSeqNum + gapThreshold)) {
-                    logger.debug("Feed {}{} | PCKT#{} | SecurityId={}, GAP=[{},{}]",
-                            feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.prcdRptSeqNum + 1, rptSeqNum - 1);
-                    this.mdHandler.reset();
-                    switchState(InstrumentState.SYNC, InstrumentState.OUTOFSYNC);
+                } else if (rptSeqNum > expectedRptSeqNum) {
+                    pushIncrementalRefreshEntryInQueue(msgSeqNum, matchEventIndicator, rptSeqNum, incrRefreshEntry);
+                    if (rptSeqNum > (expectedRptSeqNum + gapThreshold)) {
+                        logger.debug("Feed {}{} | PCKT#{} | SecurityId={}, GAP=[{},{}]",
+                                feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.prcdRptSeqNum + 1, rptSeqNum - 1);
+                        this.mdHandler.reset();
+                        switchState(InstrumentState.SYNC, InstrumentState.OUTOFSYNC);
+                    }
                 }
-            } else if (currentState == InstrumentState.OUTOFSYNC && rptSeqNum == expectedRptSeqNum) {
-                logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got expected increment to restore: #{}",
-                        feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.state, expectedRptSeqNum);
-                this.prcdRptSeqNum = rptSeqNum;
-                switchState(currentState, InstrumentState.SYNC);
-                handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
-                handleIncrementalQueue(feedContext, msgSeqNum);
+            } else if (currentState == InstrumentState.OUTOFSYNC) {
+                if (rptSeqNum == expectedRptSeqNum) {
+                    logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got expected increment to restore: #{}",
+                            feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.state, expectedRptSeqNum);
+                    this.prcdRptSeqNum = rptSeqNum;
+                    switchState(currentState, InstrumentState.SYNC);
+                    handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
+                } else if (rptSeqNum > expectedRptSeqNum) {
+                    pushIncrementalRefreshEntryInQueue(msgSeqNum, matchEventIndicator, rptSeqNum, incrRefreshEntry);
+                }
             } else if (currentState == InstrumentState.INITIAL && prcdRptSeqNum == 0 && rptSeqNum == 1) {
                 this.prcdRptSeqNum = rptSeqNum;
                 switchState(currentState, InstrumentState.SYNC);
                 handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
             }
         }
-    }
-
-    void commitEvent() {
-        mdHandler.commitEvent();
-    }
-
-    public Integer getSecurityId() {
-        return securityId;
     }
 }

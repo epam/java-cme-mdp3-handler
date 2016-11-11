@@ -568,6 +568,14 @@ public class MdpChannelImpl implements MdpChannel {
         }
     }
 
+    public int getQueueSlotInitBufferSize() {
+        return queueSlotInitBufferSize;
+    }
+
+    public int getIncrQueueSize() {
+        return incrQueueSize;
+    }
+
     private final class MdpFeelListenerImpl implements MdpFeedListener {
         @Override
         public void onFeedStarted(FeedType feedType, Feed feed) {

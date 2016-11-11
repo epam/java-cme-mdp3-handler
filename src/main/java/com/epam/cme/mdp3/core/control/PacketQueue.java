@@ -14,6 +14,7 @@ package com.epam.cme.mdp3.core.control;
 
 import com.epam.cme.mdp3.MdpPacket;
 
+@Deprecated
 public class PacketQueue {
     private PacketHolder[] slots;
     private int queueSize;

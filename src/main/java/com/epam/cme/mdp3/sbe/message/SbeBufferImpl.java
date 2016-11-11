@@ -31,8 +31,13 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
     }
 
     @Override
-    public void copyTo(BytesStore store) {
+    public void copyTo(final BytesStore store) {
         store.write(0, this.bytes, 0, this.length());
+    }
+
+    @Override
+    public void copyTo(final int offset, final BytesStore store, final int len) {
+        store.write(0, this.bytes, offset, len);
     }
 
     @Override
