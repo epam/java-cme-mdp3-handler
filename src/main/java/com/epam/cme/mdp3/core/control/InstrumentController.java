@@ -24,7 +24,7 @@ import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
 
 public class InstrumentController {
     private static final Logger logger = LoggerFactory.getLogger(InstrumentController.class);
-    public static final int DEF_GAP_THRESHOLD = 3;
+    public static final int DEF_GAP_THRESHOLD = 5;
 
     private final Integer securityId;
     private String secDesc;

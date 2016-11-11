@@ -38,7 +38,7 @@ public class ChannelController {
     private static final Logger logger = LoggerFactory.getLogger(ChannelController.class);
     private ChannelContext channelContext;
     private static final int PRCD_SNPT_COUNT_NULL = (int) SbePrimitiveType.Int32.getNullValue();
-    private static final int SNAPSHOT_CYCLES_MAX = 3;
+    private static final int SNAPSHOT_CYCLES_MAX = 5;
 
     private final MdpMessageTypes mdpMessageTypes;
     private final RequestForQuoteHandler requestForQuoteHandler;
