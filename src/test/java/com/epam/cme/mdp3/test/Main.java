@@ -19,11 +19,14 @@ import com.epam.cme.mdp3.mktdata.enums.SecurityTradingStatus;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
 import static com.epam.cme.mdp3.mktdata.MdConstants.SECURITY_ID;
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private static AtomicLong prcdSeqNum = new AtomicLong(0);
 
     private static class ChannelListenerImpl implements ChannelListener {
         @Override
@@ -43,17 +46,17 @@ public class Main {
 
         @Override
         public void onBeforeChannelReset(String channelId, MdpMessage resetMessage) {
-            logger.info("Channel '{}' is broken, all books should be restored", channelId);
+            //logger.info("Channel '{}' is broken, all books should be restored", channelId);
         }
 
         @Override
         public void onFinishedChannelReset(String channelId, MdpMessage resetMessage) {
-            logger.info("Channel '{}' has been reset and restored", channelId);
+            //logger.info("Channel '{}' has been reset and restored", channelId);
         }
 
         @Override
         public void onChannelStateChanged(String channelId, ChannelState prevState, ChannelState newState) {
-            logger.info("Channel '{}' state is changed from '{}' to '{}'", channelId, prevState, newState);
+            //logger.info("Channel '{}' state is changed from '{}' to '{}'", channelId, prevState, newState);
         }
 
         @Override
@@ -96,15 +99,14 @@ public class Main {
                     Main.class.getResource("/config.xml").toURI(),
                     Main.class.getResource("/templates_FixBinary.xml").toURI())
                     .usingListener(new ChannelListenerImpl())
-                    .usingGapThreshold(20)
                     .build();
 
             //mdpChannel311.enableAllSecuritiesMode();
-            mdpChannel311.subscribe(267578, "TEST");
-            mdpChannel311.subscribe(372507, "TEST");
-            mdpChannel311.subscribe(694898, "TEST");
-            mdpChannel311.subscribe(171508, "TEST");
-            mdpChannel311.subscribe(144872, "TEST");
+            mdpChannel311.subscribe(621341, "TEST1");
+            mdpChannel311.subscribe(220528, "TEST2");
+            mdpChannel311.subscribe(191099, "TEST3");
+            mdpChannel311.subscribe(346157, "TEST4");
+            mdpChannel311.subscribe(191515, "TEST5");
             mdpChannel311.startIncrementalFeedA();
             mdpChannel311.startIncrementalFeedB();
             mdpChannel311.startSnapshotFeedA();
