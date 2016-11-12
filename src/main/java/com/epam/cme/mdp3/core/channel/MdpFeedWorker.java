@@ -34,7 +34,7 @@ public class MdpFeedWorker implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(MdpFeedWorker.class);
     private static final int ACTIVE_MARK = 1;
     private static final int SHUTDOWN_MARK = 2;
-    private static final int RCV_BUFFER_SIZE = 64 * 1024;
+    public static final int RCV_BUFFER_SIZE = 64 * 1024;
 
     private final ConnectionCfg cfg;
     private String networkInterface = null;

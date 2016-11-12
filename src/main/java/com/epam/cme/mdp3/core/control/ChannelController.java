@@ -258,7 +258,7 @@ public class ChannelController {
     }
 
     private boolean canStopSnapshotListening(final int msgLeft) {
-        return !hasOutOfSyncInstruments() || msgLeft <= 0;
+        return !hasOutOfSyncInstruments()/* || msgLeft <= 0*/;
     }
 
     public void resetSnapshotCycleCount() {

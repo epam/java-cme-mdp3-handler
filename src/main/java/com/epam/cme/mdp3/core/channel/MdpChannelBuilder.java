@@ -44,6 +44,7 @@ public class MdpChannelBuilder {
     private int queueSlotInitBufferSize = 256;
     private int incrQueueSize = 100;
     private int gapThreshold = 5;
+    private int rcvBufSize = MdpFeedWorker.RCV_BUFFER_SIZE;
 
     public MdpChannelBuilder(final String channelId) {
         this.channelId = channelId;
@@ -114,6 +115,11 @@ public class MdpChannelBuilder {
         return this;
     }
 
+    public MdpChannelBuilder usingRcvBufSize(final int rcvBufSize) {
+        this.rcvBufSize = rcvBufSize;
+        return this;
+    }
+
     public MdpChannelBuilder noFeedIdleControl() {
         this.noScheduler = true;
         return this;
@@ -137,6 +143,7 @@ public class MdpChannelBuilder {
             mdpChannel.setSnapshotFeedBni(this.snapshotFeedBni);
             mdpChannel.setInstrumentFeedAni(this.instrumentFeedAni);
             mdpChannel.setInstrumentFeedBni(this.instrumentFeedBni);
+            mdpChannel.setRcvBufSize(this.rcvBufSize);
 
             if (this.channelListener != null) mdpChannel.registerListener(this.channelListener);
             return mdpChannel;

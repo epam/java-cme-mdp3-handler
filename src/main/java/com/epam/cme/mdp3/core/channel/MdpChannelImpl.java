@@ -35,7 +35,7 @@ public class MdpChannelImpl implements MdpChannel {
 
     final ChannelCfg channelCfg;
     private final ScheduledExecutorService scheduledExecutorService;
-    private final static int rcvBufSize = 64 * 1024; // should be an external option?
+    private int rcvBufSize = MdpFeedWorker.RCV_BUFFER_SIZE;
 
     private MdpFeedWorker incrementalFeedA;
     private MdpFeedWorker incrementalFeedB;
@@ -574,6 +574,10 @@ public class MdpChannelImpl implements MdpChannel {
 
     public int getIncrQueueSize() {
         return incrQueueSize;
+    }
+
+    public void setRcvBufSize(int rcvBufSize) {
+        this.rcvBufSize = rcvBufSize;
     }
 
     private final class MdpFeelListenerImpl implements MdpFeedListener {

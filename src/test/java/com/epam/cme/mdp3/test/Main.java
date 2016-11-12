@@ -98,6 +98,7 @@ public class Main {
             final MdpChannel mdpChannel311 = new MdpChannelBuilder("311",
                     Main.class.getResource("/config.xml").toURI(),
                     Main.class.getResource("/templates_FixBinary.xml").toURI())
+                    .usingRcvBufSize(1024*1024)
                     .usingListener(new ChannelListenerImpl())
                     .build();
 
