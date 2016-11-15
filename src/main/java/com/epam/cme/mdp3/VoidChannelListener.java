@@ -47,7 +47,7 @@ public interface VoidChannelListener extends ChannelListener {
     }
 
     @Override
-    default void onInstrumentStateChanged(final String channelId, final int securityId, final InstrumentState prevState, final InstrumentState newState) {
+    default void onInstrumentStateChanged(final String channelId, final int securityId, final String secDesc, final InstrumentState prevState, final InstrumentState newState) {
 
     }
 

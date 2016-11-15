@@ -73,10 +73,11 @@ public interface ChannelListener {
      *
      * @param channelId  ID of MDP Channel
      * @param securityId Security ID
+     * @param secDesc             Security description
      * @param prevState  Previous state
      * @param newState   New state
      */
-    void onInstrumentStateChanged(final String channelId, final int securityId, final InstrumentState prevState, final InstrumentState newState);
+    void onInstrumentStateChanged(final String channelId, final int securityId, final String secDesc, final InstrumentState prevState, final InstrumentState newState);
 
     /**
      * Called when MDP Security Definition Message is received and processed.

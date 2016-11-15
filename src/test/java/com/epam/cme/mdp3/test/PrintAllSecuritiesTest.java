@@ -48,7 +48,7 @@ public class PrintAllSecuritiesTest {
 
         @Override
         public void onPacket(String channelId, FeedType feedType, Feed feed, MdpPacket mdpPacket) {
-            logger.info("Channel '{}': {} feed {} received MDP packet {}", channelId, feedType, feed, mdpPacket.toString());
+            //logger.info("Channel '{}': {} feed {} received MDP packet {}", channelId, feedType, feed, mdpPacket.toString());
         }
 
         @Override
@@ -76,19 +76,19 @@ public class PrintAllSecuritiesTest {
 
     public static void main(String args[]) {
         try {
-            final MdpChannel mdpChannel311 = new MdpChannelBuilder("311",
+            final MdpChannel mdpChannel = new MdpChannelBuilder("344",
                     Main.class.getResource("/config.xml").toURI(),
                     Main.class.getResource("/templates_FixBinary.xml").toURI())
                     .usingListener(new ChannelListenerImpl())
                     .noFeedIdleControl()
                     .build();
 
-            mdpChannel311.startInstrumentFeedA();
+            mdpChannel.startInstrumentFeedA();
             synchronized (resultIsReady) {
                 resultIsReady.wait();
             }
             logger.info("Received packets in cycles: {}", counter.get());
-            mdpChannel311.close();
+            mdpChannel.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

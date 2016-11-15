@@ -33,7 +33,7 @@ public class ChannelInstruments implements MdpFeedListener {
     private static final int SEC_DEFAULT_MD_DEPTH = 10;
 
     private static final int PRCD_MSG_COUNT_NULL = Integer.MAX_VALUE;   // max value used as undefined (null)
-    private static final int INSTRUMENT_CYCLES_MAX = 3; // do we need an option in configuration for this?
+    private static final int INSTRUMENT_CYCLES_MAX = 2; // do we need an option in configuration for this?
 
     private final ChannelContext channelContext;
     private final IntObjMap<InstrumentController> instruments = HashIntObjMaps.newMutableMap();

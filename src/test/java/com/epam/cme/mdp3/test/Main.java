@@ -19,6 +19,7 @@ import com.epam.cme.mdp3.mktdata.enums.SecurityTradingStatus;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
@@ -41,7 +42,19 @@ public class Main {
 
         @Override
         public void onPacket(String channelId, FeedType feedType, Feed feed, MdpPacket mdpPacket) {
-            //logger.info("{} {}: {}", feedType, feed, mdpPacket);
+            /*if (feedType != FeedType.S) {
+                logger.info("{} {}: {}", feedType, feed, mdpPacket);
+                /*final long seqNum = mdpPacket.getMsgSeqNum();
+                if (!prcdSeqNum.compareAndSet(0, seqNum)) {
+                    if (!prcdSeqNum.compareAndSet(seqNum-1, seqNum)) {
+                        if (prcdSeqNum.get() + 3 < seqNum) {
+                            final long prevPrcdSeqNum = prcdSeqNum.get();
+                            prcdSeqNum.set(seqNum);
+                            logger.warn("!!!! GAP {}:{}", prevPrcdSeqNum, seqNum);
+                        }
+                    }
+                }
+            }*/
         }
 
         @Override
@@ -60,60 +73,97 @@ public class Main {
         }
 
         @Override
-        public void onInstrumentStateChanged(final String channelId, int securityId, InstrumentState prevState, InstrumentState newState) {
+        public void onInstrumentStateChanged(final String channelId, int securityId, final String secDesc, InstrumentState prevState, InstrumentState newState) {
             if (newState != InstrumentState.INITIAL) {
-                logger.info("Channel '{}'s instrument {} state is changed from '{}' to '{}'", channelId, securityId, prevState, newState);
+                logger.info("Channel '{}'s instrument {}-{} state is changed from '{}' to '{}'", channelId, securityId, secDesc, prevState, newState);
             }
         }
 
         @Override
         public int onSecurityDefinition(final String channelId, final MdpMessage mdpMessage) {
-            logger.info("Received SecurityDefinition(d). Schema Id: {}", mdpMessage.getSchemaId());
+            //logger.info("Received SecurityDefinition(d). ChannelId: {}, Schema Id: {}", mdpMessage.getSchemaId());
             return MdEventFlags.NOTHING;
         }
 
         @Override
         public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, final FieldSet incrRefreshEntry) {
-            logger.info("[{}] onIncrementalRefresh: SecurityId: {}-{}. RptSeqNum(83): {}", msgSeqNum, securityId, secDesc, incrRefreshEntry.getUInt32(RPT_SEQ_NUM));
+            /*logger.info("[{}] onIncrementalRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}",
+                    msgSeqNum, channelId, securityId, secDesc, incrRefreshEntry.getUInt32(RPT_SEQ_NUM));*/
         }
 
         @Override
         public void onSnapshotFullRefresh(final String channelId, String secDesc, final MdpMessage snptMessage) {
-            logger.info("onFullRefresh: SecurityId: {}-{}. RptSeqNum(83): {}", snptMessage.getInt32(SECURITY_ID), secDesc, snptMessage.getUInt32(RPT_SEQ_NUM));
+            /*logger.info("onFullRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}",
+                    channelId, snptMessage.getInt32(SECURITY_ID), secDesc, snptMessage.getUInt32(RPT_SEQ_NUM));*/
         }
 
         @Override
         public void onRequestForQuote(String channelId, MdpMessage rfqMessage) {
-            logger.info("onRequestForQuote");
+            //logger.info("onRequestForQuote");
         }
 
         @Override
         public void onSecurityStatus(String channelId, int securityId, MdpMessage secStatusMessage) {
-            logger.info("onSecurityStatus. SecurityId: {}, SecurityTradingStatus(326): {}", securityId, SecurityTradingStatus.fromFIX(secStatusMessage.getUInt8(326)));
+            //logger.info("onSecurityStatus. ChannelId: {}, SecurityId: {}, SecurityTradingStatus(326): {}", channelId, securityId, SecurityTradingStatus.fromFIX(secStatusMessage.getUInt8(326)));
         }
     }
 
-    public static void main(String args[]) {
-        try {
-            final MdpChannel mdpChannel311 = new MdpChannelBuilder("311",
-                    Main.class.getResource("/config.xml").toURI(),
-                    Main.class.getResource("/templates_FixBinary.xml").toURI())
-                    .usingRcvBufSize(1024*1024)
-                    .usingListener(new ChannelListenerImpl())
-                    .build();
+    private static void defineChannel(final Map<String, List<String>> channelInfos, final String channelId, String... groups) {
+        channelInfos.put(channelId, Arrays.asList(groups));
+    }
 
-            //mdpChannel311.enableAllSecuritiesMode();
-            mdpChannel311.subscribe(621341, "TEST1");
-            mdpChannel311.subscribe(220528, "TEST2");
-            mdpChannel311.subscribe(191099, "TEST3");
-            mdpChannel311.subscribe(346157, "TEST4");
-            mdpChannel311.subscribe(191515, "TEST5");
-            mdpChannel311.startIncrementalFeedA();
-            mdpChannel311.startIncrementalFeedB();
-            mdpChannel311.startSnapshotFeedA();
+    private static MdpChannel openChannel(final String channelId, final Set<InstrumentInfo> instruments) throws Exception {
+        final MdpChannel mdpChannel = new MdpChannelBuilder(channelId,
+                Main.class.getResource("/config.xml").toURI(),
+                Main.class.getResource("/templates_FixBinary.xml").toURI())
+                .usingListener(new ChannelListenerImpl())
+                .usingGapThreshold(3)
+                .build();
+
+        instruments.forEach(instrumentInfo -> mdpChannel.subscribe(instrumentInfo.instrumentId, instrumentInfo.desc));
+        mdpChannel.startIncrementalFeedA();
+        mdpChannel.startIncrementalFeedB();
+        mdpChannel.startSnapshotFeedA();
+
+        return mdpChannel;
+    }
+
+    public static void main(String args[]) {
+//        # 310 for ES
+//        # 314 for 6A, 6B, 6J, 6S
+//        # 318 for NQ
+//        # 382 for CL
+//        # 360 for HG, GC, SI
+//        # 320 for 6C, 6E, 6M, 6N
+//        # 342 for YM
+//        # 344 for ZB, ZN, ZF
+        final Map<String, List<String>> channelInfos = new HashMap<>();
+        defineChannel(channelInfos, "310", "ES");
+        defineChannel(channelInfos, "314", "6A", "6B", "6J", "6S");
+        defineChannel(channelInfos, "318", "NQ");
+        defineChannel(channelInfos, "382", "CL");
+        defineChannel(channelInfos, "360", "HG", "GC", "SI");
+        defineChannel(channelInfos, "320", "6C", "6E", "6M", "6N");
+        defineChannel(channelInfos, "342", "YM");
+        defineChannel(channelInfos, "344", "ZB", "ZN", "ZF");
+
+        final Map<String, Set<InstrumentInfo>> resolvedInstruments = new HashMap<>();
+        channelInfos.forEach((s, groups) -> resolvedInstruments.put(s, new ChannelHelper().resolveInstruments(s, groups)));
+
+        final List<MdpChannel> openChannels = new ArrayList<>();
+        try {
+            resolvedInstruments.forEach((s, instrumentInfos) -> {
+                if (!resolvedInstruments.isEmpty()) {
+                    try {
+                        openChannels.add(openChannel(s, instrumentInfos));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
             System.out.println("Press enter to shutdown.");
             System.in.read();
-            mdpChannel311.close();
+            openChannels.forEach(MdpChannel::close);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -172,10 +172,10 @@ public class ChannelContext {
         }
     }
 
-    public void notifyInstrumentStateListeners(final int securityId, final InstrumentState prevState, final InstrumentState newState) {
+    public void notifyInstrumentStateListeners(final int securityId, final String secDesc, final InstrumentState prevState, final InstrumentState newState) {
         final List<ChannelListener> listeners = this.channel.getListeners();
         for (int i = 0; i < listeners.size(); i++) {
-            listeners.get(i).onInstrumentStateChanged(channel.getId(), securityId, prevState, newState);
+            listeners.get(i).onInstrumentStateChanged(channel.getId(), securityId, secDesc, prevState, newState);
         }
     }
 

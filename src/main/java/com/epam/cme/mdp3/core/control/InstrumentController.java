@@ -50,7 +50,7 @@ public class InstrumentController {
     private void init(final int subscriptionFlags) {
         mdHandler.setSubscriptionFlags(subscriptionFlags);
         this.channelContext.subscribeToSnapshotsForInstrument(securityId);
-        this.channelContext.notifyInstrumentStateListeners(this.securityId, InstrumentState.NEW, InstrumentState.INITIAL);
+        this.channelContext.notifyInstrumentStateListeners(this.securityId, this.secDesc, InstrumentState.NEW, InstrumentState.INITIAL);
     }
 
     public int getSubscriptionFlags() {
@@ -155,7 +155,7 @@ public class InstrumentController {
     }
 
     private void notifyAboutChangedState(final InstrumentState prevState, final InstrumentState newState) {
-        this.channelContext.notifyInstrumentStateListeners(this.securityId, prevState, newState);
+        this.channelContext.notifyInstrumentStateListeners(this.securityId, this.secDesc, prevState, newState);
     }
 
     private void handleIncrementalRefreshEntry(final long msgSeqNum, final short matchEventIndicator, final FieldSet incrRefreshEntry) {
