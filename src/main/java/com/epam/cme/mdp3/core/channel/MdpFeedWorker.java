@@ -29,12 +29,17 @@ import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
+
+import static com.epam.cme.mdp3.core.channel.MdpFeedRtmState.*;
 
 public class MdpFeedWorker implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(MdpFeedWorker.class);
     private static final int ACTIVE_MARK = 1;
     private static final int SHUTDOWN_MARK = 2;
-    public static final int RCV_BUFFER_SIZE = 1024*1024;
+    public static final int RCV_BUFFER_SIZE = 4*1024*1024;
 
     private final ConnectionCfg cfg;
     private String networkInterface = null;
@@ -44,8 +49,8 @@ public class MdpFeedWorker implements Runnable {
     private MembershipKey membershipKey;
     private Selector selector;
     private NetworkInterface ni;
-    private volatile int rtmMarks = 0;
     private MdpFeedContext feedContext;
+    private final AtomicReference<MdpFeedRtmState> feedState = new AtomicReference<>(STOPPED);
 
     public MdpFeedWorker(final ConnectionCfg cfg) throws MdpFeedException {
         this.cfg = cfg;
@@ -105,12 +110,22 @@ public class MdpFeedWorker implements Runnable {
         }
     }
 
+    public boolean isRunnable() {
+        return this.feedState.compareAndSet(STOPPED, ACTIVE);
+    }
+
     @Override
     public void run() {
-        synchronized (this) {
-            if (!isActive()) {
-                this.rtmMarks |= ACTIVE_MARK;
-            } else return;
+        /*
+         * if any thread in result of concurrency created a new the same feed thread instance too early, and
+         * previous feed thread shutdown still active, then wait until full shutdown
+         */
+        while (isShutdown()) {
+            LockSupport.parkNanos(TimeUnit.MICROSECONDS.toNanos(1));
+        }
+        // if impossible to switch from stopped state to active, then we should not continue (concurrently illegal state)
+        if (!isRunnable()) {
+            return;
         }
         try {
             open();
@@ -122,7 +137,8 @@ public class MdpFeedWorker implements Runnable {
         final MdpPacket mdpPacket = MdpPacket.instance();
         final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(SbeConstants.MDP_PACKET_MAX_SIZE).order(ByteOrder.LITTLE_ENDIAN);
         mdpPacket.wrapFromBuffer(byteBuffer);
-        while (!isShutdown()) {
+        // work while any thread really started shutdown and did not cancel it in time
+        while (!this.feedState.compareAndSet(PENDING_SHUTDOWN, SHUTDOWN)) {
             try {
                 select(byteBuffer, mdpPacket);
             } catch (Exception e) {
@@ -133,7 +149,8 @@ public class MdpFeedWorker implements Runnable {
             close();
             mdpPacket.release();
             notifyStopped();
-            this.rtmMarks = 0;
+            // finally stop the feed thread. If exists another feed thread in wait state, then it will proceed from this moment
+            this.feedState.compareAndSet(SHUTDOWN, STOPPED);
         } catch (IOException e) {
             logger.error("Failed to stop Feed", e);
         }
@@ -183,25 +200,27 @@ public class MdpFeedWorker implements Runnable {
         }
     }
 
+    // review this later. Scheduler is not used now, so should be review entire context
     public boolean isActiveAndNotShutdown() {
-        return (this.rtmMarks & ACTIVE_MARK) == ACTIVE_MARK && !isShutdown();
+        return this.isActive();
     }
 
     public boolean isActive() {
-        return (this.rtmMarks & ACTIVE_MARK) == ACTIVE_MARK;
+        return this.feedState.get() == ACTIVE;
     }
 
     public boolean isShutdown() {
-        return (this.rtmMarks & SHUTDOWN_MARK) == SHUTDOWN_MARK;
+        return this.feedState.get() == PENDING_SHUTDOWN || this.feedState.get() == SHUTDOWN;
     }
 
-    public void cancelShutdown() {
-        this.rtmMarks ^= SHUTDOWN_MARK;
+    public boolean cancelShutdownIfStarted() {
+        return this.feedState.compareAndSet(PENDING_SHUTDOWN, ACTIVE);
     }
 
-    public void shutdown() {
-        this.rtmMarks |= SHUTDOWN_MARK;
+    public boolean shutdown() {
+        final boolean res = this.feedState.compareAndSet(ACTIVE, PENDING_SHUTDOWN);
         selector.wakeup();
+        return res;
     }
 
     public ConnectionCfg getCfg() {

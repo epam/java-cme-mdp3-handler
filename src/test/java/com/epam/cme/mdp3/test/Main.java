@@ -117,7 +117,7 @@ public class Main {
                 Main.class.getResource("/config.xml").toURI(),
                 Main.class.getResource("/templates_FixBinary.xml").toURI())
                 .usingListener(new ChannelListenerImpl())
-                .usingGapThreshold(3)
+                //.usingGapThreshold(5)
                 .build();
 
         instruments.forEach(instrumentInfo -> mdpChannel.subscribe(instrumentInfo.instrumentId, instrumentInfo.desc));

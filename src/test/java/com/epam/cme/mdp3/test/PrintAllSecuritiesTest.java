@@ -79,6 +79,7 @@ public class PrintAllSecuritiesTest {
             final MdpChannel mdpChannel = new MdpChannelBuilder("344",
                     Main.class.getResource("/config.xml").toURI(),
                     Main.class.getResource("/templates_FixBinary.xml").toURI())
+                    //.setNetworkInterface(FeedType.N, Feed.A, "172.17.94.44")
                     .usingListener(new ChannelListenerImpl())
                     .noFeedIdleControl()
                     .build();

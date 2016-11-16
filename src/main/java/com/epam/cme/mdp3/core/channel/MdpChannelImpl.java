@@ -300,11 +300,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!incrementalFeedA.isActive()) {
-            incrementalFeedAThread = new Thread(incrementalFeedA);
-            incrementalFeedAThread.start();
-        } else if (incrementalFeedA.isShutdown()) {
-            incrementalFeedA.cancelShutdown();
+        if (!incrementalFeedA.cancelShutdownIfStarted()) {
+            if (!incrementalFeedA.isActive()) {
+                incrementalFeedAThread = new Thread(incrementalFeedA);
+                incrementalFeedAThread.start();
+            }
         }
     }
 
@@ -318,11 +318,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!incrementalFeedB.isActive()) {
-            incrementalFeedBThread = new Thread(incrementalFeedB);
-            incrementalFeedBThread.start();
-        } else if (incrementalFeedB.isShutdown()) {
-            incrementalFeedB.cancelShutdown();
+        if (!incrementalFeedB.cancelShutdownIfStarted()) {
+            if (!incrementalFeedB.isActive()) {
+                incrementalFeedBThread = new Thread(incrementalFeedB);
+                incrementalFeedBThread.start();
+            }
         }
     }
 
@@ -336,11 +336,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!snapshotFeedA.isActive()) {
-            snapshotFeedAThread = new Thread(snapshotFeedA);
-            snapshotFeedAThread.start();
-        } else if (snapshotFeedA.isShutdown()) {
-            snapshotFeedA.cancelShutdown();
+        if (!snapshotFeedA.cancelShutdownIfStarted()) {
+            if (!snapshotFeedA.isActive()) {
+                snapshotFeedAThread = new Thread(snapshotFeedA);
+                snapshotFeedAThread.start();
+            }
         }
     }
 
@@ -354,11 +354,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!snapshotFeedB.isActive()) {
-            snapshotFeedBThread = new Thread(snapshotFeedB);
-            snapshotFeedBThread.start();
-        } else if (snapshotFeedB.isShutdown()) {
-            snapshotFeedB.cancelShutdown();
+        if (!snapshotFeedB.cancelShutdownIfStarted()) {
+            if (!snapshotFeedB.isActive()) {
+                snapshotFeedBThread = new Thread(snapshotFeedB);
+                snapshotFeedBThread.start();
+            }
         }
     }
 
@@ -372,11 +372,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!instrumentFeedA.isActive()) {
-            instrumentFeedAThread = new Thread(instrumentFeedA);
-            instrumentFeedAThread.start();
-        } else if (instrumentFeedA.isShutdown()) {
-            instrumentFeedA.cancelShutdown();
+        if (!instrumentFeedA.cancelShutdownIfStarted()) {
+            if (!instrumentFeedA.isActive()) {
+                instrumentFeedAThread = new Thread(instrumentFeedA);
+                instrumentFeedAThread.start();
+            }
         }
     }
 
@@ -390,11 +390,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!instrumentFeedB.isActive()) {
-            instrumentFeedBThread = new Thread(instrumentFeedB);
-            instrumentFeedBThread.start();
-        } else if (instrumentFeedB.isShutdown()) {
-            instrumentFeedB.cancelShutdown();
+        if (!instrumentFeedB.cancelShutdownIfStarted()) {
+            if (!instrumentFeedB.isActive()) {
+                instrumentFeedBThread = new Thread(instrumentFeedB);
+                instrumentFeedBThread.start();
+            }
         }
     }
 
@@ -487,11 +487,7 @@ public class MdpChannelImpl implements MdpChannel {
 
     void subscribeToSnapshotsForInstrument(final Integer securityId) {
         channelController.addOutOfSyncInstrument(securityId);
-        if (!isSnapshotFeedsActive()) {
-            startSnapshotFeeds();
-        } else {
-            channelController.resetSnapshotCycleCount();
-        }
+        startSnapshotFeeds();
     }
 
     void unsubscribeFromSnapshotsForInstrument(final Integer securityId) {
