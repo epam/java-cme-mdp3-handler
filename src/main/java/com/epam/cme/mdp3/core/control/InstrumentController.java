@@ -241,6 +241,7 @@ public class InstrumentController {
                     this.prcdRptSeqNum = rptSeqNum;
                     switchState(currentState, InstrumentState.SYNC);
                     handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
+                    handleIncrementalQueue(feedContext, msgSeqNum);
                 } else if (rptSeqNum > expectedRptSeqNum) {
                     pushIncrementalRefreshEntryInQueue(msgSeqNum, matchEventIndicator, rptSeqNum, incrRefreshEntry);
                 }
