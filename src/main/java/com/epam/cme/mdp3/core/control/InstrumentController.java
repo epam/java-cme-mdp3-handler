@@ -23,8 +23,11 @@ import com.epam.cme.mdp3.core.control.IncrementalRefreshQueue.IncrementalRefresh
 import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
 
 public class InstrumentController {
-    private static final Logger logger = LoggerFactory.getLogger(InstrumentController.class);
+    public static final int DEF_QUEUE_SLOT_INIT_BUFFER_SIZE = 50;
+    public static final int DEF_INCR_QUEUE_SIZE = 100000;
     public static final int DEF_GAP_THRESHOLD = 5;
+
+    private static final Logger logger = LoggerFactory.getLogger(InstrumentController.class);
 
     private final Integer securityId;
     private String secDesc;

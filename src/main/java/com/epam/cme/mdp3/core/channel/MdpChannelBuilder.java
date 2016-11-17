@@ -17,6 +17,7 @@ import com.epam.cme.mdp3.Feed;
 import com.epam.cme.mdp3.FeedType;
 import com.epam.cme.mdp3.MdpChannel;
 import com.epam.cme.mdp3.core.cfg.Configuration;
+import com.epam.cme.mdp3.core.control.InstrumentController;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypeBuildException;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.service.DefaultScheduledServiceHolder;
@@ -41,9 +42,9 @@ public class MdpChannelBuilder {
     private boolean noScheduler = false;
     private ScheduledExecutorService scheduler;
 
-    private int queueSlotInitBufferSize = 256;
-    private int incrQueueSize = 100;
-    private int gapThreshold = 5;
+    private int queueSlotInitBufferSize = InstrumentController.DEF_QUEUE_SLOT_INIT_BUFFER_SIZE;
+    private int incrQueueSize = InstrumentController.DEF_INCR_QUEUE_SIZE;
+    private int gapThreshold = InstrumentController.DEF_GAP_THRESHOLD;
     private int rcvBufSize = MdpFeedWorker.RCV_BUFFER_SIZE;
 
     public MdpChannelBuilder(final String channelId) {

@@ -75,8 +75,8 @@ public class MdpChannelImpl implements MdpChannel {
     private int defSubscriptionOptions = MdEventFlags.MESSAGE;
 
     private final ChannelController channelController;
-    private int queueSlotInitBufferSize = 2048;
-    private int incrQueueSize = 65536;
+    private int queueSlotInitBufferSize = InstrumentController.DEF_QUEUE_SLOT_INIT_BUFFER_SIZE;
+    private int incrQueueSize = InstrumentController.DEF_INCR_QUEUE_SIZE;
     private int gapThreshold = InstrumentController.DEF_GAP_THRESHOLD;
 
     MdpChannelImpl(final ScheduledExecutorService scheduledExecutorService,
