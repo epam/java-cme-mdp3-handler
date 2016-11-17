@@ -24,7 +24,7 @@ import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
 
 public class InstrumentController {
     public static final int DEF_QUEUE_SLOT_INIT_BUFFER_SIZE = 50;
-    public static final int DEF_INCR_QUEUE_SIZE = 100000;
+    public static final int DEF_INCR_QUEUE_SIZE = 10000;
     public static final int DEF_GAP_THRESHOLD = 5;
 
     private static final Logger logger = LoggerFactory.getLogger(InstrumentController.class);
@@ -185,25 +185,29 @@ public class InstrumentController {
 
     void onSnapshotFullRefresh(final MdpFeedContext feedContext, final MdpMessage fullRefreshMsg) {
         final InstrumentState currentState = this.state;
-        final long snptSeqNum = fullRefreshMsg.getUInt32(83);
+        final long snptSeqNum = fullRefreshMsg.getUInt32(RPT_SEQ_NUM);
         if (currentState == InstrumentState.INITIAL) {
-            logger.debug("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got initial Snapshot. Initial prcdSeqNum is {}",
-                    feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, snptSeqNum + 1);
+            /*logger.debug("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got initial Snapshot. Initial prcdSeqNum is {}",
+                    feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, snptSeqNum + 1);*/
             this.prcdRptSeqNum = snptSeqNum;
-            //final long msgSeqNum369 = fullRefreshMsg.getUInt32(369);
             switchState(currentState, InstrumentState.SYNC);
             handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
             handleIncrementalQueue(feedContext, snptSeqNum);
+            /*logger.info("Feed {}{} | Instrument: '{}-({})'. Got initial Snapshot. Initial prcdSeqNum: {}. Last rptSeqNum in queue: {}",
+                    feedContext.getFeedType(), feedContext.getFeed(), this.getSecurityId(), this.secDesc,
+                    snptSeqNum, this.incrRefreshQueue.getLastRptSeqNum());*/
         } else if (currentState == InstrumentState.OUTOFSYNC) {
             if (snptSeqNum > this.prcdRptSeqNum) {
-                logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got Snapshot to restore. Fast forward from {} to {}",
-                        feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, this.prcdRptSeqNum, snptSeqNum + 1);
+                /*logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got Snapshot to restore. Fast forward from {} to {}",
+                        feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, this.prcdRptSeqNum, snptSeqNum + 1);*/
                 this.prcdRptSeqNum = snptSeqNum;
                 this.mdHandler.reset();
-                //final long msgSeqNum369 = fullRefreshMsg.getUInt32(369);
                 switchState(currentState, InstrumentState.SYNC);
                 handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
                 handleIncrementalQueue(feedContext, snptSeqNum);
+                /*logger.info("Feed {}{} | Instrument: '{}-({})'. Recovered from Snapshot. Snapshot prcdSeqNum: {}. Last rptSeqNum in queue: {}",
+                        feedContext.getFeedType(), feedContext.getFeed(), this.getSecurityId(), this.secDesc,
+                        snptSeqNum, this.incrRefreshQueue.getLastRptSeqNum());*/
             }
         } else if (currentState == InstrumentState.SYNC && snptSeqNum > this.prcdRptSeqNum) {
             logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Snapshot with high sequence comes faster then Increments. Fast forward from {} to {}",
@@ -211,7 +215,6 @@ public class InstrumentController {
             this.prcdRptSeqNum = snptSeqNum;
             this.mdHandler.reset();
             handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
-            //final long msgSeqNum369 = fullRefreshMsg.getUInt32(369);
             handleIncrementalQueue(feedContext, snptSeqNum);
         }
     }
@@ -231,8 +234,9 @@ public class InstrumentController {
                 } else if (rptSeqNum > expectedRptSeqNum) {
                     pushIncrementalRefreshEntryInQueue(msgSeqNum, matchEventIndicator, rptSeqNum, incrRefreshEntry);
                     if (rptSeqNum > (expectedRptSeqNum + gapThreshold)) {
-                        logger.debug("Feed {}{} | PCKT#{} | SecurityId={}, GAP=[{},{}]",
-                                feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.prcdRptSeqNum + 1, rptSeqNum - 1);
+                        /*logger.info("Feed {}{} | SecurityId={}-({}), Processed rptSeqNum:{}. Received:{}",
+                                feedContext.getFeedType(), feedContext.getFeed(), this.getSecurityId(), this.secDesc,
+                                this.prcdRptSeqNum, rptSeqNum);*/
                         this.mdHandler.reset();
                         switchState(InstrumentState.SYNC, InstrumentState.OUTOFSYNC);
                     }
@@ -248,10 +252,14 @@ public class InstrumentController {
                 } else if (rptSeqNum > expectedRptSeqNum) {
                     pushIncrementalRefreshEntryInQueue(msgSeqNum, matchEventIndicator, rptSeqNum, incrRefreshEntry);
                 }
-            } else if (currentState == InstrumentState.INITIAL && prcdRptSeqNum == 0 && rptSeqNum == 1) {
-                this.prcdRptSeqNum = rptSeqNum;
-                switchState(currentState, InstrumentState.SYNC);
-                handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
+            } else if (currentState == InstrumentState.INITIAL) {
+                if (prcdRptSeqNum == 0 && rptSeqNum == 1) {
+                    this.prcdRptSeqNum = rptSeqNum;
+                    switchState(currentState, InstrumentState.SYNC);
+                    handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
+                } else {
+                    pushIncrementalRefreshEntryInQueue(msgSeqNum, matchEventIndicator, rptSeqNum, incrRefreshEntry);
+                }
             }
         }
     }

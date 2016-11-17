@@ -54,7 +54,7 @@ public class IncrementalRefreshQueue {
         final IncrementalRefreshHolder packetHolder = this.slots[pos];
         final boolean res = packetHolder.put(incrEntry, rptSeqNum);
         if (res) {
-            this.lastRptSeqNum = rptSeqNum;
+            this.lastRptSeqNum = rptSeqNum > this.lastRptSeqNum ? rptSeqNum : this.lastRptSeqNum;
         }
         return res;
     }
