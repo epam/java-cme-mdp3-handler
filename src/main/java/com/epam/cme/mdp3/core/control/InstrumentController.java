@@ -143,7 +143,7 @@ public class InstrumentController {
                 if (!handleSecurityRefreshInQueue(this.incrQueueEntry)) {
                     return;
                 }
-            }
+            } else return;
         }
     }
 
