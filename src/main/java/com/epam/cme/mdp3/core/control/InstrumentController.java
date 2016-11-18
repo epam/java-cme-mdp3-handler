@@ -24,7 +24,7 @@ import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
 
 public class InstrumentController {
     public static final int DEF_QUEUE_SLOT_INIT_BUFFER_SIZE = 50;
-    public static final int DEF_INCR_QUEUE_SIZE = 10000;
+    public static final int DEF_INCR_QUEUE_SIZE = 1000;
     public static final int DEF_GAP_THRESHOLD = 5;
 
     private static final Logger logger = LoggerFactory.getLogger(InstrumentController.class);
@@ -143,7 +143,9 @@ public class InstrumentController {
                 if (!handleSecurityRefreshInQueue(this.incrQueueEntry)) {
                     return;
                 }
-            } else return;
+            } else {
+                return;
+            }
         }
     }
 
