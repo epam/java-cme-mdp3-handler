@@ -28,6 +28,8 @@ public interface SbeBuffer {
 
     void copyTo(BytesStore store);
 
+    void copyTo(int offset, BytesStore store, int len);
+
     void copyFrom(BytesStore store);
 
     void copyFrom(SbeBuffer buffer);

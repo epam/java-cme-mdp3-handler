@@ -35,7 +35,7 @@ public class MdpChannelImpl implements MdpChannel {
 
     final ChannelCfg channelCfg;
     private final ScheduledExecutorService scheduledExecutorService;
-    private final static int rcvBufSize = 64 * 1024; // should be an external option?
+    private int rcvBufSize = MdpFeedWorker.RCV_BUFFER_SIZE;
 
     private MdpFeedWorker incrementalFeedA;
     private MdpFeedWorker incrementalFeedB;
@@ -75,8 +75,8 @@ public class MdpChannelImpl implements MdpChannel {
     private int defSubscriptionOptions = MdEventFlags.MESSAGE;
 
     private final ChannelController channelController;
-    private int queueSlotInitBufferSize = 2048;
-    private int incrQueueSize = 65536;
+    private int queueSlotInitBufferSize = InstrumentController.DEF_QUEUE_SLOT_INIT_BUFFER_SIZE;
+    private int incrQueueSize = InstrumentController.DEF_INCR_QUEUE_SIZE;
     private int gapThreshold = InstrumentController.DEF_GAP_THRESHOLD;
 
     MdpChannelImpl(final ScheduledExecutorService scheduledExecutorService,
@@ -300,11 +300,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!incrementalFeedA.isActive()) {
-            incrementalFeedAThread = new Thread(incrementalFeedA);
-            incrementalFeedAThread.start();
-        } else if (incrementalFeedA.isShutdown()) {
-            incrementalFeedA.cancelShutdown();
+        if (!incrementalFeedA.cancelShutdownIfStarted()) {
+            if (!incrementalFeedA.isActive()) {
+                incrementalFeedAThread = new Thread(incrementalFeedA);
+                incrementalFeedAThread.start();
+            }
         }
     }
 
@@ -318,11 +318,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!incrementalFeedB.isActive()) {
-            incrementalFeedBThread = new Thread(incrementalFeedB);
-            incrementalFeedBThread.start();
-        } else if (incrementalFeedB.isShutdown()) {
-            incrementalFeedB.cancelShutdown();
+        if (!incrementalFeedB.cancelShutdownIfStarted()) {
+            if (!incrementalFeedB.isActive()) {
+                incrementalFeedBThread = new Thread(incrementalFeedB);
+                incrementalFeedBThread.start();
+            }
         }
     }
 
@@ -336,11 +336,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!snapshotFeedA.isActive()) {
-            snapshotFeedAThread = new Thread(snapshotFeedA);
-            snapshotFeedAThread.start();
-        } else if (snapshotFeedA.isShutdown()) {
-            snapshotFeedA.cancelShutdown();
+        if (!snapshotFeedA.cancelShutdownIfStarted()) {
+            if (!snapshotFeedA.isActive()) {
+                snapshotFeedAThread = new Thread(snapshotFeedA);
+                snapshotFeedAThread.start();
+            }
         }
     }
 
@@ -354,11 +354,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!snapshotFeedB.isActive()) {
-            snapshotFeedBThread = new Thread(snapshotFeedB);
-            snapshotFeedBThread.start();
-        } else if (snapshotFeedB.isShutdown()) {
-            snapshotFeedB.cancelShutdown();
+        if (!snapshotFeedB.cancelShutdownIfStarted()) {
+            if (!snapshotFeedB.isActive()) {
+                snapshotFeedBThread = new Thread(snapshotFeedB);
+                snapshotFeedBThread.start();
+            }
         }
     }
 
@@ -372,11 +372,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!instrumentFeedA.isActive()) {
-            instrumentFeedAThread = new Thread(instrumentFeedA);
-            instrumentFeedAThread.start();
-        } else if (instrumentFeedA.isShutdown()) {
-            instrumentFeedA.cancelShutdown();
+        if (!instrumentFeedA.cancelShutdownIfStarted()) {
+            if (!instrumentFeedA.isActive()) {
+                instrumentFeedAThread = new Thread(instrumentFeedA);
+                instrumentFeedAThread.start();
+            }
         }
     }
 
@@ -390,11 +390,11 @@ public class MdpChannelImpl implements MdpChannel {
                 }
             }
         }
-        if (!instrumentFeedB.isActive()) {
-            instrumentFeedBThread = new Thread(instrumentFeedB);
-            instrumentFeedBThread.start();
-        } else if (instrumentFeedB.isShutdown()) {
-            instrumentFeedB.cancelShutdown();
+        if (!instrumentFeedB.cancelShutdownIfStarted()) {
+            if (!instrumentFeedB.isActive()) {
+                instrumentFeedBThread = new Thread(instrumentFeedB);
+                instrumentFeedBThread.start();
+            }
         }
     }
 
@@ -487,11 +487,7 @@ public class MdpChannelImpl implements MdpChannel {
 
     void subscribeToSnapshotsForInstrument(final Integer securityId) {
         channelController.addOutOfSyncInstrument(securityId);
-        if (!isSnapshotFeedsActive()) {
-            startSnapshotFeeds();
-        } else {
-            channelController.resetSnapshotCycleCount();
-        }
+        startSnapshotFeeds();
     }
 
     void unsubscribeFromSnapshotsForInstrument(final Integer securityId) {
@@ -566,6 +562,18 @@ public class MdpChannelImpl implements MdpChannel {
         } else if (feedType == FeedType.S) {
             channelController.handleSnapshotPacket(feedContext, mdpPacket);
         }
+    }
+
+    public int getQueueSlotInitBufferSize() {
+        return queueSlotInitBufferSize;
+    }
+
+    public int getIncrQueueSize() {
+        return incrQueueSize;
+    }
+
+    public void setRcvBufSize(int rcvBufSize) {
+        this.rcvBufSize = rcvBufSize;
     }
 
     private final class MdpFeelListenerImpl implements MdpFeedListener {

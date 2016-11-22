@@ -15,7 +15,6 @@ package com.epam.cme.mdp3.core.channel;
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.control.InstrumentController;
 import com.epam.cme.mdp3.core.control.InstrumentState;
-import com.epam.cme.mdp3.core.control.PacketQueue;
 import com.epam.cme.mdp3.mktdata.ImpliedBook;
 import com.epam.cme.mdp3.mktdata.MdConstants;
 import com.epam.cme.mdp3.mktdata.OrderBook;
@@ -24,7 +23,6 @@ import com.epam.cme.mdp3.sbe.message.SbeString;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 
 import java.util.List;
-import java.util.Set;
 
 public class ChannelContext {
     private final MdpChannelImpl channel;
@@ -174,10 +172,10 @@ public class ChannelContext {
         }
     }
 
-    public void notifyInstrumentStateListeners(final int securityId, final InstrumentState prevState, final InstrumentState newState) {
+    public void notifyInstrumentStateListeners(final int securityId, final String secDesc, final InstrumentState prevState, final InstrumentState newState) {
         final List<ChannelListener> listeners = this.channel.getListeners();
         for (int i = 0; i < listeners.size(); i++) {
-            listeners.get(i).onInstrumentStateChanged(channel.getId(), securityId, prevState, newState);
+            listeners.get(i).onInstrumentStateChanged(channel.getId(), securityId, secDesc, prevState, newState);
         }
     }
 
@@ -241,15 +239,19 @@ public class ChannelContext {
         channel.unsubscribeFromSnapshotsForInstrument(securityId);
     }
 
-    public PacketQueue getIncrementQueue() {
-        return getChannel().getController().getIncrementQueue();
-    }
-
     public long getPrcdSeqNum() {
         return getChannel().getController().getPrcdSeqNum();
     }
 
     public ChannelState getChannelState() {
         return this.channel.getState();
+    }
+
+    public int getQueueSlotInitBufferSize() {
+        return this.channel.getQueueSlotInitBufferSize();
+    }
+
+    public int getIncrQueueSize() {
+        return this.channel.getIncrQueueSize();
     }
 }

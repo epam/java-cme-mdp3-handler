@@ -17,6 +17,7 @@ import net.openhft.chronicle.bytes.NativeBytesStore;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
+@Deprecated
 public class PacketHolder {
     private static final Logger logger = LoggerFactory.getLogger(PacketHolder.class);
     private long seqNumHolder;

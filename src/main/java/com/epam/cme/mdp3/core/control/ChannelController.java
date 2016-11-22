@@ -38,10 +38,9 @@ public class ChannelController {
     private static final Logger logger = LoggerFactory.getLogger(ChannelController.class);
     private ChannelContext channelContext;
     private static final int PRCD_SNPT_COUNT_NULL = (int) SbePrimitiveType.Int32.getNullValue();
-    private static final int SNAPSHOT_CYCLES_MAX = 3;
+    private static final int SNAPSHOT_CYCLES_MAX = 5;
 
     private final MdpMessageTypes mdpMessageTypes;
-    private final PacketQueue incrementQueue;
     private final RequestForQuoteHandler requestForQuoteHandler;
     private final SecurityStatusHandler securityStatusHandler;
     private int snptMsgCountDown = PRCD_SNPT_COUNT_NULL;
@@ -73,11 +72,6 @@ public class ChannelController {
         this.channelContext = channelContext;
         this.requestForQuoteHandler = new RequestForQuoteHandler(channelContext);
         this.securityStatusHandler = new SecurityStatusHandler(channelContext);
-        this.incrementQueue = new PacketQueue(queueSize, queueSlotBufSize);
-    }
-
-    public PacketQueue getIncrementQueue() {
-        return incrementQueue;
     }
 
     public long getPrcdSeqNum() {
@@ -105,20 +99,6 @@ public class ChannelController {
         channelContext.notifyChannelStateListeners(prevState, newState);
     }
 
-    private void processQueue(final MdpFeedContext feedContext) {
-        this.prcdSeqNum = this.lastMsgSeqNumPrcd369;
-        final MdpPacket mdpPacket = feedContext.getMdpPacket();
-        int queuePktDataLen;
-
-        for (long i = prcdSeqNum + 1; i <= this.incrementQueue.getLastSeqNum(); i++) {
-            queuePktDataLen = this.incrementQueue.poll(i, mdpPacket);
-            if (queuePktDataLen > 0) {
-                handleIncrementalPacket(feedContext, mdpPacket, true);
-                this.prcdSeqNum = i;
-            }
-        }
-    }
-
     public void handleIncrementalPacket(final MdpFeedContext feedContext, final MdpPacket mdpPacket) {
         handleIncrementalPacket(feedContext, mdpPacket, false);
     }
@@ -130,10 +110,7 @@ public class ChannelController {
         lock.lock();
         try {
             this.lastIncrPcktReceived = System.currentTimeMillis();
-
-            if (fromQueue || this.incrementQueue.push(msgSeqNum, mdpPacket)) {
-                handleIncrementalMessages(feedContext, msgSeqNum, mdpPacket);
-            }
+            handleIncrementalMessages(feedContext, msgSeqNum, mdpPacket);
         } finally {
             lock.unlock();
         }
@@ -146,7 +123,9 @@ public class ChannelController {
             if (this.channelContext.hasMdListeners()) {
                 this.eventController.logSecurity(secId);
             }
-            instController.onIncrementalRefresh(feedContext, msgSeqNum, matchEventIndicator, incrGroup);
+            final MdpGroupEntry entry = feedContext.getMdpGroupEntryObj();
+            incrGroup.getEntry(entry);
+            instController.onIncrementalRefresh(feedContext, msgSeqNum, matchEventIndicator, entry);
         }
     }
 
@@ -175,7 +154,6 @@ public class ChannelController {
         this.lastMsgSeqNumPrcd369 = 0;
         this.wasChannelResetInPrcdPacket = true;
         channelContext.getInstruments().resetAll();
-        this.incrementQueue.clear();
         switchState(ChannelState.SYNC);
         if (this.channelContext.hasMdListeners()) this.eventController.reset();
         this.channelContext.notifyChannelResetFinishedListeners(resetMessage);
@@ -220,7 +198,6 @@ public class ChannelController {
             this.prcdSeqNum = this.lastMsgSeqNumPrcd369;
             if (this.channelContext.hasMdListeners()) this.eventController.reset();
             if (this.state == ChannelState.INITIAL) switchState(this.state, ChannelState.SYNC);
-            processQueue(feedContext);
         }
     }
 
@@ -293,6 +270,5 @@ public class ChannelController {
     }
 
     public void close() {
-        this.incrementQueue.release();
     }
 }
