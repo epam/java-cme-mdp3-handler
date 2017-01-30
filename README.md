@@ -64,7 +64,7 @@ public class Main {
         }
 
         @Override
-        public void onInstrumentStateChanged(final String channelId, int securityId,
+        public void onInstrumentStateChanged(final String channelId, int securityId, final String secDesc,
                                              InstrumentState prevState, InstrumentState newState) {
             logger.info("Channel '{}'s instrument {} state is changed from '{}' to '{}'",
                 channelId, securityId, prevState, newState);
