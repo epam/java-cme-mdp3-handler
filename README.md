@@ -17,6 +17,7 @@ Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take adva
 * Simple options to subscribe to Market Data events of application interest;
 * Loading of CME SBE templates;
 * Loading of CME XML channel configuration files;
+* MBO (in next version)
 
 ## Code Examples
 
@@ -332,7 +333,7 @@ OLEG VERAMEI
 
 Software Engineering Team Leader in EPAM's Capital Markets Competency Center 
 
-Email: aleh_veramei@epam.com 
+Email: oleg_veramei@epam.com
 
 ## License
 
