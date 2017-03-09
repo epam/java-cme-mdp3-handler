@@ -43,9 +43,9 @@ public class StatisticsHandler extends AbstractMktDataHandler {
     public void updateOpeningPrice(final FieldSet incrementEntry) {
         final short openCloseSettlFlag = incrementEntry.getUInt8(286);
         if (openCloseSettlFlag == FLAG_DAILYOPENPRICE) {
-            this.openingPrice.setMantissa(incrementEntry.getInt32(270));
+            this.openingPrice.setMantissa(incrementEntry.getInt64(270));
         } else if (openCloseSettlFlag == FLAG_INDICATIVEOPENINGPRICE) {
-            this.indicativeOpeningPrice.setMantissa(incrementEntry.getInt32(270));
+            this.indicativeOpeningPrice.setMantissa(incrementEntry.getInt64(270));
         }
     }
 
@@ -54,11 +54,11 @@ public class StatisticsHandler extends AbstractMktDataHandler {
     }
 
     public void updateTradingSessionHighPrice(final FieldSet incrementEntry) {
-        this.sessionHighPrice.setMantissa(incrementEntry.getInt32(270));
+        this.sessionHighPrice.setMantissa(incrementEntry.getInt64(270));
     }
 
     public void updateTradingSessionLowPrice(final FieldSet incrementEntry) {
-        this.sessionLowPrice.setMantissa(incrementEntry.getInt32(270));
+        this.sessionLowPrice.setMantissa(incrementEntry.getInt64(270));
     }
 
     public void updateTradeVolume(final FieldSet incrementEntry) {
@@ -70,15 +70,15 @@ public class StatisticsHandler extends AbstractMktDataHandler {
     }
 
     public void updateSessionHighBid(final FieldSet incrementEntry) {
-        this.sessionHighBid.setMantissa(incrementEntry.getInt32(270));
+        this.sessionHighBid.setMantissa(incrementEntry.getInt64(270));
     }
 
     public void updateSessionLowOffer(final FieldSet incrementEntry) {
-        this.sessionLowOffer.setMantissa(incrementEntry.getInt32(270));
+        this.sessionLowOffer.setMantissa(incrementEntry.getInt64(270));
     }
 
     public void updateFixingPrice(final FieldSet incrementEntry) {
-        this.fixingPrice.setMantissa(incrementEntry.getInt32(270));
+        this.fixingPrice.setMantissa(incrementEntry.getInt64(270));
     }
 
     public void updateThresholdLimitsAndPriceBandVariation(final FieldSet incrementEntry) {
