@@ -40,6 +40,6 @@ public class ImpliedBookPriceEntry implements ImpliedBookPriceLevel {
 
     public void refreshFromMessage(final FieldSet fieldSet) {
         this.qty = fieldSet.getInt32(271);
-        this.price.setMantissa(fieldSet.getInt32(270));
+        this.price.setMantissa(fieldSet.getInt64(270));
     }
 }
