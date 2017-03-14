@@ -219,7 +219,9 @@ public class MdpFeedWorker implements Runnable {
 
     public boolean shutdown() {
         final boolean res = this.feedState.compareAndSet(ACTIVE, PENDING_SHUTDOWN);
-        selector.wakeup();
+        if (res && selector != null) {
+            selector.wakeup();
+        }
         return res;
     }
 
