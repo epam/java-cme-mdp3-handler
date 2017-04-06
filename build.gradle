@@ -19,6 +19,7 @@ repositories {
 dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.5'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.5'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
     runtime group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.5'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     runtime group: 'commons-collections', name: 'commons-collections', version: '3.2.2'

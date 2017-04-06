@@ -55,10 +55,6 @@ public class ChannelContext {
         return this.getChannel().hasMdListener();
     }
 
-    public boolean isSnapshotFeedsActive() {
-        return channel.isSnapshotFeedsActive();
-    }
-
     public int getGapThreshold() {
         return gapThreshold;
     }

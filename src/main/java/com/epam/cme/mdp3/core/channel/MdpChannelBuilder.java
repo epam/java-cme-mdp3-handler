@@ -23,6 +23,8 @@ import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.service.DefaultScheduledServiceHolder;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class MdpChannelBuilder {
@@ -31,12 +33,8 @@ public class MdpChannelBuilder {
     private URI schemaURI;
     private MdpMessageTypes mdpMessageTypes;
 
-    private String incrementalFeedAni;
-    private String incrementalFeedBni;
-    private String snapshotFeedAni;
-    private String snapshotFeedBni;
-    private String instrumentFeedAni;
-    private String instrumentFeedBni;
+    private Map<FeedType, String> feedANetworkInterfaces = new HashMap<>();
+    private Map<FeedType, String> feedBNetworkInterfaces = new HashMap<>();
 
     private ChannelListener channelListener;
     private boolean noScheduler = false;
@@ -69,24 +67,10 @@ public class MdpChannelBuilder {
     }
 
     public MdpChannelBuilder setNetworkInterface(final FeedType feedType, final Feed feed, final String networkInterface) {
-        if (feedType == FeedType.I) {
-            if (feed == Feed.A) {
-                this.incrementalFeedAni = networkInterface;
-            } else if (feed == Feed.B) {
-                this.incrementalFeedBni = networkInterface;
-            }
-        } else if (feedType == FeedType.S) {
-            if (feed == Feed.A) {
-                this.snapshotFeedAni = networkInterface;
-            } else if (feed == Feed.B) {
-                this.snapshotFeedBni = networkInterface;
-            }
-        } else if (feedType == FeedType.N) {
-            if (feed == Feed.A) {
-                this.instrumentFeedAni = networkInterface;
-            } else if (feed == Feed.B) {
-                this.instrumentFeedBni = networkInterface;
-            }
+        if (feed == Feed.A) {
+            feedANetworkInterfaces.put(feedType, networkInterface);
+        } else if (feed == Feed.B) {
+            feedBNetworkInterfaces.put(feedType, networkInterface);
         }
         return this;
     }
@@ -138,12 +122,8 @@ public class MdpChannelBuilder {
             }
             mdpChannel = new MdpChannelImpl(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes, queueSlotInitBufferSize, incrQueueSize, gapThreshold);
 
-            mdpChannel.setIncrementalFeedAni(this.incrementalFeedAni);
-            mdpChannel.setIncrementalFeedBni(this.incrementalFeedBni);
-            mdpChannel.setSnapshotFeedAni(this.snapshotFeedAni);
-            mdpChannel.setSnapshotFeedBni(this.snapshotFeedBni);
-            mdpChannel.setInstrumentFeedAni(this.instrumentFeedAni);
-            mdpChannel.setInstrumentFeedBni(this.instrumentFeedBni);
+            mdpChannel.setNetworkInterfaces(Feed.A, feedANetworkInterfaces);
+            mdpChannel.setNetworkInterfaces(Feed.B, feedBNetworkInterfaces);
             mdpChannel.setRcvBufSize(this.rcvBufSize);
 
             if (this.channelListener != null) mdpChannel.registerListener(this.channelListener);

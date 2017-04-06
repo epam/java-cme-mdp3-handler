@@ -183,6 +183,8 @@ public class ChannelController {
                 }
             } else if (messageType.getSemanticMsgType() == SemanticMsgType.SecurityDefinition) {
                 this.channelContext.getInstruments().onMessage(feedContext, mdpMessage);
+            } else {
+                logger.trace("Message has been ignored due to its SemanticMsgType '{}'", messageType.getSemanticMsgType());
             }
         }
         if (this.wasChannelResetInPrcdPacket) {
