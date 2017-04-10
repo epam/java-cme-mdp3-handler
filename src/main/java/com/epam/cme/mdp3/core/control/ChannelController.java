@@ -33,6 +33,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.epam.cme.mdp3.mktdata.MdConstants.INCR_RFRSH_MD_ENTRY_TYPE;
+import static com.epam.cme.mdp3.mktdata.MdConstants.LAST_MSG_SEQ_NUM_PROCESSED;
 
 public class ChannelController {
     private static final Logger logger = LoggerFactory.getLogger(ChannelController.class);
@@ -132,7 +133,7 @@ public class ChannelController {
     private void handleMarketDataIncrementalRefresh(final MdpFeedContext feedContext, final MdpMessage mdpMessage, final long msgSeqNum, final short matchEventIndicator) {
         final MdpGroup incrGroup = feedContext.getMdpGroupObj();
         InstrumentController instController = null;
-        mdpMessage.getGroup(MdConstants.INCR_RFRSH_GRP_TAG, incrGroup);
+        mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, incrGroup);
         while (incrGroup.hashNext()) {
             incrGroup.next();
             final MDEntryType mdEntryType = MDEntryType.fromFIX(incrGroup.getChar(INCR_RFRSH_MD_ENTRY_TYPE));
@@ -204,10 +205,10 @@ public class ChannelController {
     }
 
     private void handleSnapshotMessage(final MdpFeedContext feedContext, final long snptPktSeqNum, final MdpMessage mdpMessage) {
-        final long lastMsgSeqNumProcessed = mdpMessage.getUInt32(369);
-        logger.trace("Feed {}{} | handleSnapshotMessage: this.prcdSeqNum={}, this.lastMsgSeqNumPrcd369={}, mdpMessage.getUInt32(369)={}",
-                    feedContext.getFeedType(), feedContext.getFeed(), this.prcdSeqNum, this.lastMsgSeqNumPrcd369, lastMsgSeqNumProcessed);
-        if (snptPktSeqNum == 1 && canStopSnapshotListening(this.snptMsgCountDown)) {
+        final long lastMsgSeqNumProcessed = mdpMessage.getUInt32(LAST_MSG_SEQ_NUM_PROCESSED);
+        logger.trace("Feed {}:{} | handleSnapshotMessage: processedSeqNum={}, lastMsgSeqNumPrcd369={}, mdpMessage.getUInt32(369)={}",
+                    feedContext.getFeedType(), feedContext.getFeed(), prcdSeqNum, lastMsgSeqNumPrcd369, lastMsgSeqNumProcessed);
+        if (snptPktSeqNum == 1 && canStopSnapshotListening(snptMsgCountDown)) {
             stopSnapshotListening(feedContext);
             return;
         }

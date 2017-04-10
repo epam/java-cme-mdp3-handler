@@ -87,7 +87,7 @@ public class MdpMessageTypes {
         final SemanticMsgType semanticMsgType = SemanticMsgType.fromFixValue(messageType.getMessageType().getSemanticType());
         if (semanticMsgType == SemanticMsgType.MarketDataIncrementalRefresh) {
             for (final GroupType groupType : messageType.getMessageType().getGroup()) {
-                if (groupType.getId() == MdConstants.INCR_RFRSH_GRP_TAG && groupType.getBlockLength().intValue() > maxFoundIncrBodyLen) {
+                if (groupType.getId() == MdConstants.NO_MD_ENTRIES && groupType.getBlockLength().intValue() > maxFoundIncrBodyLen) {
                     maxFoundIncrBodyLen = groupType.getBlockLength().intValue();
                 }
             }

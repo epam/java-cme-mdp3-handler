@@ -12,21 +12,19 @@
 
 package com.epam.cme.mdp3.mktdata;
 
-public class MdConstants {
-    private MdConstants() {
-    }
+public interface MdConstants {
+    byte TOP_OF_THE_BOOK_LEVEL = 1;
 
-    public static final byte TOP_OF_THE_BOOK_LEVEL = 1;
-
-    public final static int SECURITY_ID = 48;
-    public final static int RPT_SEQ_NUM = 83;
-    public final static int INCR_RFRSH_GRP_TAG = 268;
-    public final static int INCR_RFRSH_MD_ENTRY_TYPE = 269;
-    public final static int INCR_RFRSH_MD_ACTION = 279;
-    public final static int INCR_RFRSH_MD_PRICE_LEVEL = 1023;
-    public final static int INCR_RFRSH_MD_ENTRY_PX = 270;
-    public final static int INCR_RFRSH_MD_ENTRY_SIZE = 271;
-    public final static int INCR_RFRSH_MD_ORDER_NUM = 346;
-
+    int LAST_MSG_SEQ_NUM_PROCESSED = 369;
+    int SECURITY_ID = 48;
+    int RPT_SEQ_NUM = 83;
+    int NO_MD_ENTRIES = 268;
+    int INCR_RFRSH_MD_ENTRY_TYPE = 269;
+    int INCR_RFRSH_MD_ACTION = 279;
+    int INCR_RFRSH_MD_PRICE_LEVEL = 1023;
+    int INCR_RFRSH_MD_ENTRY_PX = 270;
+    int INCR_RFRSH_MD_ENTRY_SIZE = 271;
+    int INCR_RFRSH_MD_ORDER_NUM = 346;
+    int NO_ORDER_ID_ENTRIES = 37705;
 
 }

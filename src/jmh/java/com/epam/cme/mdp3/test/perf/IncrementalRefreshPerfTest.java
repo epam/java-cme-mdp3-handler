@@ -88,7 +88,7 @@ public class IncrementalRefreshPerfTest {
             final MdpMessageType messageType = mdpHandlerBuilder.getMdpMessageTypes().getMessageType(mdpMessage.getSchemaId());
             mdpMessage.setMessageType(messageType);
 
-            if (mdpMessage.getGroup(MdConstants.INCR_RFRSH_GRP_TAG, incrGroup)) {
+            if (mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, incrGroup)) {
                 while (incrGroup.hashNext()) {
                     incrGroup.next();
                     final int secId = incrGroup.getInt32(MdConstants.SECURITY_ID);
@@ -176,7 +176,7 @@ public class IncrementalRefreshPerfTest {
                         final MdpMessageType messageType = mdpHandlerBuilder.getMdpMessageTypes().getMessageType(mdpMessage.getSchemaId());
                         mdpMessage.setMessageType(messageType);
 
-                        if (mdpMessage.getGroup(MdConstants.INCR_RFRSH_GRP_TAG, incrGroup)) {
+                        if (mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, incrGroup)) {
                             while (incrGroup.hashNext()) {
                                 incrGroup.next();
                                 final MDEntryType mdEntryType = MDEntryType.fromFIX(incrGroup.getChar(INCR_RFRSH_MD_ENTRY_TYPE));
@@ -220,7 +220,7 @@ public class IncrementalRefreshPerfTest {
                     final MdpMessageType messageType = mdpHandlerBuilder.getMdpMessageTypes().getMessageType(mdpMessage.getSchemaId());
                     mdpMessage.setMessageType(messageType);
 
-                    if (mdpMessage.getGroup(MdConstants.INCR_RFRSH_GRP_TAG, incrGroup)) {
+                    if (mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, incrGroup)) {
                         while (incrGroup.hashNext()) {
                             incrGroup.next();
                             final int secId = incrGroup.getInt32(MdConstants.SECURITY_ID);

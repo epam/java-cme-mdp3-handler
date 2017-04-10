@@ -87,8 +87,8 @@ public class Main {
 
         @Override
         public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, final FieldSet incrRefreshEntry) {
-            /*logger.info("[{}] onIncrementalRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}",
-                    msgSeqNum, channelId, securityId, secDesc, incrRefreshEntry.getUInt32(RPT_SEQ_NUM));*/
+            logger.info("[{}] onIncrementalRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}, MatchEventIndicator: {} (byte representation: '{}')",
+                    msgSeqNum, channelId, securityId, secDesc, incrRefreshEntry.getUInt32(RPT_SEQ_NUM), matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
         }
 
         @Override
@@ -123,8 +123,7 @@ public class Main {
         instruments.forEach(instrumentInfo -> mdpChannel.subscribe(instrumentInfo.instrumentId, instrumentInfo.desc));
         mdpChannel.startIncrementalFeedA();
         mdpChannel.startIncrementalFeedB();
-        mdpChannel.startSnapshotFeedA();
-
+        mdpChannel.startSnapshotMBOFeedA();
         return mdpChannel;
     }
 
@@ -138,14 +137,7 @@ public class Main {
 //        # 342 for YM
 //        # 344 for ZB, ZN, ZF
         final Map<String, List<String>> channelInfos = new HashMap<>();
-        defineChannel(channelInfos, "310", "ES");
-        defineChannel(channelInfos, "314", "6A", "6B", "6J", "6S");
-        defineChannel(channelInfos, "318", "NQ");
-        defineChannel(channelInfos, "382", "CL");
-        defineChannel(channelInfos, "360", "HG", "GC", "SI");
-        defineChannel(channelInfos, "320", "6C", "6E", "6M", "6N");
-        defineChannel(channelInfos, "342", "YM");
-        defineChannel(channelInfos, "344", "ZB", "ZN", "ZF");
+        defineChannel(channelInfos, "648", "N$");
 
         final Map<String, Set<InstrumentInfo>> resolvedInstruments = new HashMap<>();
         channelInfos.forEach((s, groups) -> resolvedInstruments.put(s, new ChannelHelper().resolveInstruments(s, groups)));
