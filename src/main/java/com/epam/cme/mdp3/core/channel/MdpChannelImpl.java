@@ -14,8 +14,7 @@ package com.epam.cme.mdp3.core.channel;
 
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.cfg.ChannelCfg;
-import com.epam.cme.mdp3.core.control.ChannelController;
-import com.epam.cme.mdp3.core.control.InstrumentController;
+import com.epam.cme.mdp3.core.control.*;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -64,7 +63,8 @@ public class MdpChannelImpl implements MdpChannel {
     private byte defMaxBookDepth = PLATFORM_DEFAULT_BOOK_DEPTH;
     private int defSubscriptionOptions = MdEventFlags.MESSAGE;
 
-    private final ChannelController channelController;
+    private final MBPChannelController mbpChannelController;
+    private final ChannelController mboChannelController;
     private int queueSlotInitBufferSize = InstrumentController.DEF_QUEUE_SLOT_INIT_BUFFER_SIZE;
     private int incrQueueSize = InstrumentController.DEF_INCR_QUEUE_SIZE;
     private int gapThreshold = InstrumentController.DEF_GAP_THRESHOLD;
@@ -82,7 +82,16 @@ public class MdpChannelImpl implements MdpChannel {
         this.instruments = new ChannelInstruments(this.channelContext);
         this.queueSlotInitBufferSize = queueSlotInitBufferSize;
         this.incrQueueSize = incrQueueSize;
-        this.channelController = new ChannelController(this.channelContext, this.incrQueueSize, this.queueSlotInitBufferSize);
+        this.mbpChannelController = new MBPChannelController(this.channelContext, this.incrQueueSize, this.queueSlotInitBufferSize);
+        if(isMBOEnable(channelCfg)){
+            InstrumentManager instrumentManager = null;//todo implement
+            CircularBuffer<MdpPacket> buffer = null;//todo implement
+            ChannelController target = new MBOChannelController(instrumentManager, mdpMessageTypes);
+            this.mboChannelController = new GapChannelController(target, getRecoveryManager(), buffer, this.gapThreshold,
+                    listeners, channelCfg.getId(), mdpMessageTypes);
+        } else {
+            mboChannelController = new StubChannelController();
+        }
         if (scheduledExecutorService != null) initChannelStateThread();
     }
 
@@ -105,21 +114,22 @@ public class MdpChannelImpl implements MdpChannel {
 
     @Override
     public void close() {
-        this.channelController.lock();
+        //todo close MBO controller
+        this.mbpChannelController.lock();
         try {
-            this.channelController.switchState(ChannelState.CLOSING);
+            this.mbpChannelController.switchState(ChannelState.CLOSING);
         } finally {
-            this.channelController.unlock();
+            this.mbpChannelController.unlock();
         }
         stopAllFeeds();
         feedsA.values().forEach(this::closeFeed);
         feedsB.values().forEach(this::closeFeed);
-        this.channelController.lock();
+        this.mbpChannelController.lock();
         try {
-            channelController.close();
-            this.channelController.switchState(ChannelState.CLOSED);
+            mbpChannelController.close();
+            this.mbpChannelController.switchState(ChannelState.CLOSED);
         } finally {
-            this.channelController.unlock();
+            this.mbpChannelController.unlock();
         }
     }
 
@@ -155,16 +165,16 @@ public class MdpChannelImpl implements MdpChannel {
 
     @Override
     public ChannelState getState() {
-        return this.channelController.getState();
+        return this.mbpChannelController.getState();
     }
 
     @Override
     public void setStateForcibly(ChannelState state) {
-        this.channelController.switchState(state);
+        this.mbpChannelController.switchState(state);
     }
 
-    public ChannelController getController() {
-        return channelController;
+    public MBPChannelController getController() {
+        return mbpChannelController;
     }
 
     private void initChannelStateThread() {
@@ -330,7 +340,7 @@ public class MdpChannelImpl implements MdpChannel {
     @Override
     public void startSnapshotFeeds() {
         try {
-            channelController.resetSnapshotCycleCount();
+            mbpChannelController.resetSnapshotCycleCount();
             if (this.snptFeedToUse == Feed.A) {
                 startSnapshotFeedA();
             } else {
@@ -342,20 +352,33 @@ public class MdpChannelImpl implements MdpChannel {
     }
 
     @Override
+    public void startSnapshotMBOFeeds() {
+        try {
+            if (this.snptFeedToUse == Feed.A) {
+                startSnapshotMBOFeedA();
+            } else {
+                startSnapshotMBOFeedB();
+            }
+        } catch (MdpFeedException e) {
+            logger.error("Failed to start MBO Snapshot Feeds: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public void stopSnapshotFeeds() {
         stopSnapshotFeedA();
         stopSnapshotFeedB();
     }
 
     void subscribeToSnapshotsForInstrument(final Integer securityId) {
-        channelController.addOutOfSyncInstrument(securityId);
+        mbpChannelController.addOutOfSyncInstrument(securityId);
         startSnapshotFeeds();
     }
 
     void unsubscribeFromSnapshotsForInstrument(final Integer securityId) {
-        if (channelController.removeOutOfSyncInstrument(securityId)) {
+        if (mbpChannelController.removeOutOfSyncInstrument(securityId)) {
             if (isFeedActive(FeedType.S)) {
-                if (!channelController.hasOutOfSyncInstruments()) {
+                if (!mbpChannelController.hasOutOfSyncInstruments()) {
                     stopSnapshotFeeds();
                 }
             }
@@ -425,9 +448,12 @@ public class MdpChannelImpl implements MdpChannel {
         if (feedType == FeedType.N) {
             instruments.onPacket(feedContext, mdpPacket);
         } else if (feedType == FeedType.I) {
-            channelController.handleIncrementalPacket(feedContext, mdpPacket);
-        } else if (feedType == FeedType.S || feedType == FeedType.SMBO) {
-            channelController.handleSnapshotPacket(feedContext, mdpPacket);
+            mbpChannelController.handleIncrementalPacket(feedContext, mdpPacket);
+            mboChannelController.handleIncrementalPacket(feedContext, mdpPacket);
+        } else if (feedType == FeedType.S) {
+            mbpChannelController.handleSnapshotPacket(feedContext, mdpPacket);
+        } else if (feedType == FeedType.SMBO) {
+            mboChannelController.handleSnapshotPacket(feedContext, mdpPacket);
         }
     }
 
@@ -515,16 +541,16 @@ public class MdpChannelImpl implements MdpChannel {
         synchronized (this) {
             MdpFeedWorker incrementalFeedA = feedsA.get(FeedType.I).getLeft();
             MdpFeedWorker incrementalFeedB = feedsB.get(FeedType.I).getLeft();
-            final long allowedInactiveEndTime = this.channelController.getLastIncrPcktReceived() + idleWindowInMillis;
+            final long allowedInactiveEndTime = this.mbpChannelController.getLastIncrPcktReceived() + idleWindowInMillis;
             if (allowedInactiveEndTime < System.currentTimeMillis() &&
                     (incrementalFeedA.isActiveAndNotShutdown() || incrementalFeedB.isActiveAndNotShutdown())) {
-                this.channelController.lock();
+                this.mbpChannelController.lock();
                 try {
-                    if (channelController.getState() != ChannelState.CLOSING && channelController.getState() != ChannelState.CLOSED) {
+                    if (mbpChannelController.getState() != ChannelState.CLOSING && mbpChannelController.getState() != ChannelState.CLOSED) {
                         startSnapshotFeeds();
                     }
                 } finally {
-                    this.channelController.unlock();
+                    this.mbpChannelController.unlock();
                 }
             }
         }
@@ -559,5 +585,25 @@ public class MdpChannelImpl implements MdpChannel {
         } catch (Exception e) {
             logger.error("Failed to stop Feed Worker: " + e.getMessage(), e);
         }
+    }
+
+    private GapChannelController.RecoveryManager getRecoveryManager(){
+        return new GapChannelController.RecoveryManager() {
+            @Override
+            public void startRecovery() {
+                startSnapshotMBOFeeds();
+            }
+
+            @Override
+            public void stopRecovery() {
+                stopSnapshotMBOFeedA();
+                stopSnapshotMBOFeedB();
+            }
+        };
+    }
+
+    private boolean isMBOEnable(ChannelCfg channelCfg){
+        return channelCfg.getConnectionCfg(FeedType.SMBO, Feed.A) != null
+                || channelCfg.getConnectionCfg(FeedType.SMBO, Feed.B) != null;
     }
 }

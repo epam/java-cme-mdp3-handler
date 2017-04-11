@@ -9,11 +9,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import static com.epam.cme.mdp3.test.Constants.WAITING_TIME_IN_MILLIS;
+
 public class TestChannelListener implements ChannelListener {
+    private BlockingQueue<IncrementalRefreshEntity> incrementQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<String,MdpMessage>> snapshotQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<String,MdpMessage>> securitiesQueue = new LinkedBlockingQueue<>();
-
-    private static final int WAITING_TIME_IN_MILLIS = 700;
 
     @Override
     public void onFeedStarted(String channelId, FeedType feedType, Feed feed) {
@@ -58,7 +59,7 @@ public class TestChannelListener implements ChannelListener {
 
     @Override
     public void onIncrementalRefresh(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet incrRefreshEntry) {
-
+        incrementQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, incrRefreshEntry));
     }
 
     @Override
@@ -82,6 +83,52 @@ public class TestChannelListener implements ChannelListener {
 
     public Pair<String,MdpMessage> nextSecurityMessage() throws InterruptedException {
         return securitiesQueue.poll(WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
+    }
+
+    public IncrementalRefreshEntity nextIncrementMessage() throws InterruptedException {
+        return incrementQueue.poll(WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
+    }
+
+    public class IncrementalRefreshEntity {
+        private String channelId;
+        private short matchEventIndicator;
+        private int securityId;
+        private String secDesc;
+        private long msgSeqNum;
+        private FieldSet incrRefreshEntry;
+
+        public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet incrRefreshEntry) {
+            this.channelId = channelId;
+            this.matchEventIndicator = matchEventIndicator;
+            this.securityId = securityId;
+            this.secDesc = secDesc;
+            this.msgSeqNum = msgSeqNum;
+            this.incrRefreshEntry = incrRefreshEntry;
+        }
+
+        public String getChannelId() {
+            return channelId;
+        }
+
+        public short getMatchEventIndicator() {
+            return matchEventIndicator;
+        }
+
+        public int getSecurityId() {
+            return securityId;
+        }
+
+        public String getSecDesc() {
+            return secDesc;
+        }
+
+        public long getMsgSeqNum() {
+            return msgSeqNum;
+        }
+
+        public FieldSet getIncrRefreshEntry() {
+            return incrRefreshEntry;
+        }
     }
 
 }

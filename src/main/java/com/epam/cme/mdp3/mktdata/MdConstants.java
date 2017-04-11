@@ -26,5 +26,7 @@ public interface MdConstants {
     int INCR_RFRSH_MD_ENTRY_SIZE = 271;
     int INCR_RFRSH_MD_ORDER_NUM = 346;
     int NO_ORDER_ID_ENTRIES = 37705;
+    int NO_CHUNKS = 37709;
+    int CURRENT_CHUNK = 37710;
 
 }

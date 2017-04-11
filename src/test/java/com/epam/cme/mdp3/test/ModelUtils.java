@@ -40,6 +40,38 @@ public class ModelUtils {
         return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
     }
 
+    public static ByteBuffer getMBOIncrementTestMessage(long sequence){
+        return getMBOIncrementTestMessage(sequence, 1, 1, 1, (short)1, (byte)48, 1 ,1 );
+    }
+
+    public static ByteBuffer getMBOIncrementTestMessage(long sequence, int securityId, long orderID, long mDOrderPriority,
+                                                        short mDUpdateAction, byte mDEntryType, int mDDisplayQty, int mDEntryPx){
+        short bufferOffset = 0;
+        final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();
+        MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+        MDIncrementalRefreshOrderBook43Encoder incrementalRefreshOrderBook43Encoder = new MDIncrementalRefreshOrderBook43Encoder();
+        messageHeaderEncoder.wrap(mutableDirectBuffer, bufferOffset)
+                .blockLength(incrementalRefreshOrderBook43Encoder.sbeBlockLength())
+                .templateId(incrementalRefreshOrderBook43Encoder.sbeTemplateId())
+                .schemaId(incrementalRefreshOrderBook43Encoder.sbeSchemaId())
+                .version(incrementalRefreshOrderBook43Encoder.sbeSchemaVersion());
+        bufferOffset += messageHeaderEncoder.encodedLength();
+        incrementalRefreshOrderBook43Encoder.wrap(mutableDirectBuffer, bufferOffset)
+                .transactTime(System.currentTimeMillis());
+        MatchEventIndicatorEncoder matchEventIndicatorEncoder = incrementalRefreshOrderBook43Encoder.matchEventIndicator();
+        matchEventIndicatorEncoder.lastTradeMsg(true);
+        incrementalRefreshOrderBook43Encoder.noMDEntriesCount(1)
+                .next()
+                .orderID(orderID)
+                .mDOrderPriority(mDOrderPriority)
+                .securityID(securityId)
+                .mDUpdateAction(MDUpdateAction.get(mDUpdateAction))
+                .mDEntryType(MDEntryTypeBook.get(mDEntryType))
+                .mDDisplayQty(mDDisplayQty).mDEntryPx().mantissa(mDEntryPx);
+        bufferOffset += incrementalRefreshOrderBook43Encoder.encodedLength();
+        return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
+    }
+
     public static ByteBuffer getMDInstrumentDefinitionFuture27(long sequence, int securityId){
         short bufferOffset = 0;
         final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();

@@ -1,12 +1,14 @@
 package com.epam.cme.mdp3.core.control;
 
 
-public interface CircularBuffer<T> {
+public interface CircularBuffer<T> extends Iterable<T> {
     void add(T entity);
 
     /**
-     * It returns and removes the entities in sorted order.
-     * @return T
+     * It returns the entities in sorted order and removes them after.
+     * @return T or null if buffer is empty.
      */
     T remove();
+
+    boolean isEmpty();
 }

@@ -3,9 +3,6 @@ package com.epam.cme.mdp3.test.mbo;
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
-import com.epam.cme.mdp3.core.control.MBOChannelController;
-import com.epam.cme.mdp3.core.control.MBOChannelControllerImpl;
-import com.epam.cme.mdp3.core.control.MBOInstrumentController;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.test.ModelUtils;
 import com.epam.cme.mdp3.test.TestChannelListener;
@@ -14,11 +11,10 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
+import static com.epam.cme.mdp3.test.Constants.*;
 import static org.junit.Assert.assertNotNull;
 
 public class MBOMessageProcessing {
-    public static final String TEMPLATE_NAME = "templates_FixBinary.xml";
-    public static final String CONFIG_NAME = "config.xml";
     private TestChannelListener testListener = new TestChannelListener();
     private MdpChannel mdpChannel;
     private MdpMessageTypes mdpMessageTypes;
@@ -52,17 +48,5 @@ public class MBOMessageProcessing {
         mdpChannel.handlePacket(smboContext, mdpPacketWithSnapshot);
         assertNotNull(testListener.nextSnapshotMessage());
     }
-
-    @Test
-    public void test(){
-        final MdpPacket mdpPacketWithSnapshot = MdpPacket.instance();
-        final MdpFeedContext smboContext = new MdpFeedContext(Feed.A, FeedType.SMBO);
-        ByteBuffer mboSnapshotTestMessage = ModelUtils.getMBOSnapshotTestMessage(1, 99);
-        mdpPacketWithSnapshot.wrapFromBuffer(mboSnapshotTestMessage);
-        MBOChannelController mboChannelController = new MBOChannelControllerImpl(securityId -> new MBOInstrumentController(), mdpMessageTypes);
-        mboChannelController.handleSnapshotPacket(smboContext, mdpPacketWithSnapshot);
-    }
-
-
 
 }

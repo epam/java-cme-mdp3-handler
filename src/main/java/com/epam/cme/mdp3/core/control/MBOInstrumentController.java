@@ -1,14 +1,31 @@
 package com.epam.cme.mdp3.core.control;
 
+import com.epam.cme.mdp3.ChannelListener;
 import com.epam.cme.mdp3.MdpGroupEntry;
 import com.epam.cme.mdp3.MdpMessage;
+import com.epam.cme.mdp3.sbe.message.SbeConstants;
+
+import java.util.List;
 
 public class MBOInstrumentController {
-    public void handleIncrementMDEntry(MdpMessage mdpMessage, MdpGroupEntry mdpGroup){
-        System.out.println(mdpGroup);
+    private List<ChannelListener> listeners;
+    private final String channelId;
+    private final int securityId;
+    private final String secDesc;
+
+    public MBOInstrumentController(List<ChannelListener> listeners, String channelId, int securityId, String secDesc) {
+        this.listeners = listeners;
+        this.channelId = channelId;
+        this.securityId = securityId;
+        this.secDesc = secDesc;
     }
 
-    public void handleSnapshotMDEntry(MdpMessage mdpMessage, MdpGroupEntry mdpGroup){
-        System.out.println(mdpGroup);
+    public void handleIncrementMDEntry(MdpMessage mdpMessage, MdpGroupEntry mdpGroup, long msgSeqNum){
+        short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
+        listeners.forEach(channelListener -> channelListener.onIncrementalRefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, mdpGroup));
+    }
+
+    public void handleSnapshotMDEntry(MdpMessage mdpMessage){
+        listeners.forEach(channelListener -> channelListener.onSnapshotFullRefresh(channelId, secDesc, mdpMessage));
     }
 }

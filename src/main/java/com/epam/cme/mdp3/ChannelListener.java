@@ -73,7 +73,7 @@ public interface ChannelListener {
      *
      * @param channelId  ID of MDP Channel
      * @param securityId Security ID
-     * @param secDesc             Security description
+     * @param secDesc    Security description
      * @param prevState  Previous state
      * @param newState   New state
      */

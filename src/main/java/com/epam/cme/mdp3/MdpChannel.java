@@ -246,6 +246,8 @@ public interface MdpChannel {
      */
     void startSnapshotFeeds();
 
+    void startSnapshotMBOFeeds();
+
     /**
      * Stops Snapshot Feeds.
      */
