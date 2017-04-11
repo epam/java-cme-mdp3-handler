@@ -56,7 +56,7 @@ public class MBOChannelController implements ChannelController {
         int schemaId = mdpMessage.getSchemaId();
         if(SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType)) {
             return (MBO_INCREMENT_MESSAGE_TEMPLATE_ID == schemaId
-                    || (MBO_CONTAINS_INCREMENT_MESSAGE_TEMPLATE_ID == schemaId && mdpMessage.hasField(NO_ORDER_ID_ENTRIES))
+                    || (MBO_CONTAINS_INCREMENT_MESSAGE_TEMPLATE_ID == schemaId && mdpMessage.hasField(NO_ORDER_ID_ENTRIES)) //todo it has not been implemented yet because I don't know how to resolve references with reusable structure and what structure we should give to client.
             );
         } else if(SemanticMsgType.MarketDataSnapshotFullRefresh.equals(semanticMsgType)){
             return MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID == schemaId;

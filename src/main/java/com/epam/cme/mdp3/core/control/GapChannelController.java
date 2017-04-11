@@ -57,7 +57,8 @@ public class GapChannelController implements ChannelController {
                         int securityId = mdpMessage.getInt32(SECURITY_ID);
                         long noChunks = mdpMessage.getUInt32(NO_CHUNKS);
                         long currentChunk = mdpMessage.getUInt32(CURRENT_CHUNK);
-                        snapshotMetaData.update(lastMsgSeqNumProcessed, securityId, noChunks, currentChunk);
+                        long totNumReports = mdpMessage.getUInt32(TOT_NUM_REPORTS);
+                        snapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId, noChunks, currentChunk);
                         target.handleSnapshotPacket(feedContext, mdpPacket);
                     });
                     break;

@@ -28,5 +28,6 @@ public interface MdConstants {
     int NO_ORDER_ID_ENTRIES = 37705;
     int NO_CHUNKS = 37709;
     int CURRENT_CHUNK = 37710;
+    int TOT_NUM_REPORTS = 911;
 
 }

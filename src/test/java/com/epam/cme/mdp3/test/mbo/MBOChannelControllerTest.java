@@ -74,5 +74,10 @@ public class MBOChannelControllerTest {
         assertEquals(mDEntryPx, incrRefreshEntry.getInt64(270));
     }
 
+    @Test
+    public void controllerMustProcessMBOIncrementInMBPTemplate() throws InterruptedException {
+
+    }
+
 
 }
