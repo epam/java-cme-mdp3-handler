@@ -1,7 +1,7 @@
 package com.epam.cme.mdp3.core.control;
 
 
-public interface CircularBuffer<T> extends Iterable<T> {
+public interface CircularBuffer<T> {
     void add(T entity);
 
     /**

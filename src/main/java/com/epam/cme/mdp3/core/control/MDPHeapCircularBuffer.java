@@ -2,10 +2,8 @@ package com.epam.cme.mdp3.core.control;
 
 
 import com.epam.cme.mdp3.MdpPacket;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.PriorityQueue;
 
 /**
@@ -35,12 +33,6 @@ public class MDPHeapCircularBuffer implements CircularBuffer<MdpPacket> {
     @Override
     public boolean isEmpty() {
         return queue.isEmpty();
-    }
-
-    @NotNull
-    @Override
-    public Iterator<MdpPacket> iterator() {
-        return queue.iterator();
     }
 
     private class MdpPacketComparator implements Comparator<MdpPacket>{

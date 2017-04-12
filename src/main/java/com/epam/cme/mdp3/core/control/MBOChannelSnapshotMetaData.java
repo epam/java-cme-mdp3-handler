@@ -22,7 +22,7 @@ public class MBOChannelSnapshotMetaData {
             metaDataSize = (int)totNumReports;
             metaData = new HashMap<>(metaDataSize);
         }
-        long[] securityIdMetaData = metaData.computeIfAbsent(securityId, k -> new long[(int) noChunks]);
+        long[] securityIdMetaData = metaData.computeIfAbsent(securityId, k -> getEmptyArray((int) noChunks));
         securityIdMetaData[(int)currentChunk -1] = lastMsgSeqNumProcessed;
     }
 
@@ -32,7 +32,7 @@ public class MBOChannelSnapshotMetaData {
             for (long[] securityMetaData : metaData.values()) {
                 for (int j = 0; j < securityMetaData.length; j++) {
                     long seq = securityMetaData[j];
-                    if(seq > 0){
+                    if(seq != SNAPSHOT_SEQUENCE_UNDEFINED){
                         if(snapshotSequence == SNAPSHOT_SEQUENCE_UNDEFINED){
                             snapshotSequence = seq;
                         }
@@ -61,5 +61,13 @@ public class MBOChannelSnapshotMetaData {
         } else {
             throw new IllegalStateException("whole snapshot has not been received yet");
         }
+    }
+
+    private long[] getEmptyArray(int length){
+        long[] result = new long[length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = SNAPSHOT_SEQUENCE_UNDEFINED;
+        }
+        return result;
     }
 }

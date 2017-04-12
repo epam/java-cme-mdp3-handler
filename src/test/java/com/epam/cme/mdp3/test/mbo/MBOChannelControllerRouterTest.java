@@ -2,9 +2,7 @@ package com.epam.cme.mdp3.test.mbo;
 
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
-import com.epam.cme.mdp3.core.control.ChannelController;
-import com.epam.cme.mdp3.core.control.MBOChannelController;
-import com.epam.cme.mdp3.core.control.MBOInstrumentController;
+import com.epam.cme.mdp3.core.control.*;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.test.ModelUtils;
 import com.epam.cme.mdp3.test.TestChannelListener;
@@ -19,7 +17,7 @@ import static com.epam.cme.mdp3.test.Constants.*;
 import static org.junit.Assert.*;
 
 
-public class MBOChannelControllerTest {
+public class MBOChannelControllerRouterTest {
     private TestChannelListener testListener = new TestChannelListener();
     private String channelId = "648";
     private int testSecurityId = 99;
@@ -31,8 +29,9 @@ public class MBOChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(TEMPLATE_NAME).toURI());
         List<ChannelListener> listeners = Collections.singletonList(testListener);
-        MBOInstrumentController instrumentController = new MBOInstrumentController(listeners, channelId, testSecurityId, secDesc);
-        channelController = new MBOChannelController(securityId -> securityId == testSecurityId ? instrumentController : null, mdpMessageTypes);
+        InstrumentManager instrumentManager = new MBOInstrumentManager(channelId, listeners);
+        instrumentManager.registerSecurity(testSecurityId, secDesc, 0, (byte)0);
+        channelController = new MBOChannelControllerRouter(instrumentManager, mdpMessageTypes);
     }
 
     @Test

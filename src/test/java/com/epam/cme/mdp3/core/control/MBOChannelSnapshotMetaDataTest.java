@@ -38,6 +38,18 @@ public class MBOChannelSnapshotMetaDataTest {
     }
 
     @Test
+    public void itMustUpdateMetadataAndGiveCorrectResultWhenWholeSnapshotIsReceivedWithZeroSequence(){
+        MBOChannelSnapshotMetaData channelSnapshotMetaData = new MBOChannelSnapshotMetaData();
+        long totNumReports = 1;
+        int securityId1 = 10;
+        long securityId1NoChunks = 1;
+        long lastMsgSeqNumProcessed = 0;
+        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
+        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
+        assertTrue(channelSnapshotMetaData.isWholeSnapshotReceived());
+    }
+
+    @Test
     public void metaDataMustBeRebuiltIfItContainsDifferentSequences(){
         MBOChannelSnapshotMetaData channelSnapshotMetaData = new MBOChannelSnapshotMetaData();
         long totNumReports = 2;

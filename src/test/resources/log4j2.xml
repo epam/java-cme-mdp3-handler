@@ -23,7 +23,7 @@
         </File>
     </Appenders>
     <Loggers>
-        <Root level="trace" additivity="false">
+        <Root level="info" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="jMdpFileLog"/>
         </Root>

@@ -79,19 +79,21 @@ public class MdpChannelImpl implements MdpChannel {
         this.channelCfg = channelCfg;
         this.gapThreshold = gapThreshold;
         this.channelContext = new ChannelContext(this, mdpMessageTypes, this.gapThreshold);
-        this.instruments = new ChannelInstruments(this.channelContext);
         this.queueSlotInitBufferSize = queueSlotInitBufferSize;
         this.incrQueueSize = incrQueueSize;
-        this.mbpChannelController = new MBPChannelController(this.channelContext, this.incrQueueSize, this.queueSlotInitBufferSize);
         if(isMBOEnable(channelCfg)){
-            InstrumentManager instrumentManager = null;//todo implement
-            CircularBuffer<MdpPacket> buffer = null;//todo implement
-            ChannelController target = new MBOChannelController(instrumentManager, mdpMessageTypes);
+            String channelId = channelCfg.getId();
+            InstrumentManager instrumentManager = new MBOInstrumentManager(channelId, listeners);
+            this.instruments = new ChannelInstruments(this.channelContext, instrumentManager);
+            CircularBuffer<MdpPacket> buffer = new MDPHeapCircularBuffer(incrQueueSize);
+            ChannelController target = new MBOChannelControllerRouter(instrumentManager, mdpMessageTypes);
             this.mboChannelController = new GapChannelController(target, getRecoveryManager(), buffer, this.gapThreshold,
-                    listeners, channelCfg.getId(), mdpMessageTypes);
+                    listeners, channelId, mdpMessageTypes);
         } else {
+            this.instruments = new ChannelInstruments(this.channelContext);
             mboChannelController = new StubChannelController();
         }
+        this.mbpChannelController = new MBPChannelController(this.channelContext, this.incrQueueSize, this.queueSlotInitBufferSize);
         if (scheduledExecutorService != null) initChannelStateThread();
     }
 

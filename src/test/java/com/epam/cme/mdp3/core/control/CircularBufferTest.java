@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 
-public class MDPHeapCircularBufferTest {
+public class CircularBufferTest {
 
     @Test
     public void elementsMustBeInSequenceOrder(){

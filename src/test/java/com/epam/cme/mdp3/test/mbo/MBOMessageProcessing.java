@@ -7,6 +7,7 @@ import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.test.ModelUtils;
 import com.epam.cme.mdp3.test.TestChannelListener;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
@@ -30,6 +31,7 @@ public class MBOMessageProcessing {
         mdpChannel = mdpHandlerBuilder.build();
     }
 
+    @Ignore
     @Test
     public void handlerMustProcessAndResendMBOSnapshotMessageToClient() throws InterruptedException {
         final MdpFeedContext smboContext = new MdpFeedContext(Feed.A, FeedType.SMBO);

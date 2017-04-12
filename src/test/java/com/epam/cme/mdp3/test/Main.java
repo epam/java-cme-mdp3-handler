@@ -69,7 +69,7 @@ public class Main {
 
         @Override
         public void onChannelStateChanged(String channelId, ChannelState prevState, ChannelState newState) {
-            //logger.info("Channel '{}' state is changed from '{}' to '{}'", channelId, prevState, newState);
+            logger.info("Channel '{}' state is changed from '{}' to '{}'", channelId, prevState, newState);
         }
 
         @Override
@@ -81,20 +81,20 @@ public class Main {
 
         @Override
         public int onSecurityDefinition(final String channelId, final MdpMessage mdpMessage) {
-            //logger.info("Received SecurityDefinition(d). ChannelId: {}, Schema Id: {}", mdpMessage.getSchemaId());
-            return MdEventFlags.NOTHING;
+            logger.info("Received SecurityDefinition(d). ChannelId: {}, Schema Id: {}", channelId, mdpMessage.getSchemaId());
+            return MdEventFlags.MESSAGE;
         }
 
         @Override
         public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, final FieldSet incrRefreshEntry) {
-            logger.info("[{}] onIncrementalRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}, MatchEventIndicator: {} (byte representation: '{}')",
-                    msgSeqNum, channelId, securityId, secDesc, incrRefreshEntry.getUInt32(RPT_SEQ_NUM), matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
+            logger.info("[{}] onIncrementalRefresh: ChannelId: {}, SecurityId: {}-{}, MatchEventIndicator: {} (byte representation: '{}')",
+                    msgSeqNum, channelId, securityId, secDesc, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
         }
 
         @Override
         public void onSnapshotFullRefresh(final String channelId, String secDesc, final MdpMessage snptMessage) {
-            /*logger.info("onFullRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}",
-                    channelId, snptMessage.getInt32(SECURITY_ID), secDesc, snptMessage.getUInt32(RPT_SEQ_NUM));*/
+            logger.info("onFullRefresh: ChannelId: {}, SecurityId: {}-{}.",
+                    channelId, snptMessage.getInt32(SECURITY_ID), secDesc);
         }
 
         @Override

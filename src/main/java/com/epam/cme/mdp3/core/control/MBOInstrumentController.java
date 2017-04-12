@@ -12,6 +12,7 @@ public class MBOInstrumentController {
     private final String channelId;
     private final int securityId;
     private final String secDesc;
+    private volatile boolean enable = true;
 
     public MBOInstrumentController(List<ChannelListener> listeners, String channelId, int securityId, String secDesc) {
         this.listeners = listeners;
@@ -21,11 +22,23 @@ public class MBOInstrumentController {
     }
 
     public void handleIncrementMDEntry(MdpMessage mdpMessage, MdpGroupEntry mdpGroup, long msgSeqNum){
-        short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
-        listeners.forEach(channelListener -> channelListener.onIncrementalRefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, mdpGroup));
+        if(enable) {
+            short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
+            listeners.forEach(channelListener -> channelListener.onIncrementalRefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, mdpGroup));
+        }
     }
 
     public void handleSnapshotMDEntry(MdpMessage mdpMessage){
-        listeners.forEach(channelListener -> channelListener.onSnapshotFullRefresh(channelId, secDesc, mdpMessage));
+        if(enable) {
+            listeners.forEach(channelListener -> channelListener.onSnapshotFullRefresh(channelId, secDesc, mdpMessage));
+        }
+    }
+
+    public void enable(){
+        enable = true;
+    }
+
+    public void disable(){
+        enable = false;
     }
 }
