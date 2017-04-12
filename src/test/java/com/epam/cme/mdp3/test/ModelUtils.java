@@ -13,6 +13,10 @@ import static com.epam.cme.mdp3.sbe.message.SbeConstants.*;
 public class ModelUtils {
 
     public static ByteBuffer getMBOSnapshotTestMessage(long sequence, int securityId){
+        return getMBOSnapshotTestMessage(sequence, securityId, 100, 1, 1, 1);
+    }
+
+    public static ByteBuffer getMBOSnapshotTestMessage(long sequence, int securityId, long lastMsgSeqNumProcessed, long noChunks, long currentChunk, long totNumReports){
         short bufferOffset = 0;
         final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();
         MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
@@ -25,9 +29,10 @@ public class ModelUtils {
         bufferOffset += messageHeaderEncoder.encodedLength();
 
         snapshotFullRefreshOrderBook44Encoder.wrap(mutableDirectBuffer, bufferOffset)
-                .lastMsgSeqNumProcessed(100)
-                .noChunks(1)
-                .currentChunk(1)
+                .totNumReports(totNumReports)
+                .lastMsgSeqNumProcessed(lastMsgSeqNumProcessed)
+                .noChunks(noChunks)
+                .currentChunk(currentChunk)
                 .securityID(securityId);
         SnapshotFullRefreshOrderBook44Encoder.NoMDEntriesEncoder noMDEntriesEncoder = snapshotFullRefreshOrderBook44Encoder.noMDEntriesCount(1)
                 .next()

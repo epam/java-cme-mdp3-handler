@@ -44,7 +44,7 @@ public class GapChannelController implements ChannelController {
     @Override
     public void handleSnapshotPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {
         final long pkgSequence = mdpPacket.getMsgSeqNum();
-        log.trace("Feed {}:{} | handleSnapshotPacket: processing sequence '{}', package's sequence '{}'",
+        log.trace("Feed {}:{} | handleSnapshotPacket: previous processed sequence '{}', current package's sequence '{}'",
                 feedContext.getFeedType(), feedContext.getFeed(), lastProcessedSeqNum, pkgSequence);
         try {
             lock.lock();
@@ -80,7 +80,7 @@ public class GapChannelController implements ChannelController {
     @Override
     public void handleIncrementalPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {
         final long pkgSequence = mdpPacket.getMsgSeqNum();
-        log.trace("Feed {}:{} | handleIncrementalPacket: processing sequence '{}', package's sequence '{}'",
+        log.trace("Feed {}:{} | handleIncrementalPacket: previous processed sequence '{}', current package's sequence '{}'",
                 feedContext.getFeedType(), feedContext.getFeed(), lastProcessedSeqNum, pkgSequence);
         try {
             lock.lock();
@@ -117,6 +117,7 @@ public class GapChannelController implements ChannelController {
     }
 
     private void switchState(ChannelState newState) {
+        log.debug("Channel '{}' has changed its state from '{}' to '{}'", channelId, currentState, newState);
         listeners.forEach(channelListener -> channelListener.onChannelStateChanged(channelId, currentState, newState));
         currentState = newState;
     }

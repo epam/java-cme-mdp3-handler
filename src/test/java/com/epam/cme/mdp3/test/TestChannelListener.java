@@ -15,6 +15,7 @@ public class TestChannelListener implements ChannelListener {
     private BlockingQueue<IncrementalRefreshEntity> incrementQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<String,MdpMessage>> snapshotQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<String,MdpMessage>> securitiesQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<Pair<ChannelState,ChannelState>> channelStatesQueue = new LinkedBlockingQueue<>();
 
     @Override
     public void onFeedStarted(String channelId, FeedType feedType, Feed feed) {
@@ -43,7 +44,7 @@ public class TestChannelListener implements ChannelListener {
 
     @Override
     public void onChannelStateChanged(String channelId, ChannelState prevState, ChannelState newState) {
-
+        channelStatesQueue.add(new ImmutablePair<>(prevState, newState));
     }
 
     @Override
@@ -87,6 +88,10 @@ public class TestChannelListener implements ChannelListener {
 
     public IncrementalRefreshEntity nextIncrementMessage() throws InterruptedException {
         return incrementQueue.poll(WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
+    }
+
+    public Pair<ChannelState,ChannelState> nextChannelState() throws InterruptedException {
+        return channelStatesQueue.poll(WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     public class IncrementalRefreshEntity {

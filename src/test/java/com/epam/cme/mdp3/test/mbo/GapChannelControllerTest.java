@@ -1,9 +1,6 @@
 package com.epam.cme.mdp3.test.mbo;
 
-import com.epam.cme.mdp3.ChannelListener;
-import com.epam.cme.mdp3.Feed;
-import com.epam.cme.mdp3.FeedType;
-import com.epam.cme.mdp3.MdpPacket;
+import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
 import com.epam.cme.mdp3.core.control.ChannelController;
 import com.epam.cme.mdp3.core.control.CircularBuffer;
@@ -49,15 +46,31 @@ public class GapChannelControllerTest {
 
     @Test
     public void incrementalMessagesMustBeSentToClientsIfThereAreNoGaps() throws InterruptedException {
+        int securityId = 100;
+        int lastMsgSeqNumProcessed = 1000;
         final MdpPacket mdpPacketWithSnapshot = MdpPacket.instance();
+        mdpPacketWithSnapshot.wrapFromBuffer(ModelUtils.getMBOSnapshotTestMessage(1, securityId, lastMsgSeqNumProcessed, 1, 1, 1));
         final MdpFeedContext smboContext = new MdpFeedContext(Feed.A, FeedType.SMBO);
-        for(int i = 1; i < 10; i++) {
+
+        gapChannelController.handleSnapshotPacket(smboContext, mdpPacketWithSnapshot);
+
+        Pair<MdpFeedContext, MdpPacket> mdpFeedContextMdpPacketPair = testChannelController.nextSnapshotMessage();
+        assertNotNull(mdpFeedContextMdpPacketPair);
+
+        Pair<ChannelState, ChannelState> channelStateChannelStatePair = testChannelListener.nextChannelState();
+        assertNotNull(channelStateChannelStatePair);
+        assertEquals(ChannelState.INITIAL, channelStateChannelStatePair.getLeft());
+        assertEquals(ChannelState.SYNC, channelStateChannelStatePair.getRight());
+
+        final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
+        final MdpPacket mdpPacketWithIncrement = MdpPacket.instance();
+        for(int i = lastMsgSeqNumProcessed +1; i < lastMsgSeqNumProcessed + 10; i++) {
             ByteBuffer mboSnapshotTestMessage = ModelUtils.getMBOIncrementTestMessage(i);
-            mdpPacketWithSnapshot.wrapFromBuffer(mboSnapshotTestMessage);
-            gapChannelController.handleIncrementalPacket(smboContext, mdpPacketWithSnapshot);
-            Pair<MdpFeedContext, MdpPacket> mdpFeedContextMdpPacketPair = testChannelController.nextIncrementalMessage();
-            assertNotNull(mdpFeedContextMdpPacketPair);
-            MdpPacket mdpPacket = mdpFeedContextMdpPacketPair.getRight();
+            mdpPacketWithIncrement.wrapFromBuffer(mboSnapshotTestMessage);
+            gapChannelController.handleIncrementalPacket(incrementContext, mdpPacketWithIncrement);
+            Pair<MdpFeedContext, MdpPacket> incrementPair = testChannelController.nextIncrementalMessage();
+            assertNotNull(incrementPair);
+            MdpPacket mdpPacket = incrementPair.getRight();
             assertEquals(i, mdpPacket.getMsgSeqNum());
         }
     }
