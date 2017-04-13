@@ -57,8 +57,12 @@ public class MdpPacket implements Iterable<MdpMessage> {
      * @return new instance of MDP Packet
      */
     public static MdpPacket allocate() {
+        return allocate(MDP_PACKET_MAX_SIZE);
+    }
+
+    public static MdpPacket allocate(int size) {
         final MdpPacket packet = instance();
-        final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(SbeConstants.MDP_PACKET_MAX_SIZE).order(ByteOrder.LITTLE_ENDIAN);
+        final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(size).order(ByteOrder.LITTLE_ENDIAN);
         packet.wrapFromBuffer(byteBuffer);
         return packet;
     }
@@ -69,7 +73,7 @@ public class MdpPacket implements Iterable<MdpMessage> {
      * @return copy instance of MDP Packet
      */
     public MdpPacket copy() {
-        final MdpPacket copyInstance = allocate();
+        final MdpPacket copyInstance = allocate(buffer().length());
         copyInstance.buffer().copyFrom(this.buffer());
         return copyInstance;
     }

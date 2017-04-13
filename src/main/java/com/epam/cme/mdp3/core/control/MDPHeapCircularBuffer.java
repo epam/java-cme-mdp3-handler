@@ -22,7 +22,7 @@ public class MDPHeapCircularBuffer implements CircularBuffer<MdpPacket> {
         if(queue.size() == capacity){
             queue.poll();
         }
-        queue.add(entity);
+        queue.add(entity.copy());
     }
 
     @Override

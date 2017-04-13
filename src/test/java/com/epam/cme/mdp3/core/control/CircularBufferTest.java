@@ -30,6 +30,22 @@ public class CircularBufferTest {
     }
 
     @Test
+    public void bufferMustCopyDataFromObject(){
+        MDPHeapCircularBuffer buffer = new MDPHeapCircularBuffer(3);
+        MdpPacket packet = MdpPacket.instance();
+        packet.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
+        buffer.add(packet);
+        packet.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(2));
+        buffer.add(packet);
+        packet.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(3));
+        buffer.add(packet);
+        for (int i = 1; i <= 3; i++) {
+            MdpPacket nextPacket = buffer.remove();
+            assertEquals(i, nextPacket.getMsgSeqNum());
+        }
+    }
+
+    @Test
     public void lowElementsMustBeRemovedIfBufferIsFull(){
         MDPHeapCircularBuffer buffer = new MDPHeapCircularBuffer(3);
         MdpPacket n1 = MdpPacket.instance(); n1.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));

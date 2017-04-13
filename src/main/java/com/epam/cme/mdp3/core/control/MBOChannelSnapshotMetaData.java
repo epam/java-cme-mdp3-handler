@@ -23,7 +23,11 @@ public class MBOChannelSnapshotMetaData {
             metaData = new HashMap<>(metaDataSize);
         }
         long[] securityIdMetaData = metaData.computeIfAbsent(securityId, k -> getEmptyArray((int) noChunks));
-        securityIdMetaData[(int)currentChunk -1] = lastMsgSeqNumProcessed;
+        if(securityIdMetaData.length != noChunks){
+            securityIdMetaData = getEmptyArray((int) noChunks);
+            metaData.put(securityId, securityIdMetaData);
+        }
+        securityIdMetaData[(int) currentChunk - 1] = lastMsgSeqNumProcessed;
     }
 
     public boolean isWholeSnapshotReceived(){

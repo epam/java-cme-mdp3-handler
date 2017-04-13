@@ -77,4 +77,22 @@ public class MBOChannelSnapshotMetaDataTest {
         assertTrue(channelSnapshotMetaData.isWholeSnapshotReceived());
     }
 
+    @Test
+    public void itMustUpdateMetadataCorrectlyIfThereChangedNumberOfChunks(){
+        MBOChannelSnapshotMetaData channelSnapshotMetaData = new MBOChannelSnapshotMetaData();
+        long totNumReports = 2;
+        int securityId1 = 10;
+        int securityId2 = 20;
+        long lastMsgSeqNumProcessed = 1001;
+        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
+        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, 1, 1);
+        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
+        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, 2, 1);
+        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
+        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, 2, 2);
+        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
+        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId2, 1, 1);
+        assertTrue(channelSnapshotMetaData.isWholeSnapshotReceived());
+    }
+
 }

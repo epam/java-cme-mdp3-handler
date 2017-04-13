@@ -2,6 +2,11 @@ package com.epam.cme.mdp3.core.control;
 
 
 public interface CircularBuffer<T> {
+
+    /**
+     * It copies the data from the entry.
+     * @param entity
+     */
     void add(T entity);
 
     /**

@@ -173,7 +173,6 @@ public class InstrumentController {
         this.incrQueueEntry.incrPcktSeqNum = msgSeqNum;
         this.incrQueueEntry.matchEventIndicator = matchEventIndicator;
         this.incrQueueEntry.groupEntry = incrRefreshEntry;
-        logger.trace("It has been push into queue, {}", rptSeqNum);
         this.incrRefreshQueue.push(rptSeqNum, this.incrQueueEntry);
     }
 

@@ -60,18 +60,16 @@ public class GapChannelController implements MBOChannelController {
                             long currentChunk = mdpMessage.getUInt32(CURRENT_CHUNK);
                             long totNumReports = mdpMessage.getUInt32(TOT_NUM_REPORTS);
                             snapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId, noChunks, currentChunk);
-                            target.handleSnapshotPacket(feedContext, mdpPacket);
                         }
                     });
+                    target.handleSnapshotPacket(feedContext, mdpPacket);
                     break;
             }
             if(snapshotMetaData.isWholeSnapshotReceived()){
                 lastProcessedSeqNum = snapshotMetaData.getSnapshotSequence();
-                boolean success = processMessagesFromBuffer(feedContext);
-                if(success){
-                    recoveryManager.stopRecovery();
-                    switchState(ChannelState.SYNC);
-                }
+                processMessagesFromBuffer(feedContext);
+                recoveryManager.stopRecovery();
+                switchState(ChannelState.SYNC);
                 snapshotMetaData.reset();
             }
         } finally {
@@ -127,7 +125,7 @@ public class GapChannelController implements MBOChannelController {
         currentState = newState;
     }
 
-    private boolean processMessagesFromBuffer(MdpFeedContext feedContext){
+    private void processMessagesFromBuffer(MdpFeedContext feedContext){
         while (!buffer.isEmpty()) {
             MdpPacket mdpPacket = buffer.remove();
             long pkgSequence = mdpPacket.getMsgSeqNum();
@@ -140,6 +138,5 @@ public class GapChannelController implements MBOChannelController {
                 break;
             }
         }
-        return buffer.isEmpty();
     }
 }
