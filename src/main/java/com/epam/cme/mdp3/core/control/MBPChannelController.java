@@ -83,14 +83,6 @@ public class MBPChannelController {
         return state;
     }
 
-    public void lock() {
-        this.lock.lock();
-    }
-
-    public void unlock() {
-        this.lock.unlock();
-    }
-
     public void switchState(final ChannelState newState) {
         switchState(this.state, newState);
     }
@@ -272,6 +264,21 @@ public class MBPChannelController {
         return lastIncrPcktReceived;
     }
 
+    public void preClose() {
+        try {
+            lock.lock();
+            switchState(ChannelState.CLOSING);
+        } finally {
+            lock.unlock();
+        }
+    }
+
     public void close() {
+        try {
+            lock.lock();
+            switchState(ChannelState.CLOSED);
+        } finally {
+            lock.unlock();
+        }
     }
 }

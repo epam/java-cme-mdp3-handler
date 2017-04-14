@@ -111,6 +111,17 @@ public interface ChannelListener {
     void onSnapshotFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage);
 
     /**
+     * Called when MDP Snapshot Full Refresh Message for MBO is received and processed.
+     *
+     * @param channelId   ID of MDP Channel
+     * @param secDesc     Security description
+     * @param snptMessage MDP Snapshot Full Refresh Message for MBO
+     */
+    default void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage){
+
+    }
+
+    /**
      * Called when MDP RFQ Message is received and processed.
      *
      * @param channelId  ID of MDP Channel

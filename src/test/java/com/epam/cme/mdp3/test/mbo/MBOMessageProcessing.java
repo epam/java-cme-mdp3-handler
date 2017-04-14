@@ -48,7 +48,7 @@ public class MBOMessageProcessing {
         final MdpPacket mdpPacketWithSnapshot = MdpPacket.instance();
         mdpPacketWithSnapshot.wrapFromBuffer(mboSnapshotTestMessage);
         mdpChannel.handlePacket(smboContext, mdpPacketWithSnapshot);
-        assertNotNull(testListener.nextSnapshotMessage());
+        assertNotNull(testListener.nextMBOSnapshotMessage());
     }
 
 }

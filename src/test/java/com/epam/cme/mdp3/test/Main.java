@@ -15,14 +15,13 @@ package com.epam.cme.mdp3.test;
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
 import com.epam.cme.mdp3.core.control.InstrumentState;
-import com.epam.cme.mdp3.mktdata.enums.SecurityTradingStatus;
+import com.epam.cme.mdp3.sbe.message.SbeDouble;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
 import static com.epam.cme.mdp3.mktdata.MdConstants.SECURITY_ID;
 
 public class Main {
@@ -89,6 +88,20 @@ public class Main {
         public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, final FieldSet incrRefreshEntry) {
             logger.info("[{}] onIncrementalRefresh: ChannelId: {}, SecurityId: {}-{}, MatchEventIndicator: {} (byte representation: '{}')",
                     msgSeqNum, channelId, securityId, secDesc, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
+            if(matchEventIndicator == 132){//MBO only
+                long orderId = incrRefreshEntry.getUInt64(37);
+                long mdOrderPriority = incrRefreshEntry.getUInt64(37707);
+                SbeDouble sbeDouble = SbeDouble.instance();
+                incrRefreshEntry.getDouble(270, sbeDouble);
+                double mdEntryPx = sbeDouble.asDouble();
+                long mdDisplayQty = incrRefreshEntry.getInt32(37706);
+                int securityID = incrRefreshEntry.getInt32(48);
+                int mdUpdateAction = incrRefreshEntry.getUInt8(279);
+                long mdEntryType = incrRefreshEntry.getChar(37706);
+                logger.info("orderId - '{}', mdOrderPriority - '{}', mdEntryPx - '{}', mdDisplayQty - '{}', securityID - '{}', mdUpdateAction - '{}',  mdEntryType - '{}'",
+                        orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, securityID, mdUpdateAction,  mdEntryType);
+
+            }
         }
 
         @Override

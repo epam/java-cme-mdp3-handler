@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class MdpChannelImpl implements MdpChannel {
@@ -68,6 +69,7 @@ public class MdpChannelImpl implements MdpChannel {
     private int queueSlotInitBufferSize = InstrumentController.DEF_QUEUE_SLOT_INIT_BUFFER_SIZE;
     private int incrQueueSize = InstrumentController.DEF_INCR_QUEUE_SIZE;
     private int gapThreshold = InstrumentController.DEF_GAP_THRESHOLD;
+    private volatile ScheduledFuture checkFeedIdleStateFuture;
 
     MdpChannelImpl(final ScheduledExecutorService scheduledExecutorService,
                    final ChannelCfg channelCfg,
@@ -88,7 +90,7 @@ public class MdpChannelImpl implements MdpChannel {
             CircularBuffer<MdpPacket> buffer = new MDPHeapCircularBuffer(incrQueueSize);
             ChannelController target = new MBOChannelControllerRouter(instrumentManager, mdpMessageTypes);
             this.mboChannelController = new GapChannelController(target, getRecoveryManager(), buffer, this.gapThreshold,
-                    listeners, channelId, mdpMessageTypes);
+                    channelId, mdpMessageTypes);
         } else {
             this.instruments = new ChannelInstruments(this.channelContext);
             mboChannelController = new StubChannelController();
@@ -116,23 +118,16 @@ public class MdpChannelImpl implements MdpChannel {
 
     @Override
     public void close() {
-        //todo close MBO controller
-        this.mbpChannelController.lock();
-        try {
-            this.mbpChannelController.switchState(ChannelState.CLOSING);
-        } finally {
-            this.mbpChannelController.unlock();
+        if(checkFeedIdleStateFuture != null){
+            checkFeedIdleStateFuture.cancel(true);
         }
+        mboChannelController.preClose();
+        mbpChannelController.preClose();
         stopAllFeeds();
         feedsA.values().forEach(this::closeFeed);
         feedsB.values().forEach(this::closeFeed);
-        this.mbpChannelController.lock();
-        try {
-            mbpChannelController.close();
-            this.mbpChannelController.switchState(ChannelState.CLOSED);
-        } finally {
-            this.mbpChannelController.unlock();
-        }
+        mboChannelController.close();
+        mbpChannelController.close();
     }
 
     @Override
@@ -180,7 +175,7 @@ public class MdpChannelImpl implements MdpChannel {
     }
 
     private void initChannelStateThread() {
-        this.scheduledExecutorService.scheduleWithFixedDelay(this::checkFeedIdleState,
+        checkFeedIdleStateFuture = scheduledExecutorService.scheduleWithFixedDelay(this::checkFeedIdleState,
                 FEED_IDLE_CHECK_DELAY, FEED_IDLE_CHECK_DELAY, FEED_IDLE_CHECK_DELAY_UNIT);
     }
 
@@ -546,14 +541,8 @@ public class MdpChannelImpl implements MdpChannel {
             final long allowedInactiveEndTime = this.mbpChannelController.getLastIncrPcktReceived() + idleWindowInMillis;
             if (allowedInactiveEndTime < System.currentTimeMillis() &&
                     (incrementalFeedA.isActiveAndNotShutdown() || incrementalFeedB.isActiveAndNotShutdown())) {
-                this.mbpChannelController.lock();
-                try {
-                    if (mbpChannelController.getState() != ChannelState.CLOSING && mbpChannelController.getState() != ChannelState.CLOSED) {
-                        startSnapshotFeeds();
-                    }
-                } finally {
-                    this.mbpChannelController.unlock();
-                }
+                    startSnapshotFeeds();
+                    startSnapshotMBOFeeds();
             }
         }
     }

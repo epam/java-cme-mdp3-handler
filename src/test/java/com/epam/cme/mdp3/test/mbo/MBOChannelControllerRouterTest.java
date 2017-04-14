@@ -41,7 +41,7 @@ public class MBOChannelControllerRouterTest {
         ByteBuffer mboSnapshotTestMessage = ModelUtils.getMBOSnapshotTestMessage(1, testSecurityId);
         mdpPacketWithSnapshot.wrapFromBuffer(mboSnapshotTestMessage);
         channelController.handleSnapshotPacket(smboContext, mdpPacketWithSnapshot);
-        assertNotNull(testListener.nextSnapshotMessage());
+        assertNotNull(testListener.nextMBOSnapshotMessage());
     }
 
     @Test

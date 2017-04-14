@@ -8,14 +8,11 @@ import com.epam.cme.mdp3.core.control.GapChannelController;
 import com.epam.cme.mdp3.core.control.MDPHeapCircularBuffer;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.test.ModelUtils;
-import com.epam.cme.mdp3.test.TestChannelListener;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +26,6 @@ public class GapChannelControllerTest {
     private TestChannelController testChannelController;
     private final int bufferCapacity = 10;
     private final String testChannelId = "1";
-    private TestChannelListener testChannelListener;
     private TestRecoveryManager testRecoveryManager;
     private boolean recoveryStarted;
 
@@ -38,26 +34,24 @@ public class GapChannelControllerTest {
         recoveryStarted = false;
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(TEMPLATE_NAME).toURI());
-        testChannelListener = new TestChannelListener();
-        List<ChannelListener> listeners = Collections.singletonList(testChannelListener);
         testChannelController = new TestChannelController();
         CircularBuffer<MdpPacket> buffer = new MDPHeapCircularBuffer(bufferCapacity);
         testRecoveryManager = new TestRecoveryManager();
-        gapChannelController = new GapChannelController(testChannelController, testRecoveryManager, buffer, 0, listeners, testChannelId, mdpMessageTypes);
+        gapChannelController = new GapChannelController(testChannelController, testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes);
 
     }
 
-    @Test
-    public void itMustChangeItsStateAndBeReadyToWorkAfterSnapshot() throws InterruptedException {
-        int lastMsgSeqNumProcessed = 1000;
-        Pair<MdpFeedContext, MdpPacket> mdpFeedContextMdpPacketPair = sendInitialMBOSnapshot(lastMsgSeqNumProcessed);
-        assertNotNull(mdpFeedContextMdpPacketPair);
-
-        Pair<ChannelState, ChannelState> channelStateChannelStatePair = testChannelListener.nextChannelState();
-        assertNotNull(channelStateChannelStatePair);
-        assertEquals(ChannelState.INITIAL, channelStateChannelStatePair.getLeft());
-        assertEquals(ChannelState.SYNC, channelStateChannelStatePair.getRight());
-    }
+//    @Test
+//    public void itMustChangeItsStateAndBeReadyToWorkAfterSnapshot() throws InterruptedException {
+//        int lastMsgSeqNumProcessed = 1000;
+//        Pair<MdpFeedContext, MdpPacket> mdpFeedContextMdpPacketPair = sendInitialMBOSnapshot(lastMsgSeqNumProcessed);
+//        assertNotNull(mdpFeedContextMdpPacketPair);
+//
+//        Pair<ChannelState, ChannelState> channelStateChannelStatePair = testChannelListener.nextChannelState();
+//        assertNotNull(channelStateChannelStatePair);
+//        assertEquals(ChannelState.INITIAL, channelStateChannelStatePair.getLeft());
+//        assertEquals(ChannelState.SYNC, channelStateChannelStatePair.getRight());
+//    }
 
     @Test
     public void incrementalMessagesMustBeSentToClientsIfThereAreNoGaps() throws Exception {
@@ -80,18 +74,15 @@ public class GapChannelControllerTest {
     public void itMustHandleMessagesInSequenceOrder() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(TEMPLATE_NAME).toURI());
-        testChannelListener = new TestChannelListener();
-        List<ChannelListener> listeners = Collections.singletonList(testChannelListener);
         testChannelController = new TestChannelController();
         CircularBuffer<MdpPacket> buffer = new MDPHeapCircularBuffer(bufferCapacity);
         testRecoveryManager = new TestRecoveryManager();
         int gapThreshold = 3;
-        gapChannelController = new GapChannelController(testChannelController, testRecoveryManager, buffer, gapThreshold, listeners, testChannelId, mdpMessageTypes);
+        gapChannelController = new GapChannelController(testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes);
 
 
         int lastMsgSeqNumProcessed = 0;
         sendInitialMBOSnapshot(lastMsgSeqNumProcessed);
-        assertNotNull(testChannelListener.nextChannelState());//changed from INITIAL to OUTOFSYNC
         final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(1));
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(2));
@@ -112,17 +103,11 @@ public class GapChannelControllerTest {
     public void itMustStartRecoveryIfThereIsGapAndResendMessagesAfter() throws Exception {
         int lastMsgSeqNumProcessed = 0;
         sendInitialMBOSnapshot(lastMsgSeqNumProcessed);
-        assertNotNull(testChannelListener.nextChannelState());//changed from INITIAL to OUTOFSYNC
         final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(1));
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(2));
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(4));
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(5));
-
-        Pair<ChannelState, ChannelState> channelStateChannelStatePair = testChannelListener.nextChannelState();
-        assertNotNull(channelStateChannelStatePair);
-        assertEquals(ChannelState.SYNC, channelStateChannelStatePair.getLeft());
-        assertEquals(ChannelState.OUTOFSYNC, channelStateChannelStatePair.getRight());
 
         assertTrue(recoveryStarted);
 
@@ -190,6 +175,16 @@ public class GapChannelControllerTest {
         @Override
         public void handleIncrementalPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {
             incrementalQueue.add(new ImmutablePair<>(feedContext, mdpPacket));
+        }
+
+        @Override
+        public void preClose() {
+
+        }
+
+        @Override
+        public void close() {
+
         }
 
         public Pair<MdpFeedContext, MdpPacket> nextSnapshotMessage() throws InterruptedException {

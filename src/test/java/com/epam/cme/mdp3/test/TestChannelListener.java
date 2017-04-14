@@ -13,7 +13,7 @@ import static com.epam.cme.mdp3.test.Constants.WAITING_TIME_IN_MILLIS;
 
 public class TestChannelListener implements ChannelListener {
     private BlockingQueue<IncrementalRefreshEntity> incrementQueue = new LinkedBlockingQueue<>();
-    private BlockingQueue<Pair<String,MdpMessage>> snapshotQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<Pair<String,MdpMessage>> mboSnapshotQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<String,MdpMessage>> securitiesQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<ChannelState,ChannelState>> channelStatesQueue = new LinkedBlockingQueue<>();
 
@@ -65,7 +65,12 @@ public class TestChannelListener implements ChannelListener {
 
     @Override
     public void onSnapshotFullRefresh(String channelId, String secDesc, MdpMessage snptMessage) {
-        snapshotQueue.add(new ImmutablePair<>(channelId, snptMessage));
+
+    }
+
+    @Override
+    public void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage){
+        mboSnapshotQueue.add(new ImmutablePair<>(channelId, snptMessage));
     }
 
     @Override
@@ -78,8 +83,8 @@ public class TestChannelListener implements ChannelListener {
 
     }
 
-    public Pair<String,MdpMessage> nextSnapshotMessage() throws InterruptedException {
-        return snapshotQueue.poll(WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
+    public Pair<String,MdpMessage> nextMBOSnapshotMessage() throws InterruptedException {
+        return mboSnapshotQueue.poll(WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     public Pair<String,MdpMessage> nextSecurityMessage() throws InterruptedException {

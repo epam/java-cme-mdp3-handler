@@ -1,6 +1,17 @@
+/*
+ * Copyright 2004-2016 EPAM Systems
+ * This file is part of Java Market Data Handler for CME Market Data (MDP 3.0).
+ * Java Market Data Handler for CME Market Data (MDP 3.0) is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * Java Market Data Handler for CME Market Data (MDP 3.0) is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with Java Market Data Handler for CME Market Data (MDP 3.0).
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.epam.cme.mdp3.core.control;
 
-import com.epam.cme.mdp3.ChannelListener;
 import com.epam.cme.mdp3.ChannelState;
 import com.epam.cme.mdp3.MdpPacket;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
@@ -8,7 +19,6 @@ import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -21,7 +31,6 @@ public class GapChannelController implements MBOChannelController {
     private final CircularBuffer<MdpPacket> buffer;
     private final RecoveryManager recoveryManager;
     private final ChannelController target;
-    private final List<ChannelListener> listeners;
     private final String channelId;
     private final MBOChannelSnapshotMetaData snapshotMetaData;
     private long lastProcessedSeqNum;
@@ -30,12 +39,11 @@ public class GapChannelController implements MBOChannelController {
 
 
     public GapChannelController(ChannelController target, RecoveryManager recoveryManager, CircularBuffer<MdpPacket> buffer,
-                                int gapThreshold, List<ChannelListener> listeners, String channelId, MdpMessageTypes mdpMessageTypes) {
+                                int gapThreshold, String channelId, MdpMessageTypes mdpMessageTypes) {
         this.buffer = buffer;
         this.recoveryManager = recoveryManager;
         this.target = target;
         this.gapThreshold = gapThreshold;
-        this.listeners = listeners;
         this.channelId = channelId;
         this.mdpMessageTypes = mdpMessageTypes;
         snapshotMetaData = new MBOChannelSnapshotMetaData();
@@ -114,6 +122,16 @@ public class GapChannelController implements MBOChannelController {
         }
     }
 
+    @Override
+    public void preClose() {
+        switchState(ChannelState.CLOSING);
+    }
+
+    @Override
+    public void close() {
+        switchState(ChannelState.CLOSED);
+    }
+
     public interface RecoveryManager {
         void startRecovery();
         void stopRecovery();
@@ -121,7 +139,6 @@ public class GapChannelController implements MBOChannelController {
 
     private void switchState(ChannelState newState) {
         log.debug("Channel '{}' has changed its state from '{}' to '{}'", channelId, currentState, newState);
-        listeners.forEach(channelListener -> channelListener.onChannelStateChanged(channelId, currentState, newState));
         currentState = newState;
     }
 
