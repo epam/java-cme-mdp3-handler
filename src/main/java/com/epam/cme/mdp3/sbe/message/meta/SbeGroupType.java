@@ -44,9 +44,14 @@ public class SbeGroupType {
 
     public void calcDimensionBlockFields() {
         final EncodedDataType blockLength = this.dimensionType.getType().get(0);
-        this.numInGroupOffset = SbePrimitiveType.fromString(blockLength.getPrimitiveType()).getSize();
         final EncodedDataType numInGroup = this.dimensionType.getType().get(1);
-        this.dimensionBlockLength = this.numInGroupOffset + SbePrimitiveType.fromString(numInGroup.getPrimitiveType()).getSize();
+        int offset = numInGroup.getOffset();
+        if(offset > 0) {
+            numInGroupOffset = offset;
+        } else {
+            numInGroupOffset = SbePrimitiveType.fromString(blockLength.getPrimitiveType()).getSize();
+        }
+        dimensionBlockLength = numInGroupOffset + SbePrimitiveType.fromString(numInGroup.getPrimitiveType()).getSize();
     }
 
     public MetadataContainer getMetadataContainer() {

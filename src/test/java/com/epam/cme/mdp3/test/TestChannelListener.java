@@ -60,7 +60,13 @@ public class TestChannelListener implements ChannelListener {
 
     @Override
     public void onIncrementalRefresh(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet incrRefreshEntry) {
-        incrementQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, incrRefreshEntry));
+
+    }
+
+    @Override
+    public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
+                                 final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
+        incrementQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry.copy(), mdEntry != null ? mdEntry.copy() : null));
     }
 
     @Override
@@ -70,7 +76,7 @@ public class TestChannelListener implements ChannelListener {
 
     @Override
     public void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage){
-        mboSnapshotQueue.add(new ImmutablePair<>(channelId, snptMessage));
+        mboSnapshotQueue.add(new ImmutablePair<>(channelId, snptMessage.copy()));
     }
 
     @Override
@@ -105,15 +111,17 @@ public class TestChannelListener implements ChannelListener {
         private int securityId;
         private String secDesc;
         private long msgSeqNum;
-        private FieldSet incrRefreshEntry;
+        private FieldSet orderIDEntry;
+        private FieldSet mdEntry;
 
-        public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet incrRefreshEntry) {
+        public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet orderIDEntry, FieldSet mdEntry) {
             this.channelId = channelId;
             this.matchEventIndicator = matchEventIndicator;
             this.securityId = securityId;
             this.secDesc = secDesc;
             this.msgSeqNum = msgSeqNum;
-            this.incrRefreshEntry = incrRefreshEntry;
+            this.orderIDEntry = orderIDEntry;
+            this.mdEntry = mdEntry;
         }
 
         public String getChannelId() {
@@ -136,8 +144,12 @@ public class TestChannelListener implements ChannelListener {
             return msgSeqNum;
         }
 
-        public FieldSet getIncrRefreshEntry() {
-            return incrRefreshEntry;
+        public FieldSet getOrderIDEntry() {
+            return orderIDEntry;
+        }
+
+        public FieldSet getMdEntry() {
+            return mdEntry;
         }
     }
 

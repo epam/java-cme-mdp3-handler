@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Now it is dirty implementation for unit tests and debug. It must be implemented to not allocate data in future, use one off-heap structure.
  */
-public class MBOChannelSnapshotMetaData {
+public class MBOSnapshotCycleHandler {
     private final static long SNAPSHOT_SEQUENCE_UNDEFINED = -1;
     private volatile Map<Integer, long[]> metaData;
     private volatile long snapshotSequence = SNAPSHOT_SEQUENCE_UNDEFINED;

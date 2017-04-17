@@ -60,6 +60,9 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
     public SbeBuffer copy() {
         final SbeBuffer copyInstance = new SbeBufferImpl();
         copyInstance.copyFrom(this);
+        copyInstance.offset(offset());
+        copyInstance.length(length());
+        copyInstance.position(position());
         return copyInstance;
     }
 

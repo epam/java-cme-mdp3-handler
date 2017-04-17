@@ -33,10 +33,10 @@ public class MBOInstrumentController {
         this.secDesc = secDesc;
     }
 
-    public void handleIncrementMDEntry(MdpMessage mdpMessage, MdpGroupEntry mdpGroup, long msgSeqNum){
+    public void handleIncrementMDEntry(MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
         if(enable) {
             short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
-            listeners.forEach(channelListener -> channelListener.onIncrementalRefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, mdpGroup));
+            listeners.forEach(channelListener -> channelListener.onIncrementalMBORefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry, mdEntry));
         }
     }
 

@@ -15,6 +15,8 @@ package com.epam.cme.mdp3.core.control;
 
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
+import com.epam.cme.mdp3.sbe.message.SbeGroup;
+import com.epam.cme.mdp3.sbe.message.SbeGroupEntry;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 
 import static com.epam.cme.mdp3.mktdata.MdConstants.*;
@@ -22,6 +24,8 @@ import static com.epam.cme.mdp3.mktdata.MdConstants.*;
 public class MBOChannelControllerRouter implements MBOChannelController {
     private InstrumentManager instrumentManager;
     private MdpMessageTypes mdpMessageTypes;
+    private MdpGroupEntry mdEntry = SbeGroupEntry.instance();
+    private MdpGroup noMdEntriesGroup = SbeGroup.instance();
 
     public MBOChannelControllerRouter(InstrumentManager instrumentManager, MdpMessageTypes mdpMessageTypes){
         this.instrumentManager = instrumentManager;
@@ -50,14 +54,25 @@ public class MBOChannelControllerRouter implements MBOChannelController {
         mdpPacket.forEach(mdpMessage -> {
             updateSemanticMsgType(mdpMessageTypes, mdpMessage);
             if(isMessageSupported(mdpMessage)){
-                mdpMessage.getGroup(NO_MD_ENTRIES, mdpGroup);
-                while (mdpGroup.hashNext()){
-                    mdpGroup.next();
-                    mdpGroup.getEntry(mdpGroupEntry);
-                    int securityId = getSecurityId(mdpGroupEntry);
-                    MBOInstrumentController mboInstrumentController = instrumentManager.getMBOInstrumentController(securityId);
-                    if(mboInstrumentController != null) {
-                        mboInstrumentController.handleIncrementMDEntry(mdpMessage, mdpGroupEntry, msgSeqNum);
+                if(isIncrementOnlyForMBO(mdpMessage)) {
+                    mdpMessage.getGroup(NO_MD_ENTRIES, mdpGroup);
+                    while (mdpGroup.hashNext()) {
+                        mdpGroup.next();
+                        mdpGroup.getEntry(mdpGroupEntry);
+                        int securityId = getSecurityId(mdpGroupEntry);
+                        routeEntry(securityId, mdpMessage, mdpGroupEntry, null, msgSeqNum);
+                    }
+                } else {
+                    if(mdpMessage.getGroup(NO_ORDER_ID_ENTRIES, mdpGroup)) {
+                        while (mdpGroup.hashNext()) {
+                            mdpMessage.getGroup(NO_MD_ENTRIES, noMdEntriesGroup);
+                            mdpGroup.next();
+                            mdpGroup.getEntry(mdpGroupEntry);
+                            short entryNum = mdpGroupEntry.getUInt8(REFERENCE_ID);
+                            noMdEntriesGroup.getEntry(entryNum, mdEntry);
+                            int securityId = mdEntry.getInt32(SECURITY_ID);
+                            routeEntry(securityId, mdpMessage, mdpGroupEntry, mdEntry, msgSeqNum);
+                        }
                     }
                 }
             }
@@ -86,5 +101,12 @@ public class MBOChannelControllerRouter implements MBOChannelController {
 
     private int getSecurityId(MdpGroupEntry mdpGroupEntry){
         return mdpGroupEntry.getInt32(SECURITY_ID);
+    }
+
+    private void routeEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
+        MBOInstrumentController mboInstrumentController = instrumentManager.getMBOInstrumentController(securityId);
+        if (mboInstrumentController != null) {
+            mboInstrumentController.handleIncrementMDEntry(mdpMessage, orderIDEntry, mdEntry, msgSeqNum);
+        }
     }
 }

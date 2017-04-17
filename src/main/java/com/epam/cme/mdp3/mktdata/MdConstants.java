@@ -29,5 +29,5 @@ public interface MdConstants {
     int NO_CHUNKS = 37709;
     int CURRENT_CHUNK = 37710;
     int TOT_NUM_REPORTS = 911;
-
+    int REFERENCE_ID = 9633;
 }

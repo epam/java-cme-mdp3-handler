@@ -32,7 +32,7 @@ public class GapChannelController implements MBOChannelController {
     private final RecoveryManager recoveryManager;
     private final ChannelController target;
     private final String channelId;
-    private final MBOChannelSnapshotMetaData snapshotMetaData;
+    private final MBOSnapshotCycleHandler snapshotMetaData;
     private long lastProcessedSeqNum;
     private ChannelState currentState = ChannelState.INITIAL;
     private MdpMessageTypes mdpMessageTypes;
@@ -46,7 +46,7 @@ public class GapChannelController implements MBOChannelController {
         this.gapThreshold = gapThreshold;
         this.channelId = channelId;
         this.mdpMessageTypes = mdpMessageTypes;
-        snapshotMetaData = new MBOChannelSnapshotMetaData();
+        snapshotMetaData = new MBOSnapshotCycleHandler();
     }
 
     @Override

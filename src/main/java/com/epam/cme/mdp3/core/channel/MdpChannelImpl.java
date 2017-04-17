@@ -367,6 +367,12 @@ public class MdpChannelImpl implements MdpChannel {
         stopSnapshotFeedB();
     }
 
+    @Override
+    public void stopSnapshotMBOFeeds() {
+        stopSnapshotMBOFeedA();
+        stopSnapshotMBOFeedB();
+    }
+
     void subscribeToSnapshotsForInstrument(final Integer securityId) {
         mbpChannelController.addOutOfSyncInstrument(securityId);
         startSnapshotFeeds();
@@ -542,7 +548,9 @@ public class MdpChannelImpl implements MdpChannel {
             if (allowedInactiveEndTime < System.currentTimeMillis() &&
                     (incrementalFeedA.isActiveAndNotShutdown() || incrementalFeedB.isActiveAndNotShutdown())) {
                     startSnapshotFeeds();
-                    startSnapshotMBOFeeds();
+                    if(isMBOEnable(channelCfg)) {
+                        startSnapshotMBOFeeds();
+                    }
             }
         }
     }
@@ -587,8 +595,7 @@ public class MdpChannelImpl implements MdpChannel {
 
             @Override
             public void stopRecovery() {
-                stopSnapshotMBOFeedA();
-                stopSnapshotMBOFeedB();
+                stopSnapshotMBOFeeds();
             }
         };
     }

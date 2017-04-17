@@ -16,6 +16,47 @@ public class ModelUtils {
         return getMBOSnapshotTestMessage(sequence, securityId, 100, 1, 1, 1);
     }
 
+    public static ByteBuffer getMBPWithMBOIncrementTestMessage(long sequence, int[] securityIds, short[] referenceIDs){
+        short bufferOffset = 0;
+        final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();
+        MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+        MDIncrementalRefreshBook32Encoder mdIncrementalRefreshBook32Encoder = new MDIncrementalRefreshBook32Encoder();
+        messageHeaderEncoder.wrap(mutableDirectBuffer, bufferOffset)
+                .blockLength(mdIncrementalRefreshBook32Encoder.sbeBlockLength())
+                .templateId(mdIncrementalRefreshBook32Encoder.sbeTemplateId())
+                .schemaId(mdIncrementalRefreshBook32Encoder.sbeSchemaId())
+                .version(mdIncrementalRefreshBook32Encoder.sbeSchemaVersion());
+        bufferOffset += messageHeaderEncoder.encodedLength();
+        MDIncrementalRefreshBook32Encoder.NoMDEntriesEncoder noMDEntriesEncoder = mdIncrementalRefreshBook32Encoder.wrap(mutableDirectBuffer, bufferOffset)
+                .transactTime(System.currentTimeMillis())
+                .noMDEntriesCount(securityIds.length);
+        MatchEventIndicatorEncoder matchEventIndicatorEncoder = mdIncrementalRefreshBook32Encoder.matchEventIndicator();
+        matchEventIndicatorEncoder.lastTradeMsg(true);
+        for (int i = 0; i < securityIds.length; i++) {
+            noMDEntriesEncoder.next()
+                    .mDEntrySize(2)
+                    .mDEntryType(MDEntryTypeBook.Bid)
+                    .mDPriceLevel((short) 3)
+                    .rptSeq(4)
+                    .securityID(securityIds[i]);
+            PRICENULLEncoder pricenullEncoder = noMDEntriesEncoder.mDEntryPx();
+            pricenullEncoder.mantissa(5);
+        }
+        if(referenceIDs != null){
+            MDIncrementalRefreshBook32Encoder.NoOrderIDEntriesEncoder noOrderIDEntriesEncoder = mdIncrementalRefreshBook32Encoder.noOrderIDEntriesCount(referenceIDs.length);
+            for (int i = 0; i < referenceIDs.length; i++) {
+                noOrderIDEntriesEncoder.next()
+                        .orderUpdateAction(OrderUpdateAction.New)
+                        .mDDisplayQty(213)
+                        .mDOrderPriority(324324)
+                        .orderID(3243324)
+                        .referenceID(referenceIDs[i]);
+            }
+        }
+        bufferOffset += mdIncrementalRefreshBook32Encoder.encodedLength();
+        return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
+    }
+
     public static ByteBuffer getMBOSnapshotTestMessage(long sequence, int securityId, long lastMsgSeqNumProcessed, long noChunks, long currentChunk, long totNumReports){
         short bufferOffset = 0;
         final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();

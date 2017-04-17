@@ -253,6 +253,8 @@ public interface MdpChannel {
      */
     void stopSnapshotFeeds();
 
+    void stopSnapshotMBOFeeds();
+
     /**
      * Subscribes to the given Security with the given Subscription options and Depth.
      *

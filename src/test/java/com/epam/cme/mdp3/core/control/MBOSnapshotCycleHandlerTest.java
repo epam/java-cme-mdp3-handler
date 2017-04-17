@@ -5,11 +5,11 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 
-public class MBOChannelSnapshotMetaDataTest {
+public class MBOSnapshotCycleHandlerTest {
 
     @Test
     public void itMustUpdateMetadataAndGiveCorrectResultWhenWholeSnapshotIsReceived(){
-        MBOChannelSnapshotMetaData channelSnapshotMetaData = new MBOChannelSnapshotMetaData();
+        MBOSnapshotCycleHandler channelSnapshotMetaData = new MBOSnapshotCycleHandler();
         long totNumReports = 2;
         int securityId1 = 10;
         int securityId2 = 20;
@@ -27,7 +27,7 @@ public class MBOChannelSnapshotMetaDataTest {
 
     @Test
     public void itMustUpdateMetadataAndGiveCorrectResultWhenWholeSnapshotIsReceivedInOneMessage(){
-        MBOChannelSnapshotMetaData channelSnapshotMetaData = new MBOChannelSnapshotMetaData();
+        MBOSnapshotCycleHandler channelSnapshotMetaData = new MBOSnapshotCycleHandler();
         long totNumReports = 1;
         int securityId1 = 10;
         long securityId1NoChunks = 1;
@@ -39,7 +39,7 @@ public class MBOChannelSnapshotMetaDataTest {
 
     @Test
     public void itMustUpdateMetadataAndGiveCorrectResultWhenWholeSnapshotIsReceivedWithZeroSequence(){
-        MBOChannelSnapshotMetaData channelSnapshotMetaData = new MBOChannelSnapshotMetaData();
+        MBOSnapshotCycleHandler channelSnapshotMetaData = new MBOSnapshotCycleHandler();
         long totNumReports = 1;
         int securityId1 = 10;
         long securityId1NoChunks = 1;
@@ -51,7 +51,7 @@ public class MBOChannelSnapshotMetaDataTest {
 
     @Test
     public void metaDataMustBeRebuiltIfItContainsDifferentSequences(){
-        MBOChannelSnapshotMetaData channelSnapshotMetaData = new MBOChannelSnapshotMetaData();
+        MBOSnapshotCycleHandler channelSnapshotMetaData = new MBOSnapshotCycleHandler();
         long totNumReports = 2;
         int securityId1 = 10;
         int securityId2 = 20;
@@ -79,7 +79,7 @@ public class MBOChannelSnapshotMetaDataTest {
 
     @Test
     public void itMustUpdateMetadataCorrectlyIfThereChangedNumberOfChunks(){
-        MBOChannelSnapshotMetaData channelSnapshotMetaData = new MBOChannelSnapshotMetaData();
+        MBOSnapshotCycleHandler channelSnapshotMetaData = new MBOSnapshotCycleHandler();
         long totNumReports = 2;
         int securityId1 = 10;
         int securityId2 = 20;

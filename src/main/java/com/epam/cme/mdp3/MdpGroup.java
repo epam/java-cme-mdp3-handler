@@ -50,6 +50,14 @@ public interface MdpGroup extends FieldSet {
     void getEntry(MdpGroupEntry groupEntry);
 
     /**
+     * Copies data of defined MDP Group entry to the given instance.
+     *
+     * @param entryNum number of entry
+     * @param groupEntry MDP Group Entry
+     */
+    void getEntry(int entryNum, MdpGroupEntry groupEntry);
+
+    /**
      * Creates copy of the current Mdp Group
      *
      * @return a copy instance of the of the current Mdp Group
