@@ -52,8 +52,10 @@ public class GapChannelController implements MBOChannelController {
     @Override
     public void handleSnapshotPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {
         final long pkgSequence = mdpPacket.getMsgSeqNum();
-        log.trace("Feed {}:{} | handleSnapshotPacket: previous processed sequence '{}', current packet's sequence '{}'",
-                feedContext.getFeedType(), feedContext.getFeed(), lastProcessedSeqNum, pkgSequence);
+        if(log.isTraceEnabled()) {
+            log.trace("Feed {}:{} | handleSnapshotPacket: previous processed sequence '{}', current packet's sequence '{}'",
+                    feedContext.getFeedType(), feedContext.getFeed(), lastProcessedSeqNum, pkgSequence);
+        }
         try {
             lock.lock();
             switch (currentState) {
@@ -88,8 +90,10 @@ public class GapChannelController implements MBOChannelController {
     @Override
     public void handleIncrementalPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {
         final long pkgSequence = mdpPacket.getMsgSeqNum();
-        log.trace("Feed {}:{} | handleIncrementalPacket: previous processed sequence '{}', current packet's sequence '{}'",
-                feedContext.getFeedType(), feedContext.getFeed(), lastProcessedSeqNum, pkgSequence);
+        if(log.isTraceEnabled()) {
+            log.trace("Feed {}:{} | handleIncrementalPacket: previous processed sequence '{}', current packet's sequence '{}'",
+                    feedContext.getFeedType(), feedContext.getFeed(), lastProcessedSeqNum, pkgSequence);
+        }
         try {
             lock.lock();
             switch (currentState){
@@ -106,15 +110,19 @@ public class GapChannelController implements MBOChannelController {
                             switchState(ChannelState.OUTOFSYNC);
                         }
                     } else {
-                        log.trace("Feed {}:{} | handleIncrementalPacket: packet that has sequence '{}' has been skipped. Expected sequence '{}'",
-                                feedContext.getFeedType(), feedContext.getFeed(), pkgSequence, expectedSequence);
+                        if(log.isTraceEnabled()) {
+                            log.trace("Feed {}:{} | handleIncrementalPacket: packet that has sequence '{}' has been skipped. Expected sequence '{}'",
+                                    feedContext.getFeedType(), feedContext.getFeed(), pkgSequence, expectedSequence);
+                        }
                     }
                     break;
                 case INITIAL:
                 case OUTOFSYNC:
                     buffer.add(mdpPacket);
-                    log.trace("Feed {}:{} | handleIncrementalPacket: current state is '{}', so the packet with sequence '{}' has been put into buffer",
-                            feedContext.getFeedType(), feedContext.getFeed(), currentState, pkgSequence);
+                    if(log.isTraceEnabled()) {
+                        log.trace("Feed {}:{} | handleIncrementalPacket: current state is '{}', so the packet with sequence '{}' has been put into buffer",
+                                feedContext.getFeedType(), feedContext.getFeed(), currentState, pkgSequence);
+                    }
                     break;
             }
         } finally {

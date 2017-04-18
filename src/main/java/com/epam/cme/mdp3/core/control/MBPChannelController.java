@@ -98,8 +98,10 @@ public class MBPChannelController {
 
     public void handleIncrementalPacket(final MdpFeedContext feedContext, final MdpPacket mdpPacket, final boolean fromQueue) {
         final long msgSeqNum = mdpPacket.getMsgSeqNum();
-        logger.trace("Feed {}{} | handleIncrementalPacket: this.prcdSeqNum={}, mdpPacket.getMsgSeqNum()={}",
+        if(logger.isTraceEnabled()) {
+            logger.trace("Feed {}{} | handleIncrementalPacket: this.prcdSeqNum={}, mdpPacket.getMsgSeqNum()={}",
                     feedContext.getFeedType(), feedContext.getFeed(), this.prcdSeqNum, msgSeqNum);
+        }
         lock.lock();
         try {
             this.lastIncrPcktReceived = System.currentTimeMillis();

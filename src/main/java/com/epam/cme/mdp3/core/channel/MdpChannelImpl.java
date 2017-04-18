@@ -446,7 +446,9 @@ public class MdpChannelImpl implements MdpChannel {
     public void handlePacket(final MdpFeedContext feedContext, final MdpPacket mdpPacket) {
         final FeedType feedType = feedContext.getFeedType();
         final Feed feed = feedContext.getFeed();
-        logger.trace("New MDP Packet: #{} from Feed {}:{}", mdpPacket.getMsgSeqNum(), feedType, feed);
+        if (logger.isTraceEnabled()) {
+            logger.trace("New MDP Packet: #{} from Feed {}:{}", mdpPacket.getMsgSeqNum(), feedType, feed);
+        }
         channelContext.notifyPacketReceived(feedType, feed, mdpPacket);
         if (feedType == FeedType.N) {
             instruments.onPacket(feedContext, mdpPacket);

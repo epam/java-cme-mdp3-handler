@@ -29,7 +29,7 @@ public class InstrumentController {
 
     private static final Logger logger = LoggerFactory.getLogger(InstrumentController.class);
 
-    private final Integer securityId;
+    private final int securityId;
     private String secDesc;
     private final ChannelContext channelContext;
     private InstrumentState state = InstrumentState.INITIAL;
@@ -130,16 +130,18 @@ public class InstrumentController {
     }
 
     private void handleIncrementalQueue(final MdpFeedContext feedContext, final long prcdSeqNum) {
-        logger.debug("Feed {}:{} | handleIncrementalQueue: after {}",
-                feedContext.getFeedType(), feedContext.getFeed(), prcdSeqNum);
-
+        if(logger.isDebugEnabled()) {
+            logger.debug("Feed {}:{} | handleIncrementalQueue: after {}",
+                    feedContext.getFeedType(), feedContext.getFeed(), prcdSeqNum);
+        }
         final IncrementalRefreshQueue queue = this.incrRefreshQueue;
 
         for (long i = prcdSeqNum + 1; i <= queue.getLastRptSeqNum(); i++) {
             if (queue.poll(i, this.incrQueueEntry) > 0) {
-                logger.trace("Feed {}:{} | Process incremental entry #{} from queue",
-                        feedContext.getFeedType(), feedContext.getFeed(), i);
-
+                if(logger.isTraceEnabled()) {
+                    logger.trace("Feed {}:{} | Process incremental entry #{} from queue",
+                            feedContext.getFeedType(), feedContext.getFeed(), i);
+                }
                 if (!handleSecurityRefreshInQueue(this.incrQueueEntry)) {
                     return;
                 }
@@ -180,7 +182,7 @@ public class InstrumentController {
         mdHandler.commitEvent();
     }
 
-    public Integer getSecurityId() {
+    public int getSecurityId() {
         return securityId;
     }
 
@@ -212,8 +214,10 @@ public class InstrumentController {
                             snptSeqNum, this.incrRefreshQueue.getLastRptSeqNum());*/
                 }
             } else if (currentState == InstrumentState.SYNC && snptSeqNum > this.processedRptSeqNum) {
-                logger.trace("Feed {}:{} | #{} | Instrument: '{}'. State: {}. Snapshot with high sequence comes faster then Increments. Fast forward from {} to {}",
-                        feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, processedRptSeqNum, snptSeqNum + 1);
+                if(logger.isTraceEnabled()) {
+                    logger.trace("Feed {}:{} | #{} | Instrument: '{}'. State: {}. Snapshot with high sequence comes faster then Increments. Fast forward from {} to {}",
+                            feedContext.getFeedType(), feedContext.getFeed(), snptSeqNum, this.getSecurityId(), this.state, processedRptSeqNum, snptSeqNum + 1);
+                }
                 this.processedRptSeqNum = snptSeqNum;
                 this.mdHandler.reset();
                 handleSnapshotFullRefreshEntries(feedContext, fullRefreshMsg);
@@ -226,8 +230,10 @@ public class InstrumentController {
         final InstrumentState currentState = this.state;
         if (incrRefreshEntry.hasField(RPT_SEQ_NUM)) {
             final long rptSeqNum = incrRefreshEntry.getUInt32(RPT_SEQ_NUM);
-            logger.debug("Feed {}:{} | #{} | RPT#{} | SecurityId={}, state={}, prcd={}",
-                    feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, rptSeqNum, this.getSecurityId(), this.state, this.processedRptSeqNum);
+            if(logger.isDebugEnabled()) {
+                logger.debug("Feed {}:{} | #{} | RPT#{} | SecurityId={}, state={}, prcd={}",
+                        feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, rptSeqNum, this.getSecurityId(), this.state, this.processedRptSeqNum);
+            }
             final long expectedRptSeqNum = this.processedRptSeqNum + 1;
             if (currentState == InstrumentState.SYNC) {
                 if (rptSeqNum == expectedRptSeqNum) {
@@ -246,8 +252,10 @@ public class InstrumentController {
                 }
             } else if (currentState == InstrumentState.OUTOFSYNC) {
                 if (rptSeqNum == expectedRptSeqNum) {
-                    logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got expected increment to restore: #{}",
-                            feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.state, expectedRptSeqNum);
+                    if(logger.isTraceEnabled()) {
+                        logger.trace("Feed {}{} | #{} | Instrument: '{}'. State: {}. Got expected increment to restore: #{}",
+                                feedContext.getFeedType(), feedContext.getFeed(), msgSeqNum, this.getSecurityId(), this.state, expectedRptSeqNum);
+                    }
                     this.processedRptSeqNum = rptSeqNum;
                     switchState(currentState, InstrumentState.SYNC);
                     handleIncrementalRefreshEntry(msgSeqNum, matchEventIndicator, incrRefreshEntry);
