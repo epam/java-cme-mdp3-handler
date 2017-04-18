@@ -541,17 +541,21 @@ public class MdpChannelImpl implements MdpChannel {
     }
 
     private void checkFeedIdleState() {
-        synchronized (this) {
-            MdpFeedWorker incrementalFeedA = feedsA.get(FeedType.I).getLeft();
-            MdpFeedWorker incrementalFeedB = feedsB.get(FeedType.I).getLeft();
-            final long allowedInactiveEndTime = this.mbpChannelController.getLastIncrPcktReceived() + idleWindowInMillis;
-            if (allowedInactiveEndTime < System.currentTimeMillis() &&
-                    (incrementalFeedA.isActiveAndNotShutdown() || incrementalFeedB.isActiveAndNotShutdown())) {
+        try {
+            synchronized (this) {
+                MdpFeedWorker incrementalFeedA = feedsA.get(FeedType.I).getLeft();
+                MdpFeedWorker incrementalFeedB = feedsB.get(FeedType.I).getLeft();
+                final long allowedInactiveEndTime = this.mbpChannelController.getLastIncrPcktReceived() + idleWindowInMillis;
+                if (allowedInactiveEndTime < System.currentTimeMillis() &&
+                        (incrementalFeedA.isActiveAndNotShutdown() || incrementalFeedB.isActiveAndNotShutdown())) {
                     startSnapshotFeeds();
-                    if(isMBOEnable(channelCfg)) {
+                    if (isMBOEnable(channelCfg)) {
                         startSnapshotMBOFeeds();
                     }
+                }
             }
+        } catch (Exception e){
+            logger.error(e.getMessage(), e);
         }
     }
 
