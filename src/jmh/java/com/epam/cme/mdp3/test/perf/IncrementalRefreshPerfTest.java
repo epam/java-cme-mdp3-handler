@@ -40,6 +40,7 @@ import static com.epam.cme.mdp3.mktdata.MdConstants.*;
 import static com.epam.cme.mdp3.sbe.message.SbeConstants.MESSAGE_SEQ_NUM_OFFSET;
 
 public class IncrementalRefreshPerfTest {
+    private static final int TEST_PACKET_ARRAY_SIZE =  7000000;
     private static final int TEST_CHANNEL_ID = 311;
     private static SbeDouble doubleVal = SbeDouble.instance();
     private static MdpChannelBuilder mdpHandlerBuilder;
@@ -261,7 +262,7 @@ public class IncrementalRefreshPerfTest {
             final MdpPacket samplePckt = findSample(testData, 12, 14, 5, 6);
             System.out.println("The found MDP Packet sample:");
             printPacket(samplePckt);
-            final Set<Integer> secIds = generateTestPackets(samplePckt, 5000000);
+            final Set<Integer> secIds = generateTestPackets(samplePckt, TEST_PACKET_ARRAY_SIZE);
             System.out.println("Generating test MDP packets...Done");
 
             System.out.println("Creating Data Handler instance...");
@@ -301,40 +302,9 @@ public class IncrementalRefreshPerfTest {
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     @Fork(1)
     @Warmup(iterations = 2, time = 3, timeUnit = TimeUnit.SECONDS)
-    @Measurement(iterations = 3, time = 4, timeUnit = TimeUnit.SECONDS)
+    @Measurement(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
     public int testJitter(IncrementalRefreshTestState testState) {
         testState.handleTestPacket(testState.testPkctSeqNum);
         return testState.increaseTestSeqNum();
     }
-
-    /*public static void main(String args[]) {
-        final IncrementalRefreshTestState testState = new IncrementalRefreshTestState();
-        final DoubleFunction<Double> df = (d) -> d / 1000;
-
-        try {
-            try {
-                testState.doSetup();
-                Histogram h = new Histogram(32, 4);
-                long prev = System.nanoTime();
-                for (int i = 0; i < 100000; i++) {
-                    testState.handleTestPacket();
-                    long now = System.nanoTime();
-                    long time = now - prev;
-                    prev = now;
-                }
-                for (int i = 0; i < 500000; i++) {
-                    testState.handleTestPacket();
-                    long now = System.nanoTime();
-                    long time = now - prev;
-                    h.sample(time);
-                    prev = now;
-                }
-                System.out.println(h.toLongMicrosFormat(df));
-            } finally {
-                testState.doShutdown();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
 }

@@ -313,17 +313,15 @@ Generating test MDP packets...Done
 Creating Data Handler instance...
 Creating Data Handler instance...Done
 ...
-   Percentiles, us/op:
-      p(0.0000) =      1.230 us/op
-     p(50.0000) =      1.642 us/op
-     p(90.0000) =      2.052 us/op
-     p(95.0000) =      2.052 us/op
-     p(99.0000) =      2.872 us/op
-     p(99.9000) =     13.536 us/op
-     p(99.9900) =     20.741 us/op
-     p(99.9990) =     53.138 us/op
-     p(99.9999) =     63.168 us/op
-    p(100.0000) =     63.168 us/op 
+  Percentiles, us/op:
+      p(0.0000) =      0.729 us/op
+     p(50.0000) =      1.094 us/op
+     p(90.0000) =      1.094 us/op
+     p(95.0000) =      1.458 us/op
+     p(99.0000) =      1.824 us/op
+     p(99.9000) =     14.944 us/op
+     p(99.9900) =     33.152 us/op
+     ...
 ```
 
 
