@@ -74,7 +74,8 @@ public class SbeMessage extends AbstractFieldSet implements FieldSet, MdpMessage
 
     @Override
     public SemanticMsgType getSemanticMsgType() {
-        return getMessageType().getSemanticMsgType();
+        MdpMessageType messageType = getMessageType();
+        return messageType != null ? messageType.getSemanticMsgType() : null;
     }
 
     @Override

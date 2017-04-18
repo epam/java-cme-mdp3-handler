@@ -65,6 +65,15 @@ public class SbeGroup extends SbeGroupFieldSet implements FieldSet, MdpGroup, Mu
     }
 
     @Override
+    public void getEntry(int entryNum, MdpGroupEntry groupEntry) {
+        if (entryNum > numInGroup) {
+            throw new IllegalStateException("Out of group size");
+        }
+        int entryOffset = groupBodyOffset + ((entryNum -1) * blockLength);
+        ((MutableMdpGroupEntry) groupEntry).reset(this.buffer(), this.sbeGroupType, entryOffset, this.blockLength);
+    }
+
+    @Override
     public MdpGroup copy() {
         final MutableMdpGroup copyInstance = (MutableMdpGroup) instance();
         copyInstance.reset(buffer().copy(), this.sbeGroupType, this.blockLength, this.numInGroup, this.groupBodyOffset);

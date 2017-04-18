@@ -45,7 +45,7 @@ public class MetadataContainerBuilder {
                 fieldContainer.addFieldType(new SbeFieldType(fieldContainer, fieldType));
             }
             container.addGroupType(new SbeGroupType(fieldContainer, groupType,
-                    findDimenstionType(messageType, groupType.getDimensionType())));
+                    findDimensionType(messageType, groupType.getDimensionType())));
         }
         return container;
     }
@@ -83,7 +83,7 @@ public class MetadataContainerBuilder {
      * @param dimTypeName name of Dimension Type
      * @return Definition of Dimension Type
      */
-    private static CompositeDataType findDimenstionType(final MdpMessageType messageType, final String dimTypeName) {
+    private static CompositeDataType findDimensionType(final MdpMessageType messageType, final String dimTypeName) {
         for (final CompositeDataType compositeDataType : messageType.getSchema().getTypes().get(0).getComposite()) {
             if (compositeDataType.getName().equals(dimTypeName)) {
                 return compositeDataType;

@@ -67,7 +67,7 @@ public class SyncSteps {
         final MdpChannel handler = mdpHandlerHolder.get(handlerId);
         handler.registerListener(new VoidChannelListener() {
             @Override
-            public void onInstrumentStateChanged(String channelId, int securityId, InstrumentState prevState, InstrumentState newState) {
+            public void onInstrumentStateChanged(String channelId, int securityId, String secDesc, InstrumentState prevState, InstrumentState newState) {
                 //System.out.println(String.format("%1$d %2$s %3$s ", securityId, prevState.toString(), newState.toString()));
                 stateChangeEvents.offer(new InstrumentStateChangeEvent(securityId, prevState, newState));
             }

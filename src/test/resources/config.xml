@@ -9587,4 +9587,72 @@
     </connection>
    </connections>
   </channel>
+  <channel id="648" label="MEXDER Options">
+    <connections>
+      <connection id="648IA">
+        <type feed-type="I">Incremental</type>
+        <protocol>UDP/IP</protocol>
+        <ip>224.0.28.126</ip>
+        <!--<host-ip>127.0.0.1</host-ip>-->
+        <port>11648</port>
+        <feed>A</feed>
+      </connection>
+      <connection id="648IB">
+        <type feed-type="I">Incremental</type>
+        <protocol>UDP/IP</protocol>
+        <ip>224.0.25.101</ip>
+        <!--<host-ip>69.50.112.46</host-ip>-->
+        <port>11748</port>
+        <feed>B</feed>
+      </connection>
+      <connection id="648NA">
+        <type feed-type="N">Instrument Replay</type>
+        <protocol>UDP/IP</protocol>
+        <ip>224.0.28.126</ip>
+        <!--<host-ip>224.0.28.125</host-ip>-->
+        <port>16648</port>
+        <feed>A</feed>
+      </connection>
+      <!--<connection id="648NB">-->
+      <!--<type feed-type="N">Instrument Replay</type>-->
+      <!--<protocol>UDP/IP</protocol>-->
+      <!--<ip>224.0.28.125</ip>-->
+      <!--<host-ip>127.0.0.1</host-ip>-->
+      <!--<port>11644</port>-->
+      <!--<feed>B</feed>-->
+      <!--</connection>-->
+      <connection id="648SA">
+        <type feed-type="S">Snapshot</type>
+        <protocol>UDP/IP</protocol>
+        <ip>224.0.25.127</ip>
+        <!--<host-ip>69.50.112.78</host-ip>-->
+        <port>19648</port>
+        <feed>A</feed>
+      </connection>
+      <connection id="648SB">
+        <type feed-type="S">Snapshot</type>
+        <protocol>UDP/IP</protocol>
+        <ip>224.0.28.167</ip>
+        <host-ip>69.50.112.78</host-ip>
+        <port>7521</port>
+        <feed>B</feed>
+      </connection>
+      <connection id="648SAMBO">
+        <type feed-type="SMBO">Snapshot-MBO</type>
+        <protocol>UDP/IP</protocol>
+        <ip>224.0.25.254</ip>
+        <!--<host-ip>69.50.112.126</host-ip>-->
+        <port>20648</port>
+        <feed>A</feed>
+      </connection>
+      <!--<connection id="648SBMBO">-->
+      <!--<type feed-type="SMBO">Snapshot-MBO</type>-->
+      <!--<protocol>UDP/IP</protocol>-->
+      <!--<ip>233.119.149.128</ip>-->
+      <!--<host-ip>69.50.112.126</host-ip>-->
+      <!--<port>22310</port>-->
+      <!--<feed>B</feed>-->
+      <!--</connection>-->
+    </connections>
+  </channel>
 </configuration>

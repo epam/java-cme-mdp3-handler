@@ -12,6 +12,10 @@
 
 package com.epam.cme.mdp3.core.control;
 
+/**
+ * This class keeps the securities in the in-memory array.
+ * The array is created with initial capacity and increased in case of overflow.
+ */
 public class InMemoryEventController implements EventController {
     private final static int INITIAL_LOG_SIZE = 64;
     private final static int INCREMENT_LOG_SIZE = 32;

@@ -73,7 +73,7 @@ public interface ChannelListener {
      *
      * @param channelId  ID of MDP Channel
      * @param securityId Security ID
-     * @param secDesc             Security description
+     * @param secDesc    Security description
      * @param prevState  Previous state
      * @param newState   New state
      */
@@ -102,6 +102,22 @@ public interface ChannelListener {
     void onIncrementalRefresh(final String channelId, final short matchEventIndicator, final int securityId, final String secDesc, final long msgSeqNum, final FieldSet incrRefreshEntry);
 
     /**
+     * Called when MDP Incremental Refresh Message is received and Security-related entry is processed.
+     *
+     * @param channelId           ID of MDP Channel
+     * @param matchEventIndicator MDP Event indicator (bitset, @see <a href="http://www.cmegroup.com/confluence/display/EPICSANDBOX/MDP+3.0+-+Market+Data+Incremental+Refresh">MDP 3.0 - Market Data Incremental Refresh</a>)
+     * @param secDesc             Security description
+     * @param msgSeqNum           Message sequence number
+     * @param securityId          Security ID
+     * @param orderIDEntry        MBO Entry of Group from MDP Incremental Refresh Message
+     * @param mdEntry             MBP Entry of Group from MDP Incremental Refresh Message. It can be null when MBO Incremental Refresh is received in separated template.
+     */
+    default void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
+                                         final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
+
+    }
+
+    /**
      * Called when MDP Snapshot Full Refresh Message is received and processed.
      *
      * @param channelId   ID of MDP Channel
@@ -109,6 +125,17 @@ public interface ChannelListener {
      * @param snptMessage MDP Snapshot Full Refresh Message
      */
     void onSnapshotFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage);
+
+    /**
+     * Called when MDP Snapshot Full Refresh Message for MBO is received and processed.
+     *
+     * @param channelId   ID of MDP Channel
+     * @param secDesc     Security description
+     * @param snptMessage MDP Snapshot Full Refresh Message for MBO
+     */
+    default void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage){
+
+    }
 
     /**
      * Called when MDP RFQ Message is received and processed.

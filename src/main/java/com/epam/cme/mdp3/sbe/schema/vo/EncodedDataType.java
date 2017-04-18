@@ -107,6 +107,8 @@ public class EncodedDataType {
     @XmlAttribute(name = "primitiveType", required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     protected String primitiveType;
+    @XmlAttribute(name = "offset")
+    protected int offset;
 
     /**
      * Gets the value of the value property.
@@ -340,4 +342,11 @@ public class EncodedDataType {
         this.primitiveType = value;
     }
 
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
 }
