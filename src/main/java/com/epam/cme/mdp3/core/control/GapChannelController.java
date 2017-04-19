@@ -28,7 +28,7 @@ public class GapChannelController implements MBOChannelController {
     private static final Logger log = LoggerFactory.getLogger(GapChannelController.class);
     private final Lock lock = new ReentrantLock();
     private final int gapThreshold;
-    private final CircularBuffer<MdpPacket> buffer;
+    private final Buffer<MdpPacket> buffer;
     private final RecoveryManager recoveryManager;
     private final ChannelController target;
     private final String channelId;
@@ -38,7 +38,7 @@ public class GapChannelController implements MBOChannelController {
     private MdpMessageTypes mdpMessageTypes;
 
 
-    public GapChannelController(ChannelController target, RecoveryManager recoveryManager, CircularBuffer<MdpPacket> buffer,
+    public GapChannelController(ChannelController target, RecoveryManager recoveryManager, Buffer<MdpPacket> buffer,
                                 int gapThreshold, String channelId, MdpMessageTypes mdpMessageTypes) {
         this.buffer = buffer;
         this.recoveryManager = recoveryManager;
