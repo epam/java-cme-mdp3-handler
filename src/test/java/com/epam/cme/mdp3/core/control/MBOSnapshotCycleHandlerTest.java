@@ -1,57 +1,61 @@
 package com.epam.cme.mdp3.core.control;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 
 public class MBOSnapshotCycleHandlerTest {
+    private MBOSnapshotCycleHandler cycleHandler;
+    
+    @Before
+    public void init(){
+        cycleHandler = new OffHeapMBOSnapshotCycleHandler();
+    }
+    
 
     @Test
     public void itMustUpdateMetadataAndGiveCorrectResultWhenWholeSnapshotIsReceived(){
-        MBOSnapshotCycleHandler channelSnapshotMetaData = new MBOSnapshotCycleHandler();
         long totNumReports = 2;
         int securityId1 = 10;
         int securityId2 = 20;
         long securityId1NoChunks = 2;
         long securityId2NoChunks = 1;
         long lastMsgSeqNumProcessed = 1001;
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 2);
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId2, securityId2NoChunks, 1);
-        assertTrue(channelSnapshotMetaData.isWholeSnapshotReceived());
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 2);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId2, securityId2NoChunks, 1);
+        assertEquals(lastMsgSeqNumProcessed, cycleHandler.getSnapshotSequence());
     }
 
     @Test
     public void itMustUpdateMetadataAndGiveCorrectResultWhenWholeSnapshotIsReceivedInOneMessage(){
-        MBOSnapshotCycleHandler channelSnapshotMetaData = new MBOSnapshotCycleHandler();
         long totNumReports = 1;
         int securityId1 = 10;
         long securityId1NoChunks = 1;
         long lastMsgSeqNumProcessed = 1001;
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
-        assertTrue(channelSnapshotMetaData.isWholeSnapshotReceived());
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
+        assertEquals(lastMsgSeqNumProcessed, cycleHandler.getSnapshotSequence());
     }
 
     @Test
     public void itMustUpdateMetadataAndGiveCorrectResultWhenWholeSnapshotIsReceivedWithZeroSequence(){
-        MBOSnapshotCycleHandler channelSnapshotMetaData = new MBOSnapshotCycleHandler();
         long totNumReports = 1;
         int securityId1 = 10;
         long securityId1NoChunks = 1;
         long lastMsgSeqNumProcessed = 0;
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
-        assertTrue(channelSnapshotMetaData.isWholeSnapshotReceived());
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
+        assertEquals(lastMsgSeqNumProcessed, cycleHandler.getSnapshotSequence());
     }
 
     @Test
     public void metaDataMustBeRebuiltIfItContainsDifferentSequences(){
-        MBOSnapshotCycleHandler channelSnapshotMetaData = new MBOSnapshotCycleHandler();
         long totNumReports = 2;
         int securityId1 = 10;
         int securityId2 = 20;
@@ -60,39 +64,92 @@ public class MBOSnapshotCycleHandlerTest {
         long lastMsgSeqNumProcessed1 = 1001;
         long lastMsgSeqNumProcessed2 = 1002;
         long lastMsgSeqNumProcessed3 = 1003;
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed1, securityId1, securityId1NoChunks, 1);
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed1, securityId1, securityId1NoChunks, 2);
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed2, securityId2, securityId2NoChunks, 1);
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed1, securityId1, securityId1NoChunks, 1);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed1, securityId1, securityId1NoChunks, 2);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed2, securityId2, securityId2NoChunks, 1);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
 
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed3, securityId1, securityId1NoChunks, 1);
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed3, securityId1, securityId1NoChunks, 2);
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed3, securityId2, securityId2NoChunks, 1);
-        assertTrue(channelSnapshotMetaData.isWholeSnapshotReceived());
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed3, securityId1, securityId1NoChunks, 1);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed3, securityId1, securityId1NoChunks, 2);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed3, securityId2, securityId2NoChunks, 1);
+        assertEquals(lastMsgSeqNumProcessed3, cycleHandler.getSnapshotSequence());
     }
 
     @Test
     public void itMustUpdateMetadataCorrectlyIfThereChangedNumberOfChunks(){
-        MBOSnapshotCycleHandler channelSnapshotMetaData = new MBOSnapshotCycleHandler();
         long totNumReports = 2;
         int securityId1 = 10;
         int securityId2 = 20;
         long lastMsgSeqNumProcessed = 1001;
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, 1, 1);
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, 2, 1);
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId1, 2, 2);
-        assertFalse(channelSnapshotMetaData.isWholeSnapshotReceived());
-        channelSnapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId2, 1, 1);
-        assertTrue(channelSnapshotMetaData.isWholeSnapshotReceived());
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, 1, 1);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, 2, 1);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, 2, 2);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId2, 1, 1);
+        assertEquals(lastMsgSeqNumProcessed, cycleHandler.getSnapshotSequence());
+    }
+
+    @Test
+    public void itMustResetMetadataAndWorkCorrectlyInCaseWhenTotalChunkWasDecreased(){
+        long totNumReports = 2;
+        int securityId1 = 10;
+        int securityId2 = 20;
+        long securityId1NoChunks = 2;
+        long securityId2NoChunks = 1;
+        long lastMsgSeqNumProcessed = 1001;
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 2);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId2, securityId2NoChunks, 1);
+        assertTrue(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+
+        cycleHandler.reset();
+        totNumReports = 1;
+        lastMsgSeqNumProcessed = 2000;
+
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 2);
+        assertEquals(lastMsgSeqNumProcessed, cycleHandler.getSnapshotSequence());
+    }
+
+    @Test
+    public void itMustResetMetadataAndWorkCorrectlyInCaseWhenTotalChunkWasIncreased(){
+        int securityId1 = 10;
+        long totNumReports = 1;
+        long securityId1NoChunks = 2;
+        long lastMsgSeqNumProcessed = 1001;
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 2);
+        assertEquals(lastMsgSeqNumProcessed, cycleHandler.getSnapshotSequence());
+
+        cycleHandler.reset();
+        totNumReports = 2;
+
+        int securityId2 = 20;
+        long securityId2NoChunks = 1;
+        lastMsgSeqNumProcessed = 2000;
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 2);
+        assertFalse(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+        cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId2, securityId2NoChunks, 1);
+        assertTrue(cycleHandler.getSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
     }
 
 }

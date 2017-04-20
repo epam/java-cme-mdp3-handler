@@ -21,6 +21,7 @@ import java.util.PriorityQueue;
 /**
  * This is dirty implementation. It has been created as quick implementation of Buffer.
  */
+@Deprecated
 public class MDPHeapBuffer implements Buffer<MdpPacket> {
     private PriorityQueue<MdpPacket> queue = new PriorityQueue<>(new MdpPacketComparator());
     private final int capacity;
