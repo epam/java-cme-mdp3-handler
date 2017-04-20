@@ -46,7 +46,7 @@ public class GapChannelController implements MBOChannelController {
         this.gapThreshold = gapThreshold;
         this.channelId = channelId;
         this.mdpMessageTypes = mdpMessageTypes;
-        this.cycleHandler = new HeapMBOSnapshotCycleHandler();
+        this.cycleHandler = new OffHeapMBOSnapshotCycleHandler();
     }
 
     @Override
