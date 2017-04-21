@@ -24,11 +24,13 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
     private final static long UNDEFINED_VALUE = Integer.MAX_VALUE;
     private final MdpPacket[] data;
     private MdpPacket resultPacket = MdpPacket.allocate();
-    private final NativeBytesStore<Void> emptyStore = NativeBytesStore.nativeStoreWithFixedCapacity(SbeConstants.MDP_PACKET_MAX_SIZE);
+    private final MdpPacket emptyPacket = MdpPacket.allocate();
     private boolean full;
 
     public MDPOffHeapBuffer(int capacity) {
+        NativeBytesStore<Void> emptyStore = NativeBytesStore.nativeStoreWithFixedCapacity(SbeConstants.MDP_PACKET_MAX_SIZE);
         emptyStore.writeUnsignedInt(MESSAGE_SEQ_NUM_OFFSET, UNDEFINED_VALUE);
+        emptyPacket.buffer().copyFrom(emptyStore);
         data = new MdpPacket[capacity];
         for (int i = 0; i < capacity; i++) {
             MdpPacket mdpPacket = MdpPacket.allocate();
@@ -41,7 +43,7 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
     public synchronized void add(MdpPacket entity) {
         int firstEmptyPosition = calculateFirstEmptyPosition();
         MdpPacket mdpPacket = data[firstEmptyPosition];
-        mdpPacket.buffer().copyFrom(entity.buffer());
+        copy(entity, mdpPacket);
         sort();
     }
 
@@ -57,10 +59,8 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
             return null;
         }
         copy(nextPackage, resultPacket);
-        nextPackage.buffer().copyFrom(emptyStore);
-        for (int i = 0; i < data.length - 1; i++) {
-            data[i] = data[i+1];
-        }
+        copy(emptyPacket, nextPackage);
+        System.arraycopy(data, 1, data, 0, data.length - 1);
         data[data.length - 1] = nextPackage;
         full = false;
         return resultPacket;
