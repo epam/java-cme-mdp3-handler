@@ -20,7 +20,7 @@ import static com.epam.cme.mdp3.sbe.message.SbeConstants.MESSAGE_SEQ_NUM_OFFSET;
 public class MBOIncrementalRefreshPerfTest {
     private static MdpChannelBuilder mdpHandlerBuilder;
     private static final int TEST_CHANNEL_ID = 311;
-    private static final int TEST_PACKET_ARRAY_SIZE =  700000;
+    private static final int TEST_PACKET_ARRAY_SIZE =  20000000;
     private static SbeDouble doubleVal = SbeDouble.instance();
 
     static {
@@ -44,8 +44,8 @@ public class MBOIncrementalRefreshPerfTest {
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     @Fork(1)
-    @Warmup(iterations = 2, time = 3)
-    @Measurement(iterations = 3, time = 3)
+    @Warmup(iterations = 2, time = 2)
+    @Measurement(iterations = 3, time = 2)
     public void test(MBOIncrementalRefreshTestState testState) {
         testState.handleNextTestPacket();
     }
@@ -69,7 +69,7 @@ public class MBOIncrementalRefreshPerfTest {
             mdUpdateAction = orderIDEntry.getUInt8(37708);
         }
         if(print) {
-            System.out.printf("MBO only     onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
+            System.out.printf("MBO only : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
                     channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
         }
     }
@@ -102,10 +102,10 @@ public class MBOIncrementalRefreshPerfTest {
             incrementBB.get(incrementBytes);
             for(int i = 0; i < TEST_PACKET_ARRAY_SIZE; i++){
                 int nextSequence = i + 1;
-                incrementBytes[MESSAGE_SEQ_NUM_OFFSET + 0] = (byte) ((nextSequence & 0xFF000000) >> 24);
-                incrementBytes[MESSAGE_SEQ_NUM_OFFSET + 1] = (byte) ((nextSequence & 0x00FF0000) >> 16);
-                incrementBytes[MESSAGE_SEQ_NUM_OFFSET + 2] = (byte) ((nextSequence & 0x0000FF00) >> 8);
-                incrementBytes[MESSAGE_SEQ_NUM_OFFSET + 3] = (byte) ((nextSequence & 0x000000FF) >> 0);
+                incrementBytes[MESSAGE_SEQ_NUM_OFFSET + 3] = (byte) (nextSequence >> 24);
+                incrementBytes[MESSAGE_SEQ_NUM_OFFSET + 2] = (byte) (nextSequence >> 16);
+                incrementBytes[MESSAGE_SEQ_NUM_OFFSET + 1] = (byte) (nextSequence >> 8);
+                incrementBytes[MESSAGE_SEQ_NUM_OFFSET + 0] = (byte) (nextSequence);
                 testPackets.add(incrementBytes.clone());
             }
             mdpHandler = mdpHandlerBuilder.build();
