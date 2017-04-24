@@ -154,7 +154,7 @@ public class ModelUtils {
     private static ByteBuffer packMessage(long sequence, byte[] encodedMessage, short actualLength){
         final int fieldLengthSize = 2;
         byte[] mdpHeader = getMDPHeader(sequence, System.currentTimeMillis());
-        ByteBuffer result = ByteBuffer.allocate(mdpHeader.length + fieldLengthSize + actualLength);
+        ByteBuffer result = ByteBuffer.allocateDirect(mdpHeader.length + fieldLengthSize + actualLength);
         result.put(mdpHeader);
         result.putShort(actualLength);
         result.put(encodedMessage, 0, actualLength);
