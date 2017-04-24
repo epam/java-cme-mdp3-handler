@@ -17,7 +17,7 @@ Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take adva
 * Simple options to subscribe to Market Data events of application interest;
 * Loading of CME SBE templates;
 * Loading of CME XML channel configuration files;
-* MBO (in next version)
+* Market by Order (MBO);
 
 ## Code Examples
 
@@ -85,9 +85,20 @@ public class Main {
         }
 
         @Override
+        public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
+                                             final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry){
+            logger.info("[{}] onIncrementalMBORefresh: ChannelId: {}, SecurityId: {}-{}", msgSeqNum, channelId, securityId, secDesc);
+        }
+
+        @Override
         public void onSnapshotFullRefresh(final String channelId, String secDesc, final MdpMessage snptMessage) {
             logger.info("onFullRefresh: SecurityId: {}-{}. RptSeqNum(83): {}",
                 snptMessage.getInt32(48), secDesc, snptMessage.getUInt32(83));
+        }
+
+        @Override
+        public void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage){
+            logger.info("onMBOFullRefresh: ChannelId: {}, SecurityId: {}-{}.", channelId, snptMessage.getInt32(SECURITY_ID), secDesc);
         }
 
         @Override
@@ -114,6 +125,7 @@ public class Main {
             mdpChannel311.startIncrementalFeedA();
             mdpChannel311.startIncrementalFeedB();
             mdpChannel311.startSnapshotFeedA();
+            mdpChannel311.startSnapshotMBOFeedA();
             System.out.println("Press enter to shutdown.");
             System.in.read();
             mdpChannel311.close();
@@ -245,7 +257,7 @@ required changes) instead of own implementation of all aspects of CME connectivi
 
 This is java library which include just one jar file: b2bits-jmdp3-N.N.jar.
 
-**Dependencies (May 4, 2016)**
+**Dependencies (Apr 24, 2017)**
 - annotations-12.0.jar
 - chronicle-bytes-1.2.4.jar
 - chronicle-core-1.3.6.jar
@@ -260,6 +272,8 @@ This is java library which include just one jar file: b2bits-jmdp3-N.N.jar.
 - log4j-slf4j-impl-2.5.jar
 - slf4j-api-1.7.14.jar
 - snappy-java-1.1.2.1.jar
+- agrona-0.9.5.jar
+- commons-lang3-3.0.jar
 
 ## API Reference
 
@@ -290,6 +304,8 @@ To run tests from Gradle (warning: unpack data files in /src/cucumber/sim/data):
 ```
 
 Example of results:
+
+Market By Price:
 
 ```
 ...
@@ -324,6 +340,35 @@ Creating Data Handler instance...Done
      ...
 ```
 
+Market By Order(MBO only template):
+
+```
+...
+  Percentiles, us/op:
+      p(0.0000) =      1.282 us/op
+     p(50.0000) =      1.602 us/op
+     p(90.0000) =      1.604 us/op
+     p(95.0000) =      1.604 us/op
+     p(99.0000) =      1.604 us/op
+     p(99.9000) =     14.112 us/op
+     p(99.9900) =     18.592 us/op
+     ...
+```
+
+Market By Order(MBO included in MBP template):
+
+```
+...
+  Percentiles, us/op:
+      p(0.0000) =      1.602 us/op
+     p(50.0000) =      1.604 us/op
+     p(90.0000) =      1.924 us/op
+     p(95.0000) =      1.924 us/op
+     p(99.0000) =      1.924 us/op
+     p(99.9000) =     14.112 us/op
+     p(99.9900) =     18.912 us/op
+     ...
+```
 
 ## Contributors
 
@@ -332,6 +377,12 @@ OLEG VERAMEI
 Software Engineering Team Leader in EPAM's Capital Markets Competency Center 
 
 Email: oleg_veramei@epam.com
+
+VIACHESLAV KOLYBELKIN
+
+Senior Software Engineer in EPAM's Capital Markets Competency Center
+
+Email: viacheslav_kolybelkin@epam.com
 
 ## License
 

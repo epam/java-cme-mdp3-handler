@@ -10,11 +10,8 @@ import com.epam.cme.mdp3.test.ModelUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.epam.cme.mdp3.sbe.message.SbeConstants.MESSAGE_SEQ_NUM_OFFSET;
 
 
 public class MBOIncrementalRefreshPerfTest {
@@ -31,7 +28,7 @@ public class MBOIncrementalRefreshPerfTest {
                         @Override
                         public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
                                                             final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
-                            printEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry, mdEntry, true);
+                            printEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry, mdEntry, false);
                         }
 
                         @Override
