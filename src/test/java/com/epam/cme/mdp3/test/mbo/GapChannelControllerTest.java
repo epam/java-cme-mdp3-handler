@@ -2,10 +2,9 @@ package com.epam.cme.mdp3.test.mbo;
 
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
-import com.epam.cme.mdp3.core.control.ChannelController;
-import com.epam.cme.mdp3.core.control.CircularBuffer;
-import com.epam.cme.mdp3.core.control.GapChannelController;
-import com.epam.cme.mdp3.core.control.MDPHeapCircularBuffer;
+import com.epam.cme.mdp3.core.control.*;
+import com.epam.cme.mdp3.core.control.Buffer;
+import com.epam.cme.mdp3.core.control.MDPHeapBuffer;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.test.ModelUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -35,7 +34,7 @@ public class GapChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
-        CircularBuffer<MdpPacket> buffer = new MDPHeapCircularBuffer(bufferCapacity);
+        Buffer<MdpPacket> buffer = new MDPHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestRecoveryManager();
         gapChannelController = new GapChannelController(testChannelController, testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes);
 
@@ -75,7 +74,7 @@ public class GapChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
-        CircularBuffer<MdpPacket> buffer = new MDPHeapCircularBuffer(bufferCapacity);
+        Buffer<MdpPacket> buffer = new MDPHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestRecoveryManager();
         int gapThreshold = 3;
         gapChannelController = new GapChannelController(testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes);

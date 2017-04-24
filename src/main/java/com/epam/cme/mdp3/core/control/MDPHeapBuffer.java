@@ -19,13 +19,13 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 /**
- * This is dirty implementation. It has been created as quick implementation of CircularBuffer.
+ * This is dirty implementation. It has been created as quick implementation of Buffer.
  */
-public class MDPHeapCircularBuffer implements CircularBuffer<MdpPacket> {
+public class MDPHeapBuffer implements Buffer<MdpPacket> {
     private PriorityQueue<MdpPacket> queue = new PriorityQueue<>(new MdpPacketComparator());
     private final int capacity;
 
-    public MDPHeapCircularBuffer(int capacity) {
+    public MDPHeapBuffer(int capacity) {
         this.capacity = capacity;
     }
 
