@@ -43,7 +43,3 @@ distributions {
         }
     }
 }
-
-jmh {
-    jvmArgsAppend = '-Xmx8048m -Xmx8048m'
-}
