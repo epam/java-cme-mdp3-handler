@@ -16,6 +16,38 @@ public class ModelUtils {
         return getMBOSnapshotTestMessage(sequence, securityId, 100, 1, 1, 1);
     }
 
+    public static ByteBuffer getMBOOnlyIncrementWith12TestMessages(long sequence){
+        short bufferOffset = 0;
+        final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();
+        MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+        MDIncrementalRefreshOrderBook43Encoder incrementalRefreshOrderBook43Encoder = new MDIncrementalRefreshOrderBook43Encoder();
+        messageHeaderEncoder.wrap(mutableDirectBuffer, bufferOffset)
+                .blockLength(incrementalRefreshOrderBook43Encoder.sbeBlockLength())
+                .templateId(incrementalRefreshOrderBook43Encoder.sbeTemplateId())
+                .schemaId(incrementalRefreshOrderBook43Encoder.sbeSchemaId())
+                .version(incrementalRefreshOrderBook43Encoder.sbeSchemaVersion());
+        bufferOffset += messageHeaderEncoder.encodedLength();
+        incrementalRefreshOrderBook43Encoder.wrap(mutableDirectBuffer, bufferOffset)
+                .transactTime(System.currentTimeMillis());
+        MatchEventIndicatorEncoder matchEventIndicatorEncoder = incrementalRefreshOrderBook43Encoder.matchEventIndicator();
+        matchEventIndicatorEncoder.lastTradeMsg(true);
+        MDIncrementalRefreshOrderBook43Encoder.NoMDEntriesEncoder noMDEntriesEncoder = incrementalRefreshOrderBook43Encoder.noMDEntriesCount(12);
+        noMDEntriesEncoder.next().orderID(9926951995L).mDOrderPriority(414).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(23).mDEntryPx().mantissa(986825);
+        noMDEntriesEncoder.next().orderID(9926951993L).mDOrderPriority(412).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(59).mDEntryPx().mantissa(98685);
+        noMDEntriesEncoder.next().orderID(9926951992L).mDOrderPriority(411).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(12).mDEntryPx().mantissa(986925);
+        noMDEntriesEncoder.next().orderID(9926951997L).mDOrderPriority(416).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(49).mDEntryPx().mantissa(986775);
+        noMDEntriesEncoder.next().orderID(9926951996L).mDOrderPriority(415).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(92).mDEntryPx().mantissa(986875);
+        noMDEntriesEncoder.next().orderID(9926952003L).mDOrderPriority(422).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(88).mDEntryPx().mantissa(986725);
+        noMDEntriesEncoder.next().orderID(9926952002L).mDOrderPriority(421).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(32).mDEntryPx().mantissa(986775);
+        noMDEntriesEncoder.next().orderID(9926952001L).mDOrderPriority(420).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(99).mDEntryPx().mantissa(987025);
+        noMDEntriesEncoder.next().orderID(9926952000L).mDOrderPriority(419).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(94).mDEntryPx().mantissa(98680);
+        noMDEntriesEncoder.next().orderID(9926952005L).mDOrderPriority(424).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(49).mDEntryPx().mantissa(98675);
+        noMDEntriesEncoder.next().orderID(9926952004L).mDOrderPriority(423).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(54).mDEntryPx().mantissa(987025);
+        noMDEntriesEncoder.next().orderID(9926951983L).mDOrderPriority(402).securityID(998350).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(16).mDEntryPx().mantissa(98670);
+        bufferOffset += incrementalRefreshOrderBook43Encoder.encodedLength();
+        return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
+    }
+
     public static ByteBuffer getMBPWithMBOIncrementTestMessage(long sequence, int[] securityIds, short[] referenceIDs){
         short bufferOffset = 0;
         final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();
