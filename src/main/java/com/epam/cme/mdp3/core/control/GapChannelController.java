@@ -32,7 +32,7 @@ public class GapChannelController implements MBOChannelController {
     private final RecoveryManager recoveryManager;
     private final ChannelController target;
     private final String channelId;
-    private final MBOSnapshotCycleHandler snapshotMetaData;
+    private final MBOSnapshotCycleHandler cycleHandler;
     private long lastProcessedSeqNum;
     private ChannelState currentState = ChannelState.INITIAL;
     private MdpMessageTypes mdpMessageTypes;
@@ -46,7 +46,7 @@ public class GapChannelController implements MBOChannelController {
         this.gapThreshold = gapThreshold;
         this.channelId = channelId;
         this.mdpMessageTypes = mdpMessageTypes;
-        snapshotMetaData = new MBOSnapshotCycleHandler();
+        this.cycleHandler = new OffHeapMBOSnapshotCycleHandler();
     }
 
     @Override
@@ -69,18 +69,19 @@ public class GapChannelController implements MBOChannelController {
                             long noChunks = mdpMessage.getUInt32(NO_CHUNKS);
                             long currentChunk = mdpMessage.getUInt32(CURRENT_CHUNK);
                             long totNumReports = mdpMessage.getUInt32(TOT_NUM_REPORTS);
-                            snapshotMetaData.update(totNumReports, lastMsgSeqNumProcessed, securityId, noChunks, currentChunk);
+                            cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId, noChunks, currentChunk);
                         }
                     });
                     target.handleSnapshotPacket(feedContext, mdpPacket);
                     break;
             }
-            if(snapshotMetaData.isWholeSnapshotReceived()){
-                lastProcessedSeqNum = snapshotMetaData.getSnapshotSequence();
+            long snapshotSequence = cycleHandler.getSnapshotSequence();
+            if(snapshotSequence != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED){
+                lastProcessedSeqNum = cycleHandler.getSnapshotSequence();
                 processMessagesFromBuffer(feedContext);
                 recoveryManager.stopRecovery();
                 switchState(ChannelState.SYNC);
-                snapshotMetaData.reset();
+                cycleHandler.reset();
             }
         } finally {
             lock.unlock();

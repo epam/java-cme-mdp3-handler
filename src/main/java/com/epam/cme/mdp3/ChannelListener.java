@@ -109,11 +109,11 @@ public interface ChannelListener {
      * @param secDesc             Security description
      * @param msgSeqNum           Message sequence number
      * @param securityId          Security ID
-     * @param orderIDEntry        MBO Entry of Group from MDP Incremental Refresh Message
+     * @param orderEntry        MBO Entry of Group from MDP Incremental Refresh Message
      * @param mdEntry             MBP Entry of Group from MDP Incremental Refresh Message. It can be null when MBO Incremental Refresh is received in separated template.
      */
     default void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                         final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
+                                         final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry){
 
     }
 

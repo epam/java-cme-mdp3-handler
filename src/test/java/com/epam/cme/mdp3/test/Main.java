@@ -92,9 +92,21 @@ public class Main {
         }
 
         @Override
+        public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
+                                             final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry){
+            logger.info("[{}] onIncrementalMBORefresh: ChannelId: {}, SecurityId: {}-{}",
+                    msgSeqNum, channelId, securityId, secDesc);
+        }
+
+        @Override
         public void onSnapshotFullRefresh(final String channelId, String secDesc, final MdpMessage snptMessage) {
             /*logger.info("onFullRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}",
                     channelId, snptMessage.getInt32(SECURITY_ID), secDesc, snptMessage.getUInt32(RPT_SEQ_NUM));*/
+        }
+
+        @Override
+        public void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage){
+            logger.info("onMBOFullRefresh: ChannelId: {}, SecurityId: {}-{}.", channelId, snptMessage.getInt32(SECURITY_ID), secDesc);
         }
 
         @Override
@@ -124,6 +136,7 @@ public class Main {
         mdpChannel.startIncrementalFeedA();
         mdpChannel.startIncrementalFeedB();
         mdpChannel.startSnapshotFeedA();
+        mdpChannel.startSnapshotMBOFeedA();
 
         return mdpChannel;
     }

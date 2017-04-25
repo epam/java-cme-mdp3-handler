@@ -170,22 +170,22 @@
       <port>7311</port>
       <feed>B</feed>
     </connection>
-    <connection id="311SAMBO">
-      <type feed-type="SMBO">Snapshot-MBO</type>
-      <protocol>UDP/IP</protocol>
-      <ip>233.119.149.2</ip>
-      <host-ip>69.50.112.125</host-ip>
-      <port>21311</port>
-      <feed>A</feed>
-    </connection>
-    <connection id="311SBMBO">
-      <type feed-type="SMBO">Snapshot-MBO</type>
-      <protocol>UDP/IP</protocol>
-      <ip>233.119.149.133</ip>
-      <host-ip>69.50.112.125</host-ip>
-      <port>22311</port>
-      <feed>B</feed>
-    </connection>
+    <!--<connection id="311SAMBO">-->
+      <!--<type feed-type="SMBO">Snapshot-MBO</type>-->
+      <!--<protocol>UDP/IP</protocol>-->
+      <!--<ip>233.119.149.2</ip>-->
+      <!--<host-ip>69.50.112.125</host-ip>-->
+      <!--<port>21311</port>-->
+      <!--<feed>A</feed>-->
+    <!--</connection>-->
+    <!--<connection id="311SBMBO">-->
+      <!--<type feed-type="SMBO">Snapshot-MBO</type>-->
+      <!--<protocol>UDP/IP</protocol>-->
+      <!--<ip>233.119.149.133</ip>-->
+      <!--<host-ip>69.50.112.125</host-ip>-->
+      <!--<port>22311</port>-->
+      <!--<feed>B</feed>-->
+    <!--</connection>-->
    </connections>
   </channel>
   <channel id="312" label="CME Globex Interest Rate Futures">

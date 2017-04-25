@@ -32,10 +32,13 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.epam.cme.mdp3.core.control.MBOChannelController.MBO_CONTAINS_INCREMENT_MESSAGE_TEMPLATE_ID;
+import static com.epam.cme.mdp3.core.control.MBOChannelController.MBO_INCREMENT_MESSAGE_TEMPLATE_ID;
+import static com.epam.cme.mdp3.core.control.MBOChannelController.MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID;
 import static com.epam.cme.mdp3.mktdata.MdConstants.INCR_RFRSH_MD_ENTRY_TYPE;
 import static com.epam.cme.mdp3.mktdata.MdConstants.LAST_MSG_SEQ_NUM_PROCESSED;
 
-public class MBPChannelController {
+public class MBPChannelController implements ChannelController{
     private static final Logger logger = LoggerFactory.getLogger(MBPChannelController.class);
     private ChannelContext channelContext;
     private static final int PRCD_SNPT_COUNT_NULL = (int) SbePrimitiveType.Int32.getNullValue();
@@ -92,6 +95,7 @@ public class MBPChannelController {
         channelContext.notifyChannelStateListeners(prevState, newState);
     }
 
+    @Override
     public void handleIncrementalPacket(final MdpFeedContext feedContext, final MdpPacket mdpPacket) {
         handleIncrementalPacket(feedContext, mdpPacket, false);
     }
@@ -161,25 +165,26 @@ public class MBPChannelController {
 
             final MdpMessageType messageType = mdpMessageTypes.getMessageType(mdpMessage.getSchemaId());
             mdpMessage.setMessageType(messageType);
-
-            if (messageType.getSemanticMsgType() == SemanticMsgType.MarketDataIncrementalRefresh) {
-                final short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
-                handleMarketDataIncrementalRefresh(feedContext, mdpMessage, msgSeqNum, matchEventIndicator);
-                if (channelContext.hasMdListeners() && MatchEventIndicator.hasEndOfEvent(matchEventIndicator)) {
-                    this.eventController.commit(this.eventCommitFunction);
+            if(isMessageSupported(mdpMessage)) {
+                if (messageType.getSemanticMsgType() == SemanticMsgType.MarketDataIncrementalRefresh) {
+                    final short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
+                    handleMarketDataIncrementalRefresh(feedContext, mdpMessage, msgSeqNum, matchEventIndicator);
+                    if (channelContext.hasMdListeners() && MatchEventIndicator.hasEndOfEvent(matchEventIndicator)) {
+                        this.eventController.commit(this.eventCommitFunction);
+                    }
+                } else if (messageType.getSemanticMsgType() == SemanticMsgType.QuoteRequest) {
+                    this.requestForQuoteHandler.handle(feedContext, mdpMessage);
+                } else if (messageType.getSemanticMsgType() == SemanticMsgType.SecurityStatus) {
+                    final short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
+                    this.securityStatusHandler.handle(mdpMessage, matchEventIndicator);
+                    if (channelContext.hasMdListeners() && MatchEventIndicator.hasEndOfEvent(matchEventIndicator)) {
+                        this.eventController.commit(this.eventCommitFunction);
+                    }
+                } else if (messageType.getSemanticMsgType() == SemanticMsgType.SecurityDefinition) {
+                    this.channelContext.getInstruments().onMessage(feedContext, mdpMessage);
+                } else {
+                    logger.trace("Message has been ignored due to its SemanticMsgType '{}'", messageType.getSemanticMsgType());
                 }
-            } else if (messageType.getSemanticMsgType() == SemanticMsgType.QuoteRequest) {
-                this.requestForQuoteHandler.handle(feedContext, mdpMessage);
-            } else if (messageType.getSemanticMsgType() == SemanticMsgType.SecurityStatus) {
-                final short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
-                this.securityStatusHandler.handle(mdpMessage, matchEventIndicator);
-                if (channelContext.hasMdListeners() && MatchEventIndicator.hasEndOfEvent(matchEventIndicator)) {
-                    this.eventController.commit(this.eventCommitFunction);
-                }
-            } else if (messageType.getSemanticMsgType() == SemanticMsgType.SecurityDefinition) {
-                this.channelContext.getInstruments().onMessage(feedContext, mdpMessage);
-            } else {
-                logger.trace("Message has been ignored due to its SemanticMsgType '{}'", messageType.getSemanticMsgType());
             }
         }
         if (this.wasChannelResetInPrcdPacket) {
@@ -215,6 +220,7 @@ public class MBPChannelController {
         this.lastMsgSeqNumPrcd369 = lastMsgSeqNumProcessed;
     }
 
+    @Override
     public void handleSnapshotPacket(final MdpFeedContext feedContext, final MdpPacket mdpPacket) {
         lock.lock();
         try {
@@ -266,6 +272,7 @@ public class MBPChannelController {
         return lastIncrPcktReceived;
     }
 
+    @Override
     public void preClose() {
         try {
             lock.lock();
@@ -275,12 +282,26 @@ public class MBPChannelController {
         }
     }
 
+    @Override
     public void close() {
         try {
             lock.lock();
             switchState(ChannelState.CLOSED);
         } finally {
             lock.unlock();
+        }
+    }
+
+    //move it in interface when logic is refactored
+    private boolean isMessageSupported(MdpMessage mdpMessage){
+        SemanticMsgType semanticMsgType = mdpMessage.getSemanticMsgType();
+        int schemaId = mdpMessage.getSchemaId();
+        if(SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType)) {
+            return (MBO_INCREMENT_MESSAGE_TEMPLATE_ID != schemaId && MBO_CONTAINS_INCREMENT_MESSAGE_TEMPLATE_ID != schemaId);
+        } else if(SemanticMsgType.MarketDataSnapshotFullRefresh.equals(semanticMsgType)){
+            return MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID != schemaId;
+        } else {
+            return false;
         }
     }
 }
