@@ -4,7 +4,6 @@ import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
 import com.epam.cme.mdp3.core.control.*;
 import com.epam.cme.mdp3.core.control.Buffer;
-import com.epam.cme.mdp3.core.control.MDPHeapBuffer;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.test.ModelUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -34,12 +33,13 @@ public class GapChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
-        Buffer<MdpPacket> buffer = new MDPHeapBuffer(bufferCapacity);
+        Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestRecoveryManager();
         gapChannelController = new GapChannelController(testChannelController, testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes);
 
     }
 
+//    MBO does not send its state to client
 //    @Test
 //    public void itMustChangeItsStateAndBeReadyToWorkAfterSnapshot() throws InterruptedException {
 //        int lastMsgSeqNumProcessed = 1000;
@@ -74,7 +74,7 @@ public class GapChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
-        Buffer<MdpPacket> buffer = new MDPHeapBuffer(bufferCapacity);
+        Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestRecoveryManager();
         int gapThreshold = 3;
         gapChannelController = new GapChannelController(testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes);
@@ -125,7 +125,7 @@ public class GapChannelControllerTest {
         lastMsgSeqNumProcessed = 3;
 
         final MdpPacket mdpPacketWithSnapshot = MdpPacket.instance();
-        mdpPacketWithSnapshot.wrapFromBuffer(ModelUtils.getMBOSnapshotTestMessage(2, 100, lastMsgSeqNumProcessed, 1, 1, 1));
+        mdpPacketWithSnapshot.wrapFromBuffer(ModelUtils.getMBOSnapshotTestMessage(1, 100, lastMsgSeqNumProcessed, 1, 1, 1));
         final MdpFeedContext smboContext = new MdpFeedContext(Feed.A, FeedType.SMBO);
 
         gapChannelController.handleSnapshotPacket(smboContext, mdpPacketWithSnapshot);
@@ -173,7 +173,7 @@ public class GapChannelControllerTest {
 
         @Override
         public void handleIncrementalPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {
-            incrementalQueue.add(new ImmutablePair<>(feedContext, mdpPacket));
+            incrementalQueue.add(new ImmutablePair<>(feedContext, mdpPacket.copy()));
         }
 
         @Override

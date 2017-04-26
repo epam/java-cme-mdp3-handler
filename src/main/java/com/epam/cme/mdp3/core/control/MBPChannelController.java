@@ -297,11 +297,11 @@ public class MBPChannelController implements ChannelController{
         SemanticMsgType semanticMsgType = mdpMessage.getSemanticMsgType();
         int schemaId = mdpMessage.getSchemaId();
         if(SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType)) {
-            return (MBO_INCREMENT_MESSAGE_TEMPLATE_ID != schemaId && MBO_CONTAINS_INCREMENT_MESSAGE_TEMPLATE_ID != schemaId);
+            return (MBO_INCREMENT_MESSAGE_TEMPLATE_ID != schemaId);
         } else if(SemanticMsgType.MarketDataSnapshotFullRefresh.equals(semanticMsgType)){
             return MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID != schemaId;
         } else {
-            return false;
+            return true;
         }
     }
 }

@@ -50,7 +50,9 @@ public class IncrementalRefreshHolder {
             this.sbeGroupType = incrEntry.getSbeGroupType();
             return true;
         } else {
-            logger.trace("Incremental Refresh Entry #{} data was not stored because too old", rptSeqNum);
+            if(logger.isTraceEnabled()) {
+                logger.trace("Incremental Refresh Entry #{} data was not stored because too old", rptSeqNum);
+            }
             return false;
         }
     }
