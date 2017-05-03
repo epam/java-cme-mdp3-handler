@@ -60,6 +60,52 @@ public class GapChannelControllerTest {
 //    }
 
     @Test
+    public void duplicateMessagesWhichWereTakenFromBufferAndHaveSeqNumGreaterThanHighSnapshotSeqShouldBeIgnored() throws Exception {
+        int instrument = 1, instrumentLastMsgSeqNumProcessed = 1, incrementSequence = 2;
+        byte ignored = 0;
+        instrumentManager.registerSecurity(instrument, "", ignored, ignored);
+
+        final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
+        gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(incrementSequence, new int[]{instrument}, new short[]{1}));
+        gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(incrementSequence, new int[]{instrument}, new short[]{1}));//duplicate
+
+        sendSnapshotMessage(1, instrument, instrumentLastMsgSeqNumProcessed, 1, 1, 1);
+        sendSnapshotMessage(1, instrument, instrumentLastMsgSeqNumProcessed, 1, 1, 1);//next cycle
+
+        Pair<MdpFeedContext, MdpPacket> pair = testChannelController.nextIncrementalMessage();
+        assertNotNull(pair);
+        assertEquals(incrementSequence, pair.getRight().getMsgSeqNum());
+
+        assertNull(testChannelListener.nextPair());
+        assertNull(testChannelController.nextIncrementalMessage());
+    }
+
+    @Test
+    public void duplicateMessagesWhichWereTakenFromBufferAndHaveSeqNumLessThanHighSnapshotSeqShouldBeIgnored() throws Exception {
+        int instrument = 1, instrumentLastMsgSeqNumProcessed = 1, incrementSequence = 2;
+        byte ignored = 0;
+        instrumentManager.registerSecurity(instrument, "", ignored, ignored);
+
+        final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
+        gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(incrementSequence, new int[]{instrument}, new short[]{1}));
+        gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(incrementSequence, new int[]{instrument}, new short[]{1}));//duplicate
+
+        sendSnapshotMessage(1, instrument, instrumentLastMsgSeqNumProcessed, 1, 1, 2);
+        sendSnapshotMessage(2, 2, 2, 1, 1, 2);
+        sendSnapshotMessage(1, instrument, instrumentLastMsgSeqNumProcessed, 1, 1, 1);//next cycle
+
+        Pair<Integer, Long> pairFromBuffer = testChannelListener.nextPair();
+        assertNotNull(pairFromBuffer);
+        assertEquals(instrument, pairFromBuffer.getLeft().intValue());
+        assertEquals(incrementSequence, pairFromBuffer.getRight().intValue());
+
+        pairFromBuffer = testChannelListener.nextPair();
+        assertNull(pairFromBuffer);
+
+        assertNull(testChannelController.nextIncrementalMessage());
+    }
+
+    @Test
     public void entriesFromIncrementShouldBeSentAccordingToSnapshotSequence() throws Exception {
         int instrument1 = 1, instrument1lastMsgSeqNumProcessed = 1, instrument1Sequence = 2;
         int instrument2 = 2, instrument2lastMsgSeqNumProcessed = 3, instrument2Sequence = 4;

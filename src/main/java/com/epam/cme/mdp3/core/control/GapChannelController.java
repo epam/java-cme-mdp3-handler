@@ -36,6 +36,7 @@ public class GapChannelController implements MBOChannelController {
     private final MBOSnapshotCycleHandler cycleHandler;
     private long lastProcessedSeqNum;
     private long smallestSnapshotSequence;
+    private long highestSnapshotSequence;
     private ChannelState currentState = ChannelState.INITIAL;
     private MdpMessageTypes mdpMessageTypes;
     private boolean receivingCycle = false;
@@ -65,7 +66,9 @@ public class GapChannelController implements MBOChannelController {
             if(mdpPacket.getMsgSeqNum() == 1) {
                 if(receivingCycle) {
                     smallestSnapshotSequence = cycleHandler.getSmallestSnapshotSequence();
-                    if (smallestSnapshotSequence != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED) {
+                    highestSnapshotSequence = cycleHandler.getHighestSnapshotSequence();
+                    if (smallestSnapshotSequence != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED
+                            && highestSnapshotSequence != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED) {
                         lastProcessedSeqNum = cycleHandler.getHighestSnapshotSequence();
                         processMessagesFromBuffer(feedContext);
                         recoveryManager.stopRecovery();
@@ -172,7 +175,7 @@ public class GapChannelController implements MBOChannelController {
             if(pkgSequence == expectedSequence) {
                 target.handleIncrementalPacket(feedContext, mdpPacket);
                 lastProcessedSeqNum = pkgSequence;
-            } else if(pkgSequence < expectedSequence){
+            } else if(pkgSequence < expectedSequence && pkgSequence <= highestSnapshotSequence){
                 long expectedSmallestSequence = smallestSnapshotSequence + 1;
                 if(pkgSequence == expectedSmallestSequence){
                     targetForBuffered.handleIncrementalPacket(feedContext, mdpPacket);
