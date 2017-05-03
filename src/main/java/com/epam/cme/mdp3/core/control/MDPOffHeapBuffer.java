@@ -95,6 +95,7 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
 
     private void copy(MdpPacket from, MdpPacket to){
         to.buffer().copyFrom(from.buffer());
+        to.length(from.getPacketSize());
     }
 
     private boolean isPacketEmpty(MdpPacket mdpPacket){

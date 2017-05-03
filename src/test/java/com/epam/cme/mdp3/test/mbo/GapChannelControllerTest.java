@@ -76,10 +76,14 @@ public class GapChannelControllerTest {
         sendSnapshotMessage(3, instrument2, instrument2lastMsgSeqNumProcessed, 1, 1, 3);
         sendSnapshotMessage(1, instrument1, instrument1lastMsgSeqNumProcessed, 1, 1, 3);//next cycle
 
-        Pair<Integer, Long> pair = testChannelListener.nextPair();
+        Pair<Integer, Long> pairFromBuffer = testChannelListener.nextPair();
+        assertNotNull(pairFromBuffer);
+        assertEquals(instrument1, pairFromBuffer.getLeft().intValue());
+        assertEquals(instrument1Sequence, pairFromBuffer.getRight().intValue());
+
+        Pair<MdpFeedContext, MdpPacket> pair = testChannelController.nextIncrementalMessage();
         assertNotNull(pair);
-        assertEquals(instrument2, pair.getLeft().intValue());
-        assertEquals(instrument2Sequence, pair.getRight().intValue());
+        assertEquals(instrument2Sequence, pair.getRight().getMsgSeqNum());
     }
 
     @Test
@@ -207,7 +211,8 @@ public class GapChannelControllerTest {
     private class TestChannelListener implements VoidChannelListener {
         private BlockingQueue<Pair<Integer, Long>> incrementalQueue = new LinkedBlockingQueue<>();
         @Override
-        public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, final int securityId, final String secDesc, final long msgSeqNum, final FieldSet incrRefreshEntry) {
+        public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
+                                            final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry){
             incrementalQueue.add(new ImmutablePair<>(securityId, msgSeqNum));
         }
 

@@ -49,11 +49,17 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
     @Override
     public void copyFrom(SbeBuffer buffer) {
         final SbeBufferImpl bufferImpl = (SbeBufferImpl) buffer;
+        final long fromLength = bufferImpl.bytes.length();
         if (this.bytes == null) {
             //this.bytes = Bytes.wrapForRead(ByteBuffer.allocateDirect((int) bufferImpl.bytes.realCapacity()).order(ByteOrder.LITTLE_ENDIAN));
             this.bytes = BytesStore.wrap(ByteBuffer.allocateDirect((int) bufferImpl.bytes.realCapacity()).order(ByteOrder.LITTLE_ENDIAN));
         }
-        this.bytes.write(0, bufferImpl.bytes, 0, bufferImpl.bytes.length());
+        final long toLength = bytes.length();
+        if(toLength < fromLength) {
+            bytes.write(0, bufferImpl.bytes, 0, toLength);
+        } else {
+            bytes.write(0, bufferImpl.bytes, 0, fromLength);
+        }
     }
 
     @Override
