@@ -25,27 +25,32 @@ import java.nio.BufferUnderflowException;
 public class OffHeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler {
     private Long2ObjectHashMap<MutableLongToObjPair<LongArray>> dataCache = new Long2ObjectHashMap<>();
     private Long2ObjectHashMap<MutableLongToObjPair<LongArray>> data = new Long2ObjectHashMap<>();
-    private volatile long snapshotSequence = SNAPSHOT_SEQUENCE_UNDEFINED;
     private volatile int dataSize;
 
+    @Override
     public void reset(){
         data.forEach((ignore, pair) -> {
             clearArray(pair.getValue());
             pair.setKey(0);
         });
-        snapshotSequence = SNAPSHOT_SEQUENCE_UNDEFINED;
     }
 
+    @Override
     public void update(long totNumReports, long lastMsgSeqNumProcessed, int securityId, long noChunks, long currentChunk){
         if(dataSize != totNumReports){
             dataSize = (int)totNumReports;
             dataCache.putAll(data);
             data.clear();
         }
-        MutableLongToObjPair<LongArray> securityIdMetaData = data.computeIfAbsent(securityId, ignore ->
-                dataCache.containsKey(securityId) ?
-                        dataCache.remove(securityId) :
-                        new MutableLongToObjPair<>(noChunks, new LongArray(MAX_NO_CHUNK_VALUE)));
+        MutableLongToObjPair<LongArray> securityIdMetaData = data.computeIfAbsent(securityId, ignore -> {
+            if (dataCache.containsKey(securityId)) {
+                return dataCache.remove(securityId);
+            } else {
+                LongArray newArray = new LongArray(MAX_NO_CHUNK_VALUE);
+                clearArray(newArray);
+                return new MutableLongToObjPair<>(noChunks, newArray);
+            }
+        });
 
         LongArray currentArray = securityIdMetaData.getValue();
         if(securityIdMetaData.getKey() != noChunks){
@@ -57,33 +62,50 @@ public class OffHeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler {
         currentArray.setValue(currentChunk - 1, lastMsgSeqNumProcessed);
     }
 
-    public long getSnapshotSequence() {
-        boolean result = true;
-        if(data.size() == dataSize){
+    @Override
+    public long getSnapshotSequence(int securityId) {
+        MutableLongToObjPair<LongArray> pair = data.get(securityId);
+        return pair.getValue().getValue(0);
+    }
+
+    @Override
+    public long getSmallestSnapshotSequence() {
+        return getSnapshotSequence(false);
+    }
+
+    @Override
+    public long getHighestSnapshotSequence() {
+        return getSnapshotSequence(true);
+    }
+
+    private long getSnapshotSequence(boolean highest) {
+        long result = SNAPSHOT_SEQUENCE_UNDEFINED;
+        boolean existUndefined = false;
+        if(data.size() == dataSize) {
             for (MutableLongToObjPair<LongArray> pair : data.values()) {
                 for (int j = 0; j < pair.getKey(); j++) {
                     long seq = pair.getValue().getValue(j);
                     if(seq != SNAPSHOT_SEQUENCE_UNDEFINED){
-                        if(snapshotSequence == SNAPSHOT_SEQUENCE_UNDEFINED){
-                            snapshotSequence = seq;
-                        }
-                        if(seq != snapshotSequence){
-                            result = false;
-                            break;
+                        if(result == SNAPSHOT_SEQUENCE_UNDEFINED) {
+                            result = seq;
+                        } else if(highest && seq > result){
+                            result = seq;
+                        } else if(!highest && seq < result){
+                            result = seq;
                         }
                     } else {
-                        result = false;
+                        existUndefined = true;
                         break;
                     }
                 }
             }
         } else {
-            result = false;
+            existUndefined = true;
         }
-        if(!result){
-            snapshotSequence = SNAPSHOT_SEQUENCE_UNDEFINED;
+        if(existUndefined){
+            result = SNAPSHOT_SEQUENCE_UNDEFINED;
         }
-        return snapshotSequence;
+        return result;
     }
 
     private void clearArray(LongArray array) {

@@ -12,21 +12,22 @@
 
 package com.epam.cme.mdp3.core.control;
 
-public interface MBOSnapshotCycleHandler {
-    long SNAPSHOT_SEQUENCE_UNDEFINED = -1;
-    long MAX_NO_CHUNK_VALUE = 100;
-    void reset();
-    void update(long totNumReports, long lastMsgSeqNumProcessed, int securityId, long noChunks, long currentChunk);
-    long getSnapshotSequence(int securityId);
+import com.epam.cme.mdp3.MdpGroupEntry;
+import com.epam.cme.mdp3.MdpMessage;
+import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 
-    /**
-     *
-     * @return the smallest snapshot sequence or value of SNAPSHOT_SEQUENCE_UNDEFINED if there are gaps.
-     */
-    long getSmallestSnapshotSequence();
-    /**
-     *
-     * @return the smallest snapshot sequence or value of SNAPSHOT_SEQUENCE_UNDEFINED if there are gaps.
-     */
-    long getHighestSnapshotSequence();
+public class MBOBufferedMessageRouter extends MBOChannelControllerRouter {
+    private MBOSnapshotCycleHandler cycleHandler;
+
+    public MBOBufferedMessageRouter(InstrumentManager instrumentManager, MdpMessageTypes mdpMessageTypes, MBOSnapshotCycleHandler cycleHandler) {
+        super(instrumentManager, mdpMessageTypes);
+        this.cycleHandler = cycleHandler;
+    }
+
+    protected void routeEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
+        long snapshotSequence = cycleHandler.getSnapshotSequence(securityId);
+        if(snapshotSequence < msgSeqNum) {
+            super.routeEntry(securityId, mdpMessage, orderIDEntry, mdEntry, msgSeqNum);
+        }
+    }
 }

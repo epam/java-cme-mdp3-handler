@@ -43,6 +43,21 @@ public class HeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler{
         securityIdMetaData[(int) currentChunk - 1] = lastMsgSeqNumProcessed;
     }
 
+    @Override
+    public long getSnapshotSequence(int securityId) {
+        return 0;
+    }
+
+    @Override
+    public long getSmallestSnapshotSequence() {
+        return 0;
+    }
+
+    @Override
+    public long getHighestSnapshotSequence() {
+        return 0;
+    }
+
     public long getSnapshotSequence() {
         boolean result = true;
         if(metaData != null && metaData.size() == metaDataSize){

@@ -89,8 +89,10 @@ public class MdpChannelImpl implements MdpChannel {
             this.instruments = new ChannelInstruments(this.channelContext, instrumentManager);
             Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(incrQueueSize);
             ChannelController target = new MBOChannelControllerRouter(instrumentManager, mdpMessageTypes);
-            this.mboChannelController = new GapChannelController(target, getRecoveryManager(), buffer, this.gapThreshold,
-                    channelId, mdpMessageTypes);
+            MBOSnapshotCycleHandler cycleHandler = new OffHeapMBOSnapshotCycleHandler();
+            ChannelController targetForBuffered = new MBOBufferedMessageRouter(instrumentManager, mdpMessageTypes, cycleHandler);
+            this.mboChannelController = new GapChannelController(target, targetForBuffered, getRecoveryManager(), buffer, this.gapThreshold,
+                    channelId, mdpMessageTypes, cycleHandler);
         } else {
             this.instruments = new ChannelInstruments(this.channelContext);
             mboChannelController = new StubChannelController();

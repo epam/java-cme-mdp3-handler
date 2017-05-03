@@ -11,6 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +27,8 @@ public class GapChannelControllerTest {
     private final String testChannelId = "1";
     private TestRecoveryManager testRecoveryManager;
     private boolean recoveryStarted;
+    private TestChannelListener testChannelListener;
+    private InstrumentManager instrumentManager;
 
     @Before
     public void init() throws Exception {
@@ -35,7 +38,11 @@ public class GapChannelControllerTest {
         testChannelController = new TestChannelController();
         Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestRecoveryManager();
-        gapChannelController = new GapChannelController(testChannelController, testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes);
+        MBOSnapshotCycleHandler mboSnapshotCycleHandler = new OffHeapMBOSnapshotCycleHandler();
+        testChannelListener = new TestChannelListener();
+        instrumentManager = new MBOInstrumentManager("TEST", Collections.singletonList(testChannelListener));
+        ChannelController targetForBuffered = new MBOBufferedMessageRouter(instrumentManager, mdpMessageTypes, mboSnapshotCycleHandler);
+        gapChannelController = new GapChannelController(testChannelController, targetForBuffered, testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes, mboSnapshotCycleHandler);
 
     }
 
@@ -51,6 +58,29 @@ public class GapChannelControllerTest {
 //        assertEquals(ChannelState.INITIAL, channelStateChannelStatePair.getLeft());
 //        assertEquals(ChannelState.SYNC, channelStateChannelStatePair.getRight());
 //    }
+
+    @Test
+    public void entriesFromIncrementShouldBeSentAccordingToSnapshotSequence() throws Exception {
+        int instrument1 = 1, instrument1lastMsgSeqNumProcessed = 1, instrument1Sequence = 2;
+        int instrument2 = 2, instrument2lastMsgSeqNumProcessed = 3, instrument2Sequence = 4;
+
+        byte ignored = 0;
+        instrumentManager.registerSecurity(instrument1, "", ignored, ignored);
+
+        final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
+        gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(instrument1Sequence, new int[]{instrument1}, new short[]{1}));
+        gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(instrument2Sequence, new int[]{instrument2}, new short[]{1}));
+
+        sendSnapshotMessage(1, instrument1, instrument1lastMsgSeqNumProcessed, 1, 1, 3);
+        sendSnapshotMessage(2, 3, 2, 1, 1, 3);
+        sendSnapshotMessage(3, instrument2, instrument2lastMsgSeqNumProcessed, 1, 1, 3);
+        sendSnapshotMessage(1, instrument1, instrument1lastMsgSeqNumProcessed, 1, 1, 3);//next cycle
+
+        Pair<Integer, Long> pair = testChannelListener.nextPair();
+        assertNotNull(pair);
+        assertEquals(instrument2, pair.getLeft().intValue());
+        assertEquals(instrument2Sequence, pair.getRight().intValue());
+    }
 
     @Test
     public void incrementalMessagesMustBeSentToClientsIfThereAreNoGaps() throws Exception {
@@ -77,7 +107,7 @@ public class GapChannelControllerTest {
         Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestRecoveryManager();
         int gapThreshold = 3;
-        gapChannelController = new GapChannelController(testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes);
+        gapChannelController = new GapChannelController(testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes, new OffHeapMBOSnapshotCycleHandler());
 
 
         int lastMsgSeqNumProcessed = 0;
@@ -129,6 +159,7 @@ public class GapChannelControllerTest {
         final MdpFeedContext smboContext = new MdpFeedContext(Feed.A, FeedType.SMBO);
 
         gapChannelController.handleSnapshotPacket(smboContext, mdpPacketWithSnapshot);
+        gapChannelController.handleSnapshotPacket(smboContext, mdpPacketWithSnapshot);//next cycle
         assertNotNull(testChannelController.nextSnapshotMessage());
 
         assertFalse(recoveryStarted);
@@ -147,12 +178,16 @@ public class GapChannelControllerTest {
 
     private Pair<MdpFeedContext, MdpPacket> sendInitialMBOSnapshot(int lastMsgSeqNumProcessed) throws InterruptedException {
         int securityId = 100;
-        final MdpPacket mdpPacketWithSnapshot = MdpPacket.instance();
-        mdpPacketWithSnapshot.wrapFromBuffer(ModelUtils.getMBOSnapshotTestMessage(1, securityId, lastMsgSeqNumProcessed, 1, 1, 1));
-        final MdpFeedContext smboContext = new MdpFeedContext(Feed.A, FeedType.SMBO);
-
-        gapChannelController.handleSnapshotPacket(smboContext, mdpPacketWithSnapshot);
+        sendSnapshotMessage(1, securityId, lastMsgSeqNumProcessed, 1, 1, 1);
+        sendSnapshotMessage(1, securityId, lastMsgSeqNumProcessed, 1, 1, 1);//next cycle
         return testChannelController.nextSnapshotMessage();
+    }
+
+    private void sendSnapshotMessage(long sequence, int securityId, long lastMsgSeqNumProcessed, long noChunks, long currentChunk, long totNumReports) {
+        final MdpPacket mdpPacketWithSnapshot = MdpPacket.instance();
+        mdpPacketWithSnapshot.wrapFromBuffer(ModelUtils.getMBOSnapshotTestMessage(sequence, securityId, lastMsgSeqNumProcessed, noChunks, currentChunk, totNumReports));
+        final MdpFeedContext smboContext = new MdpFeedContext(Feed.A, FeedType.SMBO);
+        gapChannelController.handleSnapshotPacket(smboContext, mdpPacketWithSnapshot);
     }
 
     private MdpPacket createPacketWithIncrement(long sequence){
@@ -160,6 +195,25 @@ public class GapChannelControllerTest {
         ByteBuffer mboSnapshotTestMessage = ModelUtils.getMBOIncrementTestMessage(sequence);
         mdpPacket.wrapFromBuffer(mboSnapshotTestMessage);
         return mdpPacket;
+    }
+
+    private MdpPacket createPacketWithIncrement(long sequence, int[] securityIds, short[] referenceIDs){
+        final MdpPacket mdpPacket = MdpPacket.instance();
+        ByteBuffer mboSnapshotTestMessage = ModelUtils.getMBPWithMBOIncrementTestMessage(sequence, securityIds, referenceIDs);
+        mdpPacket.wrapFromBuffer(mboSnapshotTestMessage);
+        return mdpPacket;
+    }
+
+    private class TestChannelListener implements VoidChannelListener {
+        private BlockingQueue<Pair<Integer, Long>> incrementalQueue = new LinkedBlockingQueue<>();
+        @Override
+        public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, final int securityId, final String secDesc, final long msgSeqNum, final FieldSet incrRefreshEntry) {
+            incrementalQueue.add(new ImmutablePair<>(securityId, msgSeqNum));
+        }
+
+        public Pair<Integer, Long> nextPair() throws Exception {
+            return incrementalQueue.poll(WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
+        }
     }
 
     private class TestChannelController implements ChannelController {

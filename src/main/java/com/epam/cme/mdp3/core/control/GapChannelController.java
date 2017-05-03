@@ -31,22 +31,26 @@ public class GapChannelController implements MBOChannelController {
     private final Buffer<MdpPacket> buffer;
     private final RecoveryManager recoveryManager;
     private final ChannelController target;
+    private final ChannelController targetForBuffered;
     private final String channelId;
     private final MBOSnapshotCycleHandler cycleHandler;
     private long lastProcessedSeqNum;
+    private long smallestSnapshotSequence;
     private ChannelState currentState = ChannelState.INITIAL;
     private MdpMessageTypes mdpMessageTypes;
+    private boolean receivingCycle = false;
 
 
-    public GapChannelController(ChannelController target, RecoveryManager recoveryManager, Buffer<MdpPacket> buffer,
-                                int gapThreshold, String channelId, MdpMessageTypes mdpMessageTypes) {
+    public GapChannelController(ChannelController target, ChannelController targetForBuffered, RecoveryManager recoveryManager, Buffer<MdpPacket> buffer,
+                                int gapThreshold, String channelId, MdpMessageTypes mdpMessageTypes, MBOSnapshotCycleHandler cycleHandler) {
         this.buffer = buffer;
         this.recoveryManager = recoveryManager;
         this.target = target;
         this.gapThreshold = gapThreshold;
         this.channelId = channelId;
         this.mdpMessageTypes = mdpMessageTypes;
-        this.cycleHandler = new OffHeapMBOSnapshotCycleHandler();
+        this.cycleHandler = cycleHandler;
+        this.targetForBuffered = targetForBuffered;
     }
 
     @Override
@@ -58,30 +62,39 @@ public class GapChannelController implements MBOChannelController {
         }
         try {
             lock.lock();
+            if(mdpPacket.getMsgSeqNum() == 1) {
+                if(receivingCycle) {
+                    smallestSnapshotSequence = cycleHandler.getSmallestSnapshotSequence();
+                    if (smallestSnapshotSequence != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED) {
+                        lastProcessedSeqNum = cycleHandler.getHighestSnapshotSequence();
+                        processMessagesFromBuffer(feedContext);
+                        recoveryManager.stopRecovery();
+                        switchState(ChannelState.SYNC);
+                        receivingCycle = false;
+                    }
+                } else {
+                    cycleHandler.reset();
+                    receivingCycle = true;
+                }
+            }
             switch (currentState) {
                 case INITIAL:
                 case OUTOFSYNC:
-                    mdpPacket.forEach(mdpMessage -> {
-                        updateSemanticMsgType(mdpMessageTypes, mdpMessage);
-                        if(isMessageSupported(mdpMessage)) {
-                            long lastMsgSeqNumProcessed = mdpMessage.getUInt32(LAST_MSG_SEQ_NUM_PROCESSED);
-                            int securityId = mdpMessage.getInt32(SECURITY_ID);
-                            long noChunks = mdpMessage.getUInt32(NO_CHUNKS);
-                            long currentChunk = mdpMessage.getUInt32(CURRENT_CHUNK);
-                            long totNumReports = mdpMessage.getUInt32(TOT_NUM_REPORTS);
-                            cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId, noChunks, currentChunk);
-                        }
-                    });
-                    target.handleSnapshotPacket(feedContext, mdpPacket);
+                    if(receivingCycle) {
+                        mdpPacket.forEach(mdpMessage -> {
+                            updateSemanticMsgType(mdpMessageTypes, mdpMessage);
+                            if (isMessageSupported(mdpMessage)) {
+                                long lastMsgSeqNumProcessed = mdpMessage.getUInt32(LAST_MSG_SEQ_NUM_PROCESSED);
+                                int securityId = mdpMessage.getInt32(SECURITY_ID);
+                                long noChunks = mdpMessage.getUInt32(NO_CHUNKS);
+                                long currentChunk = mdpMessage.getUInt32(CURRENT_CHUNK);
+                                long totNumReports = mdpMessage.getUInt32(TOT_NUM_REPORTS);
+                                cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId, noChunks, currentChunk);
+                            }
+                        });
+                        target.handleSnapshotPacket(feedContext, mdpPacket);
+                    }
                     break;
-            }
-            long snapshotSequence = cycleHandler.getSnapshotSequence();
-            if(snapshotSequence != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED){
-                lastProcessedSeqNum = cycleHandler.getSnapshotSequence();
-                processMessagesFromBuffer(feedContext);
-                recoveryManager.stopRecovery();
-                switchState(ChannelState.SYNC);
-                cycleHandler.reset();
             }
         } finally {
             lock.unlock();
@@ -159,6 +172,15 @@ public class GapChannelController implements MBOChannelController {
             if(pkgSequence == expectedSequence) {
                 target.handleIncrementalPacket(feedContext, mdpPacket);
                 lastProcessedSeqNum = pkgSequence;
+            } else if(pkgSequence < expectedSequence){
+                long expectedSmallestSequence = smallestSnapshotSequence + 1;
+                if(pkgSequence == expectedSmallestSequence){
+                    targetForBuffered.handleIncrementalPacket(feedContext, mdpPacket);
+                    smallestSnapshotSequence = expectedSmallestSequence;
+                } if(pkgSequence > expectedSmallestSequence) {
+                    buffer.add(mdpPacket);
+                    break;
+                }
             } else if(pkgSequence > expectedSequence){
                 buffer.add(mdpPacket);
                 break;
