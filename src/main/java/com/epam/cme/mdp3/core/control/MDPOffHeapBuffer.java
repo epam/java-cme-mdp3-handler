@@ -86,6 +86,7 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
     }
 
     private void sort(){
+        //Arrays.sort is not the best variant here because it allocates TimSort class and array into it every time.
         Arrays.sort(data, (o1, o2) -> {
             long sequence1 = o1.getMsgSeqNum();
             long sequence2 = o2.getMsgSeqNum();

@@ -14,7 +14,12 @@ public class MBOSnapshotCycleHandlerTest {
     public void init(){
         cycleHandler = new OffHeapMBOSnapshotCycleHandler();
     }
-    
+
+
+    @Test
+    public void snapshotSequenceMustBeUndefinedIfThereWereNoMessages(){
+        assertEquals(MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED, cycleHandler.getSnapshotSequence(1));
+    }
 
     @Test
     public void itMustUpdateMetadataAndGiveCorrectResultWhenWholeSnapshotIsReceived(){

@@ -65,7 +65,7 @@ public class OffHeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler {
     @Override
     public long getSnapshotSequence(int securityId) {
         MutableLongToObjPair<LongArray> pair = data.get(securityId);
-        return pair.getValue().getValue(0);
+        return pair != null ? pair.getValue().getValue(0) : SNAPSHOT_SEQUENCE_UNDEFINED;
     }
 
     @Override

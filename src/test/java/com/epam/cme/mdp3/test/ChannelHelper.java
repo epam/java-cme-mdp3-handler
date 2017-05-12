@@ -23,12 +23,16 @@ public class ChannelHelper {
     private final SbeString tag1151value = SbeString.allocate(6);
 
     public Set<InstrumentInfo> resolveInstruments(final String channelId,
-                                                         final List<String> symbolGroups) {
+                                                         final List<String> symbolGroups, String networkInterface) {
         try {
             final Set<InstrumentInfo> instruments = new HashSet<>();
             final MdpChannel mdpChannel = new MdpChannelBuilder(channelId,
                     Main.class.getResource("/config.xml").toURI(),
                     Main.class.getResource("/templates_FixBinary.xml").toURI())
+                    .setNetworkInterface(FeedType.SMBO, Feed.A, networkInterface).setNetworkInterface(FeedType.SMBO, Feed.B, networkInterface)
+                    .setNetworkInterface(FeedType.S, Feed.A, networkInterface).setNetworkInterface(FeedType.S, Feed.B, networkInterface)
+                    .setNetworkInterface(FeedType.I, Feed.A, networkInterface).setNetworkInterface(FeedType.I, Feed.B, networkInterface)
+                    .setNetworkInterface(FeedType.N, Feed.A, networkInterface).setNetworkInterface(FeedType.N, Feed.B, networkInterface)
                     .usingListener(new VoidChannelListener() {
                         @Override
                         public void onFeedStarted(String channelId, FeedType feedType, Feed feed) {
@@ -68,13 +72,7 @@ public class ChannelHelper {
             }
             mdpChannel.close();
             return instruments;
-        } catch (MdpMessageTypeBuildException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (MdpFeedException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -82,7 +80,7 @@ public class ChannelHelper {
 
     public static void main(String args[]) {
         try {
-            final Set<InstrumentInfo> instruments = new ChannelHelper().resolveInstruments("320", Arrays.asList( "6C", "6E", "6M", "6N"));
+            final Set<InstrumentInfo> instruments = new ChannelHelper().resolveInstruments("320", Arrays.asList( "6C", "6E", "6M", "6N"), null);
             System.out.println(instruments);
         } catch (Exception e) {
             e.printStackTrace();
