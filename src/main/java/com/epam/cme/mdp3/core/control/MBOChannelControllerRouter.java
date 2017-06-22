@@ -89,6 +89,13 @@ public class MBOChannelControllerRouter implements MBOChannelController {
 
     }
 
+    protected void routeEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
+        MBOInstrumentController mboInstrumentController = instrumentManager.getMBOInstrumentController(securityId);
+        if (mboInstrumentController != null) {
+            mboInstrumentController.handleIncrementMDEntry(mdpMessage, orderIDEntry, mdEntry, msgSeqNum);
+        }
+    }
+
     private int getSecurityId(MdpMessage mdpMessage){
         int schemaId = mdpMessage.getSchemaId();
         switch (schemaId){
@@ -101,12 +108,5 @@ public class MBOChannelControllerRouter implements MBOChannelController {
 
     private int getSecurityId(MdpGroupEntry mdpGroupEntry){
         return mdpGroupEntry.getInt32(SECURITY_ID);
-    }
-
-    private void routeEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
-        MBOInstrumentController mboInstrumentController = instrumentManager.getMBOInstrumentController(securityId);
-        if (mboInstrumentController != null) {
-            mboInstrumentController.handleIncrementMDEntry(mdpMessage, orderIDEntry, mdEntry, msgSeqNum);
-        }
     }
 }

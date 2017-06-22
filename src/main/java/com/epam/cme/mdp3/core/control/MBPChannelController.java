@@ -53,8 +53,6 @@ public class MBPChannelController implements ChannelController{
     private long prcdSeqNum = 0;
     private long lastMsgSeqNumPrcd369 = 0;
     private Lock lock = new ReentrantLock();
-
-    private long lastIncrPcktReceived = 0;
     private boolean wasChannelResetInPrcdPacket = false;
 
     private final EventController eventController = new InMemoryEventController();
@@ -108,7 +106,6 @@ public class MBPChannelController implements ChannelController{
         }
         lock.lock();
         try {
-            this.lastIncrPcktReceived = System.currentTimeMillis();
             handleIncrementalMessages(feedContext, msgSeqNum, mdpPacket);
         } finally {
             lock.unlock();
@@ -268,10 +265,6 @@ public class MBPChannelController implements ChannelController{
         this.snptMsgCountDown = PRCD_SNPT_COUNT_NULL;
     }
 
-    public long getLastIncrPcktReceived() {
-        return lastIncrPcktReceived;
-    }
-
     @Override
     public void preClose() {
         try {
@@ -297,11 +290,11 @@ public class MBPChannelController implements ChannelController{
         SemanticMsgType semanticMsgType = mdpMessage.getSemanticMsgType();
         int schemaId = mdpMessage.getSchemaId();
         if(SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType)) {
-            return (MBO_INCREMENT_MESSAGE_TEMPLATE_ID != schemaId && MBO_CONTAINS_INCREMENT_MESSAGE_TEMPLATE_ID != schemaId);
+            return (MBO_INCREMENT_MESSAGE_TEMPLATE_ID != schemaId);
         } else if(SemanticMsgType.MarketDataSnapshotFullRefresh.equals(semanticMsgType)){
             return MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID != schemaId;
         } else {
-            return false;
+            return true;
         }
     }
 }

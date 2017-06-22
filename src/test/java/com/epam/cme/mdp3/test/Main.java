@@ -161,7 +161,7 @@ public class Main {
         defineChannel(channelInfos, "344", "ZB", "ZN", "ZF");
 
         final Map<String, Set<InstrumentInfo>> resolvedInstruments = new HashMap<>();
-        channelInfos.forEach((s, groups) -> resolvedInstruments.put(s, new ChannelHelper().resolveInstruments(s, groups)));
+        channelInfos.forEach((s, groups) -> resolvedInstruments.put(s, new ChannelHelper().resolveInstruments(s, groups, null)));
 
         final List<MdpChannel> openChannels = new ArrayList<>();
         try {

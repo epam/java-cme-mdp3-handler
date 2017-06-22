@@ -19,8 +19,9 @@ public class MBOBook {
     private Set<BookEntity> askEntities = Collections.synchronizedSet(new TreeSet<>(new AskComparator()));
 
 
-    public void remove(Side side, BookEntity entityToRemove){
+    public boolean remove(Side side, BookEntity entityToRemove){
         Iterator<BookEntity> iterator;
+        boolean result = false;
         if(side.equals(Side.BID)) {
             iterator = bidEntities.iterator();
         } else {
@@ -30,9 +31,11 @@ public class MBOBook {
             BookEntity bookEntity = iterator.next();
             if(entityToRemove.getOrderId() == bookEntity.getOrderId()){
                 iterator.remove();
+                result = true;
                 break;
             }
         }
+        return result;
     }
 
     public void add(Side side, BookEntity entityToAdd){
@@ -43,8 +46,9 @@ public class MBOBook {
         }
     }
 
-    public void update(Side side, BookEntity entityToUpdate){
+    public boolean update(Side side, BookEntity entityToUpdate){
         Set<BookEntity> entities;
+        boolean result = false;
         if(side.equals(Side.BID)) {
             entities = bidEntities;
         } else {
@@ -56,10 +60,11 @@ public class MBOBook {
             if(entityToUpdate.getOrderId() == bookEntity.getOrderId()){
                 iterator.remove();
                 entities.add(entityToUpdate);
+                result = true;
                 break;
             }
         }
-
+        return result;
     }
 
     @Override

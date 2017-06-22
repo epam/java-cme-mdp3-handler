@@ -17,73 +17,102 @@ import net.openhft.chronicle.bytes.NativeBytesStore;
 import org.agrona.collections.Long2ObjectHashMap;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 
 
 public class OffHeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler {
+    private static final Logger logger = LoggerFactory.getLogger(OffHeapMBOSnapshotCycleHandler.class);
     private Long2ObjectHashMap<MutableLongToObjPair<LongArray>> dataCache = new Long2ObjectHashMap<>();
     private Long2ObjectHashMap<MutableLongToObjPair<LongArray>> data = new Long2ObjectHashMap<>();
-    private volatile long snapshotSequence = SNAPSHOT_SEQUENCE_UNDEFINED;
     private volatile int dataSize;
 
+    @Override
     public void reset(){
         data.forEach((ignore, pair) -> {
             clearArray(pair.getValue());
             pair.setKey(0);
         });
-        snapshotSequence = SNAPSHOT_SEQUENCE_UNDEFINED;
     }
 
+    @Override
     public void update(long totNumReports, long lastMsgSeqNumProcessed, int securityId, long noChunks, long currentChunk){
+        if(currentChunk > noChunks) {
+            logger.error("Current chunk number '{}' is more than noChunks number '{}' for securityId '{}'", currentChunk, noChunks, securityId);
+        }
         if(dataSize != totNumReports){
             dataSize = (int)totNumReports;
             dataCache.putAll(data);
             data.clear();
         }
-        MutableLongToObjPair<LongArray> securityIdMetaData = data.computeIfAbsent(securityId, ignore ->
-                dataCache.containsKey(securityId) ?
-                        dataCache.remove(securityId) :
-                        new MutableLongToObjPair<>(noChunks, new LongArray(MAX_NO_CHUNK_VALUE)));
+        MutableLongToObjPair<LongArray> securityIdMetaData = data.computeIfAbsent(securityId, ignore -> {
+            if (dataCache.containsKey(securityId)) {
+                return dataCache.remove(securityId);
+            } else {
+                long arrayLength = noChunks > MAX_NO_CHUNK_VALUE ? noChunks : MAX_NO_CHUNK_VALUE;
+                LongArray newArray = new LongArray(arrayLength);
+                clearArray(newArray);
+                return new MutableLongToObjPair<>(noChunks, newArray);
+            }
+        });
 
         LongArray currentArray = securityIdMetaData.getValue();
-        if(securityIdMetaData.getKey() != noChunks){
-            if(currentArray.getLength() > noChunks){
+        if(securityIdMetaData.getKey() != noChunks) {
+            if(currentArray.getLength() < noChunks){
                 currentArray.reInit(noChunks);
             }
             securityIdMetaData.setKey(noChunks);
+            clearArray(currentArray);
         }
         currentArray.setValue(currentChunk - 1, lastMsgSeqNumProcessed);
     }
 
-    public long getSnapshotSequence() {
-        boolean result = true;
-        if(data.size() == dataSize){
+    @Override
+    public long getSnapshotSequence(int securityId) {
+        MutableLongToObjPair<LongArray> pair = data.get(securityId);
+        return pair != null ? pair.getValue().getValue(0) : SNAPSHOT_SEQUENCE_UNDEFINED;
+    }
+
+    @Override
+    public long getSmallestSnapshotSequence() {
+        return getSnapshotSequence(false);
+    }
+
+    @Override
+    public long getHighestSnapshotSequence() {
+        return getSnapshotSequence(true);
+    }
+
+    private long getSnapshotSequence(boolean highest) {
+        long result = SNAPSHOT_SEQUENCE_UNDEFINED;
+        boolean existUndefined = false;
+        if(data.size() == dataSize) {
             for (MutableLongToObjPair<LongArray> pair : data.values()) {
                 for (int j = 0; j < pair.getKey(); j++) {
                     long seq = pair.getValue().getValue(j);
                     if(seq != SNAPSHOT_SEQUENCE_UNDEFINED){
-                        if(snapshotSequence == SNAPSHOT_SEQUENCE_UNDEFINED){
-                            snapshotSequence = seq;
-                        }
-                        if(seq != snapshotSequence){
-                            result = false;
-                            break;
+                        if(result == SNAPSHOT_SEQUENCE_UNDEFINED) {
+                            result = seq;
+                        } else if(highest && seq > result){
+                            result = seq;
+                        } else if(!highest && seq < result){
+                            result = seq;
                         }
                     } else {
-                        result = false;
+                        existUndefined = true;
                         break;
                     }
                 }
             }
         } else {
-            result = false;
+            existUndefined = true;
         }
-        if(!result){
-            snapshotSequence = SNAPSHOT_SEQUENCE_UNDEFINED;
+        if(existUndefined){
+            result = SNAPSHOT_SEQUENCE_UNDEFINED;
         }
-        return snapshotSequence;
+        return result;
     }
 
     private void clearArray(LongArray array) {
@@ -111,8 +140,12 @@ public class OffHeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler {
             return bytes.readLong(index * Long.BYTES);
         }
 
-        public void setValue(long index, long value) throws IllegalArgumentException, BufferOverflowException {
-            bytes.writeLong(index * Long.BYTES, value);
+        public void setValue(long index, long value) {
+            if(index < length){
+                bytes.writeLong(index * Long.BYTES, value);
+            } else {
+                logger.error("It tries to set value at '{}' index in array, but the array has '{}' length", index, length);
+            }
         }
 
         public BytesStore getBytes() {

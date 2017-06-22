@@ -133,10 +133,12 @@ public class MBOIncrementalRefreshPerfTest {
             incrementBB.position(sequenceLength);
             incrementBB.get(incrementBytes);
             mdpHandler = mdpHandlerBuilder.build();
-            ByteBuffer snapshotBB = ModelUtils.getMBOSnapshotTestMessage(1, SECURITY_ID, 0, 1, 1, 1);
+            ByteBuffer snapshotBBFirstCycle = ModelUtils.getMBOSnapshotTestMessage(1, SECURITY_ID, 0, 1, 1, 1);
+            ByteBuffer snapshotBBSecondCycle = ModelUtils.getMBOSnapshotTestMessage(1, SECURITY_ID, 0, 1, 1, 1);
             ByteBuffer instrumentBB = ModelUtils.getMDInstrumentDefinitionFuture27(1, SECURITY_ID);
             handleNextTestPacketWithSequenceReplace(instrumentContext, instrumentBB, 1);
-            handleNextTestPacketWithSequenceReplace(mboSnapshotContext, snapshotBB, 1);
+            handleNextTestPacketWithSequenceReplace(mboSnapshotContext, snapshotBBFirstCycle, 1);
+            handleNextTestPacketWithSequenceReplace(mboSnapshotContext, snapshotBBSecondCycle, 1);//next cycle
             System.out.println("Initialized");
         }
 

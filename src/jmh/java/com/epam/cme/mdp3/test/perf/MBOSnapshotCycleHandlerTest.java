@@ -36,13 +36,13 @@ public class MBOSnapshotCycleHandlerTest {
     @Warmup(iterations = 2, time = 3)
     @Measurement(iterations = 3, time = 20)
     public void test(){
-        cycleHandler.getSnapshotSequence();
+        cycleHandler.getSnapshotSequence(securityId1);
         cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 1);
-        cycleHandler.getSnapshotSequence();
+        cycleHandler.getSnapshotSequence(securityId1);
         cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 2);
-        cycleHandler.getSnapshotSequence();
+        cycleHandler.getSnapshotSequence(securityId2);
         cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId2, securityId2NoChunks, 1);
-        if(cycleHandler.getSnapshotSequence() == MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED){
+        if(cycleHandler.getSnapshotSequence(securityId1) == MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED){
             throw new RuntimeException();
         }
         cycleHandler.reset();
