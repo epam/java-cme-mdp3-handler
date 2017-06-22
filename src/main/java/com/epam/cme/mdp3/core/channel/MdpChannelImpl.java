@@ -70,6 +70,9 @@ public class MdpChannelImpl implements MdpChannel {
     private int incrQueueSize = InstrumentController.DEF_INCR_QUEUE_SIZE;
     private int gapThreshold = InstrumentController.DEF_GAP_THRESHOLD;
     private volatile ScheduledFuture checkFeedIdleStateFuture;
+    private final boolean mbpEnable;
+    private final boolean mboEnable;
+    private volatile long lastIncrPcktReceived = 0;
 
     MdpChannelImpl(final ScheduledExecutorService scheduledExecutorService,
                    final ChannelCfg channelCfg,
@@ -77,13 +80,26 @@ public class MdpChannelImpl implements MdpChannel {
                    final int queueSlotInitBufferSize,
                    final int incrQueueSize,
                    final int gapThreshold) {
+        this(scheduledExecutorService, channelCfg, mdpMessageTypes, queueSlotInitBufferSize, incrQueueSize, gapThreshold, true, false);
+    }
+
+    MdpChannelImpl(final ScheduledExecutorService scheduledExecutorService,
+                   final ChannelCfg channelCfg,
+                   final MdpMessageTypes mdpMessageTypes,
+                   final int queueSlotInitBufferSize,
+                   final int incrQueueSize,
+                   final int gapThreshold,
+                   final boolean mbpEnable,
+                   final boolean mboEnable) {
         this.scheduledExecutorService = scheduledExecutorService;
         this.channelCfg = channelCfg;
         this.gapThreshold = gapThreshold;
         this.channelContext = new ChannelContext(this, mdpMessageTypes, this.gapThreshold);
         this.queueSlotInitBufferSize = queueSlotInitBufferSize;
         this.incrQueueSize = incrQueueSize;
-        if(isMBOEnable(channelCfg)){
+        this.mbpEnable = mbpEnable;
+        this.mboEnable = mboEnable;
+        if(mboEnable){
             String channelId = channelCfg.getId();
             InstrumentManager instrumentManager = new MBOInstrumentManager(channelId, listeners);
             this.instruments = new ChannelInstruments(this.channelContext, instrumentManager);
@@ -376,15 +392,19 @@ public class MdpChannelImpl implements MdpChannel {
     }
 
     void subscribeToSnapshotsForInstrument(final Integer securityId) {
-        mbpChannelController.addOutOfSyncInstrument(securityId);
-        startSnapshotFeeds();
+        if(mbpEnable) {
+            mbpChannelController.addOutOfSyncInstrument(securityId);
+            startSnapshotFeeds();
+        }
     }
 
     void unsubscribeFromSnapshotsForInstrument(final Integer securityId) {
-        if (mbpChannelController.removeOutOfSyncInstrument(securityId)) {
-            if (isFeedActive(FeedType.S)) {
-                if (!mbpChannelController.hasOutOfSyncInstruments()) {
-                    stopSnapshotFeeds();
+        if(mbpEnable) {
+            if (mbpChannelController.removeOutOfSyncInstrument(securityId)) {
+                if (isFeedActive(FeedType.S)) {
+                    if (!mbpChannelController.hasOutOfSyncInstruments()) {
+                        stopSnapshotFeeds();
+                    }
                 }
             }
         }
@@ -455,6 +475,7 @@ public class MdpChannelImpl implements MdpChannel {
         if (feedType == FeedType.N) {
             instruments.onPacket(feedContext, mdpPacket);
         } else if (feedType == FeedType.I) {
+            lastIncrPcktReceived = System.currentTimeMillis();
             mbpChannelController.handleIncrementalPacket(feedContext, mdpPacket);
             mboChannelController.handleIncrementalPacket(feedContext, mdpPacket);
         } else if (feedType == FeedType.S) {
@@ -549,11 +570,13 @@ public class MdpChannelImpl implements MdpChannel {
             synchronized (this) {
                 MdpFeedWorker incrementalFeedA = feedsA.get(FeedType.I).getLeft();
                 MdpFeedWorker incrementalFeedB = feedsB.get(FeedType.I).getLeft();
-                final long allowedInactiveEndTime = this.mbpChannelController.getLastIncrPcktReceived() + idleWindowInMillis;
+                final long allowedInactiveEndTime = lastIncrPcktReceived + idleWindowInMillis;
                 if (allowedInactiveEndTime < System.currentTimeMillis() &&
                         (incrementalFeedA.isActiveAndNotShutdown() || incrementalFeedB.isActiveAndNotShutdown())) {
-                    startSnapshotFeeds();
-                    if (isMBOEnable(channelCfg)) {
+                    if(mbpEnable) {
+                        startSnapshotFeeds();
+                    }
+                    if (mboEnable) {
                         startSnapshotMBOFeeds();
                     }
                 }
@@ -606,10 +629,5 @@ public class MdpChannelImpl implements MdpChannel {
                 stopSnapshotMBOFeeds();
             }
         };
-    }
-
-    private boolean isMBOEnable(ChannelCfg channelCfg){
-        return channelCfg.getConnectionCfg(FeedType.SMBO, Feed.A) != null
-                || channelCfg.getConnectionCfg(FeedType.SMBO, Feed.B) != null;
     }
 }

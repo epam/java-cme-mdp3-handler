@@ -53,8 +53,6 @@ public class MBPChannelController implements ChannelController{
     private long prcdSeqNum = 0;
     private long lastMsgSeqNumPrcd369 = 0;
     private Lock lock = new ReentrantLock();
-
-    private long lastIncrPcktReceived = 0;
     private boolean wasChannelResetInPrcdPacket = false;
 
     private final EventController eventController = new InMemoryEventController();
@@ -108,7 +106,6 @@ public class MBPChannelController implements ChannelController{
         }
         lock.lock();
         try {
-            this.lastIncrPcktReceived = System.currentTimeMillis();
             handleIncrementalMessages(feedContext, msgSeqNum, mdpPacket);
         } finally {
             lock.unlock();
@@ -266,10 +263,6 @@ public class MBPChannelController implements ChannelController{
 
     public void resetSnapshotCycleCount() {
         this.snptMsgCountDown = PRCD_SNPT_COUNT_NULL;
-    }
-
-    public long getLastIncrPcktReceived() {
-        return lastIncrPcktReceived;
     }
 
     @Override

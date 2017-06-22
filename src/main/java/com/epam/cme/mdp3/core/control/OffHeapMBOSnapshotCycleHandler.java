@@ -17,12 +17,14 @@ import net.openhft.chronicle.bytes.NativeBytesStore;
 import org.agrona.collections.Long2ObjectHashMap;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 
 
 public class OffHeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler {
+    private static final Logger logger = LoggerFactory.getLogger(OffHeapMBOSnapshotCycleHandler.class);
     private Long2ObjectHashMap<MutableLongToObjPair<LongArray>> dataCache = new Long2ObjectHashMap<>();
     private Long2ObjectHashMap<MutableLongToObjPair<LongArray>> data = new Long2ObjectHashMap<>();
     private volatile int dataSize;
@@ -37,6 +39,9 @@ public class OffHeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler {
 
     @Override
     public void update(long totNumReports, long lastMsgSeqNumProcessed, int securityId, long noChunks, long currentChunk){
+        if(currentChunk > noChunks) {
+            logger.error("Current chunk number '{}' is more than noChunks number '{}' for securityId '{}'", currentChunk, noChunks, securityId);
+        }
         if(dataSize != totNumReports){
             dataSize = (int)totNumReports;
             dataCache.putAll(data);
@@ -46,18 +51,20 @@ public class OffHeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler {
             if (dataCache.containsKey(securityId)) {
                 return dataCache.remove(securityId);
             } else {
-                LongArray newArray = new LongArray(MAX_NO_CHUNK_VALUE);
+                long arrayLength = noChunks > MAX_NO_CHUNK_VALUE ? noChunks : MAX_NO_CHUNK_VALUE;
+                LongArray newArray = new LongArray(arrayLength);
                 clearArray(newArray);
                 return new MutableLongToObjPair<>(noChunks, newArray);
             }
         });
 
         LongArray currentArray = securityIdMetaData.getValue();
-        if(securityIdMetaData.getKey() != noChunks){
-            if(currentArray.getLength() > noChunks){
+        if(securityIdMetaData.getKey() != noChunks) {
+            if(currentArray.getLength() < noChunks){
                 currentArray.reInit(noChunks);
             }
             securityIdMetaData.setKey(noChunks);
+            clearArray(currentArray);
         }
         currentArray.setValue(currentChunk - 1, lastMsgSeqNumProcessed);
     }
@@ -133,8 +140,12 @@ public class OffHeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler {
             return bytes.readLong(index * Long.BYTES);
         }
 
-        public void setValue(long index, long value) throws IllegalArgumentException, BufferOverflowException {
-            bytes.writeLong(index * Long.BYTES, value);
+        public void setValue(long index, long value) {
+            if(index < length){
+                bytes.writeLong(index * Long.BYTES, value);
+            } else {
+                logger.error("It tries to set value at '{}' index in array, but the array has '{}' length", index, length);
+            }
         }
 
         public BytesStore getBytes() {

@@ -14,7 +14,7 @@ package com.epam.cme.mdp3.core.control;
 
 public interface MBOSnapshotCycleHandler {
     long SNAPSHOT_SEQUENCE_UNDEFINED = -1;
-    long MAX_NO_CHUNK_VALUE = 100;
+    long MAX_NO_CHUNK_VALUE = 400;
     void reset();
     void update(long totNumReports, long lastMsgSeqNumProcessed, int securityId, long noChunks, long currentChunk);
     long getSnapshotSequence(int securityId);

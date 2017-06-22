@@ -50,6 +50,19 @@ public class MBOSnapshotCycleHandlerTest {
     }
 
     @Test
+    public void itMustUpdateMetadataAndGiveCorrectResultWhenSnapshotContainsNuChunkHigherThanMaxValue(){
+        long totNumReports = 1;
+        int securityId1 = 10;
+        long securityId1NoChunks = MBOSnapshotCycleHandler.MAX_NO_CHUNK_VALUE + 10;
+        long lastMsgSeqNumProcessed = 1001;
+        for(int i=1; i <= securityId1NoChunks; i++) {
+            assertFalse(cycleHandler.getSmallestSnapshotSequence() != MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED);
+            cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, i);
+        }
+        assertEquals(lastMsgSeqNumProcessed, cycleHandler.getSmallestSnapshotSequence());
+    }
+
+    @Test
     public void itMustUpdateMetadataAndGiveCorrectResultWhenWholeSnapshotIsReceivedWithZeroSequence(){
         long totNumReports = 1;
         int securityId1 = 10;

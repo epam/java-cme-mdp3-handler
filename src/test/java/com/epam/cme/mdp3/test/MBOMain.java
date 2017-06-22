@@ -33,11 +33,11 @@ public class MBOMain {
         @Override
         public void onFeedStarted(String channelId, FeedType feedType, Feed feed) {
             logger.info("Channel '{}': {} feed {} is started", channelId, feedType, feed);
-            if(feedType.equals(SMBO)){
-                mboBook.forEach((s, book) -> {
-                    book.clear();
-                });
-            }
+//            if(feedType.equals(SMBO)){
+//                mboBook.forEach((s, book) -> {
+//                    book.clear();
+//                });
+//            }
         }
 
         @Override
@@ -86,8 +86,8 @@ public class MBOMain {
 
         @Override
         public int onSecurityDefinition(final String channelId, final MdpMessage mdpMessage) {
-            logger.info("Received SecurityDefinition(d). ChannelId: {}, Schema Id: {}", channelId, mdpMessage.getSchemaId());
-            return MdEventFlags.ALL_OPTS;
+//            logger.info("Received SecurityDefinition(d). ChannelId: {}, Schema Id: {}", channelId, mdpMessage.getSchemaId());
+            return MdEventFlags.NOTHING;
         }
 
         @Override
@@ -100,62 +100,62 @@ public class MBOMain {
         @Override
         public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
                                      final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
-            long orderId;
-            long mdOrderPriority;
-            double mdEntryPx;
-            long mdDisplayQty;
-            int mdUpdateAction;
-            char mdEntryType;
-            if(mdEntry == null){//MBO only
-                orderId = orderIDEntry.getUInt64(37);
-                mdOrderPriority = orderIDEntry.getUInt64(37707);
-                SbeDouble sbeDouble = SbeDouble.instance();
-                orderIDEntry.getDouble(270, sbeDouble);
-                mdEntryPx = sbeDouble.asDouble();
-                mdDisplayQty = orderIDEntry.getInt32(37706);
-                mdUpdateAction = orderIDEntry.getUInt8(279);
-                mdEntryType = orderIDEntry.getChar(269);
-                String result = String.format("MBO only     onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
-                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
-                logger.info(result);
-            } else {
-                orderId = orderIDEntry.getUInt64(37);
-                mdOrderPriority = orderIDEntry.getUInt64(37707);
-                mdDisplayQty = orderIDEntry.getInt32(37706);
-                mdUpdateAction = orderIDEntry.getUInt8(37708);
-
-                SbeDouble sbeDouble = SbeDouble.instance();
-                mdEntry.getDouble(270, sbeDouble);
-                mdEntryPx = sbeDouble.asDouble();
-                mdEntryType = mdEntry.getChar(269);
-                String result = String.format("MBO with MBP onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
-                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
-                logger.info(result);
-            }
-            updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdUpdateAction, mdEntryType);
+//            long orderId;
+//            long mdOrderPriority;
+//            double mdEntryPx;
+//            long mdDisplayQty;
+//            int mdUpdateAction;
+//            char mdEntryType;
+//            if(mdEntry == null){//MBO only
+//                orderId = orderIDEntry.getUInt64(37);
+//                mdOrderPriority = orderIDEntry.getUInt64(37707);
+//                SbeDouble sbeDouble = SbeDouble.instance();
+//                orderIDEntry.getDouble(270, sbeDouble);
+//                mdEntryPx = sbeDouble.asDouble();
+//                mdDisplayQty = orderIDEntry.getInt32(37706);
+//                mdUpdateAction = orderIDEntry.getUInt8(279);
+//                mdEntryType = orderIDEntry.getChar(269);
+////                String result = String.format("MBO only     onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
+////                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
+////                logger.info(result);
+//            } else {
+//                orderId = orderIDEntry.getUInt64(37);
+//                mdOrderPriority = orderIDEntry.getUInt64(37707);
+//                mdDisplayQty = orderIDEntry.getInt32(37706);
+//                mdUpdateAction = orderIDEntry.getUInt8(37708);
+//
+//                SbeDouble sbeDouble = SbeDouble.instance();
+//                mdEntry.getDouble(270, sbeDouble);
+//                mdEntryPx = sbeDouble.asDouble();
+//                mdEntryType = mdEntry.getChar(269);
+////                String result = String.format("MBO with MBP onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
+////                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
+////                logger.info(result);
+//            }
+////            updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdUpdateAction, mdEntryType);
 
         }
 
         @Override
         public void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage){
-            int securityId = snptMessage.getInt32(SECURITY_ID);
-            MdpGroup mdpGroup = SbeGroup.instance();
-            snptMessage.getGroup(268, mdpGroup);
-
-            while (mdpGroup.hashNext()){
-                mdpGroup.next();
-                long orderId = mdpGroup.getUInt64(37);
-                long mdOrderPriority = mdpGroup.getUInt64(37707);
-                SbeDouble sbeDouble = SbeDouble.instance();
-                mdpGroup.getDouble(270, sbeDouble);
-                double mdEntryPx = sbeDouble.asDouble();
-                long mdDisplayQty = mdpGroup.getInt32(37706);
-                char mdEntryType = mdpGroup.getChar(269);
-                String result = String.format("onSnapshotMBOFullRefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s'",
-                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType);
-                logger.info(result);
-                updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, 0, mdEntryType);
-            }
+//            int securityId = snptMessage.getInt32(SECURITY_ID);
+//            MdpGroup mdpGroup = SbeGroup.instance();
+//            snptMessage.getGroup(268, mdpGroup);
+//
+//            while (mdpGroup.hashNext()){
+//                mdpGroup.next();
+//                long orderId = mdpGroup.getUInt64(37);
+//                long mdOrderPriority = mdpGroup.getUInt64(37707);
+//                SbeDouble sbeDouble = SbeDouble.instance();
+//                mdpGroup.getDouble(270, sbeDouble);
+//                double mdEntryPx = sbeDouble.asDouble();
+//                long mdDisplayQty = mdpGroup.getInt32(37706);
+//                char mdEntryType = mdpGroup.getChar(269);
+////                String result = String.format("onSnapshotMBOFullRefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s'",
+////                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType);
+////                logger.info(result);
+////                updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, 0, mdEntryType);
+//            }
         }
 
         private void updateBook(String instrumentId, long orderId, long mdOrderPriority, double mdEntryPx, long mdDisplayQty, int mdUpdateAction, char mdEntryType){
@@ -219,11 +219,12 @@ public class MBOMain {
                 .setNetworkInterface(FeedType.S, Feed.A, networkInterface).setNetworkInterface(FeedType.S, Feed.B, networkInterface)
                 .setNetworkInterface(FeedType.I, Feed.A, networkInterface).setNetworkInterface(FeedType.I, Feed.B, networkInterface)
                 .setNetworkInterface(FeedType.N, Feed.A, networkInterface).setNetworkInterface(FeedType.N, Feed.B, networkInterface)
+                .mbpEnable(false)
+                .mboEnable(true)
                 .build();
         instruments.forEach(instrumentInfo -> mdpChannel.subscribe(instrumentInfo.instrumentId, instrumentInfo.desc));
         mdpChannel.startIncrementalFeedA();
         mdpChannel.startIncrementalFeedB();
-        mdpChannel.startSnapshotFeedA();
         mdpChannel.startSnapshotMBOFeedA();
         return mdpChannel;
     }
@@ -237,20 +238,26 @@ public class MBOMain {
 //        # 320 for 6C, 6E, 6M, 6N
 //        # 342 for YM
 //        # 344 for ZB, ZN, ZF
-        String channelId = args[0];
         final String networkInterface;
-        if(args.length > 1) {
-            networkInterface =args[1];
+        if(args.length > 0) {
+            networkInterface =args[0];
         } else {
             networkInterface = null;
         }
 
+
+        final Map<String, List<String>> channelInfos = new HashMap<>();
+//        defineChannel(channelInfos, "310", "ES");
+//        defineChannel(channelInfos, "314", "6A", "6B", "6J", "6S");
+//        defineChannel(channelInfos, "318", "NQ");
+        defineChannel(channelInfos, "382", "CL");
+//        defineChannel(channelInfos, "360", "HG", "GC", "SI");
+//        defineChannel(channelInfos, "320", "6C", "6E", "6M", "6N");
+//        defineChannel(channelInfos, "342", "YM");
+//        defineChannel(channelInfos, "344", "ZB", "ZN", "ZF");
+
         final Map<String, Set<InstrumentInfo>> resolvedInstruments = new HashMap<>();
-        resolvedInstruments.put(channelId, new ChannelHelper().resolveInstruments(channelId, new ArrayList<String>(){
-            public boolean contains(Object o) {
-                return true;
-            }
-        }, networkInterface));
+        channelInfos.forEach((s, groups) -> resolvedInstruments.put(s, new ChannelHelper().resolveInstruments(s, groups, networkInterface)));
 
         final List<MdpChannel> openChannels = new ArrayList<>();
         try {

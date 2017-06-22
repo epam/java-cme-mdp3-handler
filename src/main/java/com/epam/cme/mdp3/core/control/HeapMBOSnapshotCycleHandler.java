@@ -22,12 +22,10 @@ import java.util.Map;
 public class HeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler{
     private final static long SNAPSHOT_SEQUENCE_UNDEFINED = -1;
     private volatile Map<Integer, long[]> metaData;
-    private volatile long snapshotSequence = SNAPSHOT_SEQUENCE_UNDEFINED;
     private volatile int metaDataSize;
 
     public void reset(){
         metaData = null;
-        snapshotSequence = SNAPSHOT_SEQUENCE_UNDEFINED;
     }
 
     public void update(long totNumReports, long lastMsgSeqNumProcessed, int securityId, long noChunks, long currentChunk){
@@ -45,32 +43,37 @@ public class HeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler{
 
     @Override
     public long getSnapshotSequence(int securityId) {
-        return 0;
+        if(metaData == null){
+            return SNAPSHOT_SEQUENCE_UNDEFINED;
+        }
+        long[] array = metaData.get(securityId);
+        return array != null ? array[0] : SNAPSHOT_SEQUENCE_UNDEFINED;
     }
 
     @Override
     public long getSmallestSnapshotSequence() {
-        return 0;
+        return getSnapshotSequence(false);
     }
 
     @Override
     public long getHighestSnapshotSequence() {
-        return 0;
+        return getSnapshotSequence(true);
     }
 
-    public long getSnapshotSequence() {
+    public long getSnapshotSequence(boolean highest) {
+        long sequence = SNAPSHOT_SEQUENCE_UNDEFINED;
         boolean result = true;
         if(metaData != null && metaData.size() == metaDataSize){
             for (long[] securityMetaData : metaData.values()) {
                 for (int j = 0; j < securityMetaData.length; j++) {
                     long seq = securityMetaData[j];
                     if(seq != SNAPSHOT_SEQUENCE_UNDEFINED){
-                        if(snapshotSequence == SNAPSHOT_SEQUENCE_UNDEFINED){
-                            snapshotSequence = seq;
-                        }
-                        if(seq != snapshotSequence){
-                            result = false;
-                            break;
+                        if(sequence == SNAPSHOT_SEQUENCE_UNDEFINED) {
+                            sequence = seq;
+                        } else if(highest && seq > sequence){
+                            sequence = seq;
+                        } else if(!highest && seq < sequence){
+                            sequence = seq;
                         }
                     } else {
                         result = false;
@@ -82,9 +85,9 @@ public class HeapMBOSnapshotCycleHandler implements MBOSnapshotCycleHandler{
             result = false;
         }
         if(!result){
-            snapshotSequence = SNAPSHOT_SEQUENCE_UNDEFINED;
+            sequence = SNAPSHOT_SEQUENCE_UNDEFINED;
         }
-        return snapshotSequence;
+        return sequence;
     }
 
     private long[] getEmptyArray(int length){

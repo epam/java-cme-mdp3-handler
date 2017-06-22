@@ -45,6 +45,9 @@ public class MdpChannelBuilder {
     private int gapThreshold = InstrumentController.DEF_GAP_THRESHOLD;
     private int rcvBufSize = MdpFeedWorker.RCV_BUFFER_SIZE;
 
+    private boolean mbpEnable = true;
+    private boolean mboEnable = false;
+
     public MdpChannelBuilder(final String channelId) {
         this.channelId = channelId;
     }
@@ -110,6 +113,16 @@ public class MdpChannelBuilder {
         return this;
     }
 
+    public MdpChannelBuilder mbpEnable(boolean enable) {
+        mbpEnable = enable;
+        return this;
+    }
+
+    public MdpChannelBuilder mboEnable(boolean enable) {
+        mboEnable = enable;
+        return this;
+    }
+
     public MdpChannel build() {
         try {
             final Configuration cfg = new Configuration(this.cfgURI);
@@ -120,7 +133,7 @@ public class MdpChannelBuilder {
             if (!noScheduler && scheduler != null) {
                 scheduler = DefaultScheduledServiceHolder.getScheduler();
             }
-            mdpChannel = new MdpChannelImpl(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes, queueSlotInitBufferSize, incrQueueSize, gapThreshold);
+            mdpChannel = new MdpChannelImpl(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes, queueSlotInitBufferSize, incrQueueSize, gapThreshold, mbpEnable, mboEnable);
 
             mdpChannel.setNetworkInterfaces(Feed.A, feedANetworkInterfaces);
             mdpChannel.setNetworkInterfaces(Feed.B, feedBNetworkInterfaces);

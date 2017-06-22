@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration environment="Production" updated="2017/04/25-21:12:01">
+<configuration environment="PROD" updated="2017/06/18-23:01:01">
   <channel id="310" label="CME Globex Equity Futures">
     <products>
       <product code="0ES">
@@ -98,35 +98,29 @@
       <product code="0SO">
         <group code="$Q"/>
       </product>
-      <product code="E1A">
-        <group code="1V"/>
-      </product>
-      <product code="E1A">
+      <product code="E3A">
         <group code="EW"/>
       </product>
-      <product code="E1C">
+      <product code="E3A">
         <group code="1V"/>
       </product>
-      <product code="E1C">
+      <product code="E3C">
+        <group code="1V"/>
+      </product>
+      <product code="E3C">
         <group code="EK"/>
       </product>
-      <product code="E2A">
-        <group code="EW"/>
-      </product>
-      <product code="E2A">
+      <product code="E4A">
         <group code="1V"/>
       </product>
       <product code="E4A">
         <group code="EW"/>
       </product>
-      <product code="E4A">
+      <product code="E4C">
         <group code="1V"/>
       </product>
       <product code="E4C">
         <group code="EK"/>
-      </product>
-      <product code="E4C">
-        <group code="1V"/>
       </product>
       <product code="ES">
         <group code="1V"/>
@@ -141,10 +135,10 @@
         <group code="EW"/>
       </product>
       <product code="EW1">
-        <group code="1V"/>
+        <group code="EW"/>
       </product>
       <product code="EW1">
-        <group code="EW"/>
+        <group code="1V"/>
       </product>
       <product code="EW2">
         <group code="1V"/>
@@ -153,16 +147,16 @@
         <group code="EW"/>
       </product>
       <product code="EW3">
-        <group code="1V"/>
+        <group code="EW"/>
       </product>
       <product code="EW3">
-        <group code="EW"/>
-      </product>
-      <product code="EW4">
-        <group code="EW"/>
+        <group code="1V"/>
       </product>
       <product code="EW4">
         <group code="1V"/>
+      </product>
+      <product code="EW4">
+        <group code="EW"/>
       </product>
     </products>
     <connections>
@@ -228,25 +222,24 @@
         <port>15311</port>
         <feed>B</feed>
       </connection>
-      <!--It is disabled for MBP performance test-->
-      <!--<connection id="311SAMBO">-->
-        <!--<type feed-type="SMBO">Snapshot-MBO</type>-->
-        <!--<protocol>UDP/IP</protocol>-->
-        <!--<ip>233.72.75.2</ip>-->
-        <!--<host-ip>205.209.222.114</host-ip>-->
-        <!--<host-ip>205.209.222.115</host-ip>-->
-        <!--<port>23311</port>-->
-        <!--<feed>A</feed>-->
-      <!--</connection>-->
-      <!--<connection id="311SBMBO">-->
-        <!--<type feed-type="SMBO">Snapshot-MBO</type>-->
-        <!--<protocol>UDP/IP</protocol>-->
-        <!--<ip>233.72.75.65</ip>-->
-        <!--<host-ip>205.209.214.67</host-ip>-->
-        <!--<host-ip>205.209.213.67</host-ip>-->
-        <!--<port>22311</port>-->
-        <!--<feed>B</feed>-->
-      <!--</connection>-->
+      <connection id="311SAMBO">
+        <type feed-type="SMBO">Snapshot-MBO</type>
+        <protocol>UDP/IP</protocol>
+        <ip>233.72.75.2</ip>
+        <host-ip>205.209.222.114</host-ip>
+        <host-ip>205.209.222.115</host-ip>
+        <port>23311</port>
+        <feed>A</feed>
+      </connection>
+      <connection id="311SBMBO">
+        <type feed-type="SMBO">Snapshot-MBO</type>
+        <protocol>UDP/IP</protocol>
+        <ip>233.72.75.65</ip>
+        <host-ip>205.209.214.67</host-ip>
+        <host-ip>205.209.213.67</host-ip>
+        <port>22311</port>
+        <feed>B</feed>
+      </connection>
     </connections>
   </channel>
   <channel id="312" label="CME Globex Interest Rate Futures">
@@ -373,40 +366,22 @@
       <product code="BU5">
         <group code="U1"/>
       </product>
-      <product code="E01">
-        <group code="U$"/>
-      </product>
-      <product code="E01">
-        <group code="E0"/>
-      </product>
       <product code="E04">
         <group code="E0"/>
       </product>
-      <product code="E04">
-        <group code="U$"/>
-      </product>
-      <product code="E21">
-        <group code="E2"/>
-      </product>
-      <product code="E21">
-        <group code="U$"/>
+      <product code="E05">
+        <group code="E0"/>
       </product>
       <product code="E24">
         <group code="E2"/>
       </product>
-      <product code="E24">
-        <group code="U$"/>
+      <product code="E25">
+        <group code="E2"/>
       </product>
-      <product code="E31">
-        <group code="U$"/>
-      </product>
-      <product code="E31">
+      <product code="E34">
         <group code="E3"/>
       </product>
-      <product code="E34">
-        <group code="U$"/>
-      </product>
-      <product code="E34">
+      <product code="E35">
         <group code="E3"/>
       </product>
       <product code="GE">
@@ -434,13 +409,7 @@
         <group code="U$"/>
       </product>
       <product code="GE4">
-        <group code="U$"/>
-      </product>
-      <product code="GE4">
         <group code="E4"/>
-      </product>
-      <product code="GE5">
-        <group code="U$"/>
       </product>
       <product code="GE5">
         <group code="E5"/>
@@ -684,22 +653,16 @@
         <group code="$1"/>
       </product>
       <product code="2AD">
-        <group code="XA"/>
-      </product>
-      <product code="2AD">
         <group code="0A"/>
       </product>
-      <product code="2BP">
-        <group code="2B"/>
+      <product code="2AD">
+        <group code="XA"/>
       </product>
       <product code="2BP">
         <group code="YB"/>
       </product>
       <product code="2JY">
         <group code="QJ"/>
-      </product>
-      <product code="2JY">
-        <group code="2J"/>
       </product>
       <product code="2N">
         <group code="A4"/>
@@ -713,17 +676,8 @@
       <product code="3AD">
         <group code="XA"/>
       </product>
-      <product code="3AD">
-        <group code="0A"/>
-      </product>
       <product code="3BP">
         <group code="YB"/>
-      </product>
-      <product code="3BP">
-        <group code="2B"/>
-      </product>
-      <product code="3JY">
-        <group code="2J"/>
       </product>
       <product code="3JY">
         <group code="QJ"/>
@@ -740,14 +694,11 @@
       <product code="4AD">
         <group code="XA"/>
       </product>
-      <product code="4AD">
-        <group code="0A"/>
+      <product code="4BP">
+        <group code="2B"/>
       </product>
       <product code="4BP">
         <group code="YB"/>
-      </product>
-      <product code="4BP">
-        <group code="2B"/>
       </product>
       <product code="4JY">
         <group code="QJ"/>
@@ -764,41 +715,35 @@
       <product code="4SF">
         <group code="YS"/>
       </product>
-      <product code="6A">
-        <group code="ZA"/>
+      <product code="5AD">
+        <group code="XA"/>
       </product>
-      <product code="6A">
-        <group code="0A"/>
+      <product code="5BP">
+        <group code="YB"/>
       </product>
-      <product code="6B">
+      <product code="5BP">
         <group code="2B"/>
       </product>
-      <product code="6B">
-        <group code="XB"/>
+      <product code="5JY">
+        <group code="QJ"/>
       </product>
-      <product code="6J">
-        <group code="XJ"/>
+      <product code="5N">
+        <group code="A4"/>
       </product>
-      <product code="6J">
-        <group code="2B"/>
+      <product code="5O">
+        <group code="QJ"/>
       </product>
-      <product code="6J">
-        <group code="2J"/>
-      </product>
-      <product code="6J">
-        <group code="0A"/>
-      </product>
-      <product code="6S">
-        <group code="XS"/>
-      </product>
-      <product code="6S">
-        <group code="2S"/>
-      </product>
-      <product code="ADU">
-        <group code="0A"/>
+      <product code="5SF">
+        <group code="YS"/>
       </product>
       <product code="ADU">
         <group code="XA"/>
+      </product>
+      <product code="ADU">
+        <group code="0A"/>
+      </product>
+      <product code="CHU">
+        <group code="2S"/>
       </product>
       <product code="CHU">
         <group code="YS"/>
@@ -821,6 +766,9 @@
       <product code="IS4">
         <group code="I0"/>
       </product>
+      <product code="IS5">
+        <group code="I0"/>
+      </product>
       <product code="JPU">
         <group code="2J"/>
       </product>
@@ -833,10 +781,10 @@
       <product code="KR2">
         <group code="0K"/>
       </product>
-      <product code="KR3">
+      <product code="KR4">
         <group code="0K"/>
       </product>
-      <product code="KR4">
+      <product code="KR5">
         <group code="0K"/>
       </product>
       <product code="KRW">
@@ -848,10 +796,10 @@
       <product code="RB2">
         <group code="0R"/>
       </product>
-      <product code="RB3">
+      <product code="RB4">
         <group code="0R"/>
       </product>
-      <product code="RB4">
+      <product code="RB5">
         <group code="0R"/>
       </product>
       <product code="RE1">
@@ -860,10 +808,10 @@
       <product code="RE2">
         <group code="8O"/>
       </product>
-      <product code="RE3">
+      <product code="RE4">
         <group code="8O"/>
       </product>
-      <product code="RE4">
+      <product code="RE5">
         <group code="8O"/>
       </product>
       <product code="RMB">
@@ -875,18 +823,6 @@
       <product code="RO">
         <group code="A4"/>
       </product>
-      <product code="V6A">
-        <group code="3U"/>
-      </product>
-      <product code="V6B">
-        <group code="3P"/>
-      </product>
-      <product code="V6J">
-        <group code="3Q"/>
-      </product>
-      <product code="V6S">
-        <group code="3W"/>
-      </product>
       <product code="VAB">
         <group code="3A"/>
       </product>
@@ -894,6 +830,9 @@
         <group code="3A"/>
       </product>
       <product code="VAD">
+        <group code="3A"/>
+      </product>
+      <product code="VAE">
         <group code="3A"/>
       </product>
       <product code="VBB">
@@ -905,6 +844,9 @@
       <product code="VBD">
         <group code="B3"/>
       </product>
+      <product code="VBE">
+        <group code="B3"/>
+      </product>
       <product code="VJB">
         <group code="3Y"/>
       </product>
@@ -914,6 +856,9 @@
       <product code="VJD">
         <group code="3Y"/>
       </product>
+      <product code="VJE">
+        <group code="3Y"/>
+      </product>
       <product code="VSB">
         <group code="3S"/>
       </product>
@@ -921,6 +866,9 @@
         <group code="3S"/>
       </product>
       <product code="VSD">
+        <group code="3S"/>
+      </product>
+      <product code="VSE">
         <group code="3S"/>
       </product>
       <product code="VXA">
@@ -944,11 +892,11 @@
       <product code="XA4">
         <group code="XA"/>
       </product>
-      <product code="XAD">
+      <product code="XA5">
         <group code="XA"/>
       </product>
-      <product code="XB">
-        <group code="2B"/>
+      <product code="XAD">
+        <group code="XA"/>
       </product>
       <product code="XB">
         <group code="YB"/>
@@ -960,6 +908,9 @@
         <group code="YB"/>
       </product>
       <product code="XB4">
+        <group code="YB"/>
+      </product>
+      <product code="XB5">
         <group code="YB"/>
       </product>
       <product code="XJ">
@@ -975,6 +926,9 @@
         <group code="YS"/>
       </product>
       <product code="XS4">
+        <group code="YS"/>
+      </product>
+      <product code="XS5">
         <group code="YS"/>
       </product>
     </products>
@@ -1310,6 +1264,9 @@
         <group code="LU"/>
       </product>
       <product code="LE">
+        <group code="HI"/>
+      </product>
+      <product code="LE">
         <group code="HE"/>
       </product>
       <product code="LE">
@@ -1441,46 +1398,52 @@
         <group code="A7"/>
       </product>
       <product code="CB">
+        <group code="C3"/>
+      </product>
+      <product code="CB">
         <group code="C0"/>
       </product>
       <product code="CHI">
         <group code="A7"/>
       </product>
       <product code="CSC">
-        <group code="CX"/>
+        <group code="C0"/>
       </product>
       <product code="CSC">
         <group code="CQ"/>
+      </product>
+      <product code="CSC">
+        <group code="CX"/>
       </product>
       <product code="CUS">
         <group code="A7"/>
       </product>
       <product code="DC">
-        <group code="A6"/>
+        <group code="A9"/>
       </product>
       <product code="DC">
-        <group code="A9"/>
+        <group code="A6"/>
       </product>
       <product code="DEN">
         <group code="A7"/>
       </product>
       <product code="DY">
-        <group code="Y3"/>
-      </product>
-      <product code="DY">
         <group code="Y0"/>
       </product>
-      <product code="GDK">
-        <group code="D9"/>
+      <product code="DY">
+        <group code="Y3"/>
       </product>
       <product code="GDK">
         <group code="D8"/>
       </product>
-      <product code="GF">
-        <group code="F1"/>
+      <product code="GDK">
+        <group code="D9"/>
       </product>
       <product code="GF">
         <group code="F0"/>
+      </product>
+      <product code="GF">
+        <group code="F1"/>
       </product>
       <product code="GNF">
         <group code="N8"/>
@@ -1497,9 +1460,6 @@
       <product code="JQ">
         <group code="A2"/>
       </product>
-      <product code="JQ">
-        <group code="A3"/>
-      </product>
       <product code="L0A">
         <group code="L2"/>
       </product>
@@ -1513,10 +1473,10 @@
         <group code="A7"/>
       </product>
       <product code="LAX">
-        <group code="A7"/>
+        <group code="L2"/>
       </product>
-      <product code="LBS">
-        <group code="W4"/>
+      <product code="LAX">
+        <group code="A7"/>
       </product>
       <product code="LBS">
         <group code="W3"/>
@@ -1559,8 +1519,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.8</ip>
-        <host-ip>205.209.221.72</host-ip>
-        <host-ip>205.209.223.72</host-ip>
+        <host-ip>205.209.221.74</host-ip>
+        <host-ip>205.209.223.74</host-ip>
         <port>14317</port>
         <feed>A</feed>
       </connection>
@@ -1568,8 +1528,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.8</ip>
-        <host-ip>205.209.211.72</host-ip>
-        <host-ip>205.209.212.72</host-ip>
+        <host-ip>205.209.211.74</host-ip>
+        <host-ip>205.209.212.74</host-ip>
         <port>15317</port>
         <feed>B</feed>
       </connection>
@@ -1595,8 +1555,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.29</ip>
-        <host-ip>205.209.222.87</host-ip>
         <host-ip>205.209.222.77</host-ip>
+        <host-ip>205.209.222.87</host-ip>
         <port>14317</port>
         <feed>A</feed>
       </connection>
@@ -1636,6 +1596,12 @@
       </product>
       <product code="0NI">
         <group code="#1"/>
+      </product>
+      <product code="2GT">
+        <group code="RB"/>
+      </product>
+      <product code="2VT">
+        <group code="RD"/>
       </product>
       <product code="BIO">
         <group code="BQ"/>
@@ -1715,8 +1681,17 @@
       <product code="R1T">
         <group code="R1"/>
       </product>
+      <product code="R2G">
+        <group code="RA"/>
+      </product>
+      <product code="R2V">
+        <group code="RC"/>
+      </product>
       <product code="RGT">
         <group code="R2"/>
+      </product>
+      <product code="RLT">
+        <group code="RT"/>
       </product>
       <product code="RS1">
         <group code="RL"/>
@@ -1726,6 +1701,9 @@
       </product>
       <product code="RSV">
         <group code="RV"/>
+      </product>
+      <product code="RTY">
+        <group code="RY"/>
       </product>
       <product code="RVT">
         <group code="R3"/>
@@ -1792,8 +1770,8 @@
       <connection id="318H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.222.72</host-ip>
         <host-ip>205.209.220.72</host-ip>
+        <host-ip>205.209.222.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -1810,8 +1788,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.9</ip>
-        <host-ip>205.209.211.75</host-ip>
         <host-ip>205.209.212.75</host-ip>
+        <host-ip>205.209.211.75</host-ip>
         <port>15318</port>
         <feed>B</feed>
       </connection>
@@ -1828,8 +1806,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.51</ip>
-        <host-ip>205.209.213.50</host-ip>
         <host-ip>205.209.214.50</host-ip>
+        <host-ip>205.209.213.50</host-ip>
         <port>15318</port>
         <feed>B</feed>
       </connection>
@@ -1864,8 +1842,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.72</ip>
-        <host-ip>205.209.213.66</host-ip>
         <host-ip>205.209.214.66</host-ip>
+        <host-ip>205.209.213.66</host-ip>
         <port>22318</port>
         <feed>B</feed>
       </connection>
@@ -1878,9 +1856,6 @@
       </product>
       <product code="EMD">
         <group code="MC"/>
-      </product>
-      <product code="EV">
-        <group code="4V"/>
       </product>
       <product code="EV">
         <group code="OS"/>
@@ -1904,64 +1879,46 @@
         <group code="N4"/>
       </product>
       <product code="NQ">
-        <group code="QZ"/>
+        <group code="2V"/>
       </product>
       <product code="NQ">
-        <group code="2V"/>
-      </product>
-      <product code="QN1">
-        <group code="2V"/>
-      </product>
-      <product code="QN1">
-        <group code="NW"/>
-      </product>
-      <product code="QN2">
-        <group code="NW"/>
-      </product>
-      <product code="QN2">
-        <group code="2V"/>
-      </product>
-      <product code="QN3">
-        <group code="2V"/>
-      </product>
-      <product code="QN3">
-        <group code="NW"/>
-      </product>
-      <product code="QN4">
-        <group code="NW"/>
-      </product>
-      <product code="QN4">
-        <group code="2V"/>
-      </product>
-      <product code="QNE">
-        <group code="2V"/>
-      </product>
-      <product code="QNE">
-        <group code="NC"/>
-      </product>
-      <product code="QNE">
-        <group code="MC"/>
-      </product>
-      <product code="QNE">
-        <group code="OS"/>
-      </product>
-      <product code="QNE">
-        <group code="#2"/>
-      </product>
-      <product code="QNE">
-        <group code="NW"/>
-      </product>
-      <product code="QNE">
         <group code="QZ"/>
       </product>
-      <product code="S1A">
+      <product code="QN1">
+        <group code="2V"/>
+      </product>
+      <product code="QN1">
+        <group code="NW"/>
+      </product>
+      <product code="QN2">
+        <group code="2V"/>
+      </product>
+      <product code="QN2">
+        <group code="NW"/>
+      </product>
+      <product code="QN3">
+        <group code="NW"/>
+      </product>
+      <product code="QN3">
+        <group code="2V"/>
+      </product>
+      <product code="QN4">
+        <group code="NW"/>
+      </product>
+      <product code="QN4">
+        <group code="2V"/>
+      </product>
+      <product code="QNE">
+        <group code="NW"/>
+      </product>
+      <product code="QNE">
+        <group code="2V"/>
+      </product>
+      <product code="S3A">
         <group code="OS"/>
       </product>
-      <product code="S1C">
+      <product code="S3C">
         <group code="SW"/>
-      </product>
-      <product code="S2A">
-        <group code="OS"/>
       </product>
       <product code="S4A">
         <group code="OS"/>
@@ -1969,17 +1926,11 @@
       <product code="S4C">
         <group code="SW"/>
       </product>
-      <product code="S4C">
-        <group code="4V"/>
-      </product>
       <product code="SMC">
         <group code="7S"/>
       </product>
       <product code="SP">
         <group code="OS"/>
-      </product>
-      <product code="SP">
-        <group code="4V"/>
       </product>
     </products>
     <connections>
@@ -1995,8 +1946,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.10</ip>
-        <host-ip>205.209.221.70</host-ip>
         <host-ip>205.209.223.70</host-ip>
+        <host-ip>205.209.221.70</host-ip>
         <port>14319</port>
         <feed>A</feed>
       </connection>
@@ -2013,8 +1964,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.52</ip>
-        <host-ip>205.209.222.76</host-ip>
         <host-ip>205.209.222.82</host-ip>
+        <host-ip>205.209.222.76</host-ip>
         <port>14319</port>
         <feed>A</feed>
       </connection>
@@ -2031,8 +1982,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.31</ip>
-        <host-ip>205.209.222.80</host-ip>
         <host-ip>205.209.222.84</host-ip>
+        <host-ip>205.209.222.80</host-ip>
         <port>14319</port>
         <feed>A</feed>
       </connection>
@@ -2040,8 +1991,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.31</ip>
-        <host-ip>205.209.213.55</host-ip>
         <host-ip>205.209.214.55</host-ip>
+        <host-ip>205.209.213.55</host-ip>
         <port>15319</port>
         <feed>B</feed>
       </connection>
@@ -2049,8 +2000,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.10</ip>
-        <host-ip>205.209.222.114</host-ip>
         <host-ip>205.209.222.115</host-ip>
+        <host-ip>205.209.222.114</host-ip>
         <port>23319</port>
         <feed>A</feed>
       </connection>
@@ -2198,8 +2149,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.11</ip>
-        <host-ip>205.209.223.73</host-ip>
-        <host-ip>205.209.221.73</host-ip>
+        <host-ip>205.209.223.72</host-ip>
+        <host-ip>205.209.221.72</host-ip>
         <port>14320</port>
         <feed>A</feed>
       </connection>
@@ -2207,8 +2158,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.11</ip>
-        <host-ip>205.209.211.73</host-ip>
-        <host-ip>205.209.212.73</host-ip>
+        <host-ip>205.209.211.72</host-ip>
+        <host-ip>205.209.212.72</host-ip>
         <port>15320</port>
         <feed>B</feed>
       </connection>
@@ -2234,8 +2185,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.32</ip>
-        <host-ip>205.209.222.77</host-ip>
         <host-ip>205.209.222.87</host-ip>
+        <host-ip>205.209.222.77</host-ip>
         <port>14320</port>
         <feed>A</feed>
       </connection>
@@ -2243,8 +2194,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.32</ip>
-        <host-ip>205.209.214.52</host-ip>
         <host-ip>205.209.213.52</host-ip>
+        <host-ip>205.209.214.52</host-ip>
         <port>15320</port>
         <feed>B</feed>
       </connection>
@@ -2252,8 +2203,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.26</ip>
-        <host-ip>205.209.222.108</host-ip>
         <host-ip>205.209.222.109</host-ip>
+        <host-ip>205.209.222.108</host-ip>
         <port>23320</port>
         <feed>A</feed>
       </connection>
@@ -2261,8 +2212,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.89</ip>
-        <host-ip>205.209.214.64</host-ip>
         <host-ip>205.209.213.64</host-ip>
+        <host-ip>205.209.214.64</host-ip>
         <port>22320</port>
         <feed>B</feed>
       </connection>
@@ -2278,9 +2229,6 @@
       </product>
       <product code="2CD">
         <group code="CD"/>
-      </product>
-      <product code="2CD">
-        <group code="2C"/>
       </product>
       <product code="2E">
         <group code="8E"/>
@@ -2310,16 +2258,10 @@
         <group code="2N"/>
       </product>
       <product code="3CD">
-        <group code="2C"/>
-      </product>
-      <product code="3CD">
         <group code="CD"/>
       </product>
       <product code="3E">
         <group code="8E"/>
-      </product>
-      <product code="3EU">
-        <group code="2E"/>
       </product>
       <product code="3EU">
         <group code="XE"/>
@@ -2343,10 +2285,10 @@
         <group code="2N"/>
       </product>
       <product code="4CD">
-        <group code="2C"/>
+        <group code="CD"/>
       </product>
       <product code="4CD">
-        <group code="CD"/>
+        <group code="2C"/>
       </product>
       <product code="4E">
         <group code="8E"/>
@@ -2375,17 +2317,29 @@
       <product code="4Z">
         <group code="2N"/>
       </product>
-      <product code="6C">
-        <group code="2C"/>
+      <product code="5CD">
+        <group code="CD"/>
       </product>
-      <product code="6C">
-        <group code="XD"/>
+      <product code="5E">
+        <group code="8E"/>
       </product>
-      <product code="6E">
-        <group code="XT"/>
+      <product code="5EU">
+        <group code="XE"/>
       </product>
-      <product code="6E">
-        <group code="2E"/>
+      <product code="5H">
+        <group code="8H"/>
+      </product>
+      <product code="5I">
+        <group code="8C"/>
+      </product>
+      <product code="5M">
+        <group code="MO"/>
+      </product>
+      <product code="5Q">
+        <group code="XE"/>
+      </product>
+      <product code="5Z">
+        <group code="2N"/>
       </product>
       <product code="6M">
         <group code="MO"/>
@@ -2402,20 +2356,20 @@
       <product code="6R2">
         <group code="UO"/>
       </product>
-      <product code="6R3">
+      <product code="6R4">
         <group code="UO"/>
       </product>
-      <product code="6R4">
+      <product code="6R5">
         <group code="UO"/>
       </product>
       <product code="BR">
         <group code="OR"/>
       </product>
       <product code="CAU">
-        <group code="CD"/>
+        <group code="2C"/>
       </product>
       <product code="CAU">
-        <group code="2C"/>
+        <group code="CD"/>
       </product>
       <product code="CKO">
         <group code="FR"/>
@@ -2448,16 +2402,7 @@
         <group code="8E"/>
       </product>
       <product code="RY">
-        <group code="8J"/>
-      </product>
-      <product code="RY">
         <group code="8H"/>
-      </product>
-      <product code="V6C">
-        <group code="3D"/>
-      </product>
-      <product code="V6E">
-        <group code="3R"/>
       </product>
       <product code="VCB">
         <group code="3C"/>
@@ -2468,6 +2413,9 @@
       <product code="VCD">
         <group code="3C"/>
       </product>
+      <product code="VCE">
+        <group code="3C"/>
+      </product>
       <product code="VTB">
         <group code="3E"/>
       </product>
@@ -2475,6 +2423,9 @@
         <group code="3E"/>
       </product>
       <product code="VTD">
+        <group code="3E"/>
+      </product>
+      <product code="VTE">
         <group code="3E"/>
       </product>
       <product code="VXC">
@@ -2495,19 +2446,22 @@
       <product code="XD4">
         <group code="CD"/>
       </product>
-      <product code="XT">
-        <group code="2E"/>
+      <product code="XD5">
+        <group code="CD"/>
       </product>
       <product code="XT">
         <group code="XE"/>
+      </product>
+      <product code="XT">
+        <group code="2E"/>
       </product>
     </products>
     <connections>
       <connection id="321H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.220.72</host-ip>
         <host-ip>205.209.222.72</host-ip>
+        <host-ip>205.209.220.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -2515,8 +2469,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.12</ip>
-        <host-ip>205.209.221.72</host-ip>
         <host-ip>205.209.223.72</host-ip>
+        <host-ip>205.209.221.72</host-ip>
         <port>14321</port>
         <feed>A</feed>
       </connection>
@@ -2533,8 +2487,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.54</ip>
-        <host-ip>205.209.222.86</host-ip>
         <host-ip>205.209.222.74</host-ip>
+        <host-ip>205.209.222.86</host-ip>
         <port>14321</port>
         <feed>A</feed>
       </connection>
@@ -2569,8 +2523,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.27</ip>
-        <host-ip>205.209.222.110</host-ip>
         <host-ip>205.209.222.111</host-ip>
+        <host-ip>205.209.222.110</host-ip>
         <port>23321</port>
         <feed>A</feed>
       </connection>
@@ -2578,8 +2532,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.90</ip>
-        <host-ip>205.209.213.65</host-ip>
         <host-ip>205.209.214.65</host-ip>
+        <host-ip>205.209.213.65</host-ip>
         <port>22321</port>
         <feed>B</feed>
       </connection>
@@ -2609,10 +2563,10 @@
         <group code="05"/>
       </product>
       <product code="KE">
-        <group code="KE"/>
+        <group code="KB"/>
       </product>
       <product code="KE">
-        <group code="KB"/>
+        <group code="KE"/>
       </product>
       <product code="KET">
         <group code="TW"/>
@@ -2659,6 +2613,9 @@
       <product code="QW6">
         <group code="05"/>
       </product>
+      <product code="UME">
+        <group code="UF"/>
+      </product>
       <product code="WEU">
         <group code="MU"/>
       </product>
@@ -2697,8 +2654,8 @@
       <connection id="340H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.220.72</host-ip>
         <host-ip>205.209.222.72</host-ip>
+        <host-ip>205.209.220.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -2706,8 +2663,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.64</ip>
-        <host-ip>205.209.221.71</host-ip>
         <host-ip>205.209.223.71</host-ip>
+        <host-ip>205.209.221.71</host-ip>
         <port>14340</port>
         <feed>A</feed>
       </connection>
@@ -2715,8 +2672,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.64</ip>
-        <host-ip>205.209.212.71</host-ip>
         <host-ip>205.209.211.71</host-ip>
+        <host-ip>205.209.212.71</host-ip>
         <port>15340</port>
         <feed>B</feed>
       </connection>
@@ -2724,8 +2681,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.106</ip>
-        <host-ip>205.209.222.74</host-ip>
         <host-ip>205.209.222.86</host-ip>
+        <host-ip>205.209.222.74</host-ip>
         <port>14340</port>
         <feed>A</feed>
       </connection>
@@ -2733,8 +2690,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.106</ip>
-        <host-ip>205.209.214.49</host-ip>
         <host-ip>205.209.213.49</host-ip>
+        <host-ip>205.209.214.49</host-ip>
         <port>15340</port>
         <feed>B</feed>
       </connection>
@@ -2751,8 +2708,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.85</ip>
-        <host-ip>205.209.214.53</host-ip>
         <host-ip>205.209.213.53</host-ip>
+        <host-ip>205.209.214.53</host-ip>
         <port>15340</port>
         <feed>B</feed>
       </connection>
@@ -2760,8 +2717,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.29</ip>
-        <host-ip>205.209.222.111</host-ip>
         <host-ip>205.209.222.110</host-ip>
+        <host-ip>205.209.222.111</host-ip>
         <port>23340</port>
         <feed>A</feed>
       </connection>
@@ -2875,10 +2832,10 @@
         <group code="X1"/>
       </product>
       <product code="OCD">
-        <group code="CY"/>
+        <group code="OC"/>
       </product>
       <product code="OCD">
-        <group code="OC"/>
+        <group code="CY"/>
       </product>
       <product code="OE1">
         <group code="OK"/>
@@ -2886,7 +2843,7 @@
       <product code="OE2">
         <group code="OK"/>
       </product>
-      <product code="OE4">
+      <product code="OE5">
         <group code="OK"/>
       </product>
       <product code="OEH">
@@ -2905,10 +2862,10 @@
         <group code="ML"/>
       </product>
       <product code="OSD">
-        <group code="PZ"/>
+        <group code="SQ"/>
       </product>
       <product code="OSD">
-        <group code="SQ"/>
+        <group code="PZ"/>
       </product>
       <product code="OWD">
         <group code="OW"/>
@@ -2920,13 +2877,13 @@
         <group code="OC"/>
       </product>
       <product code="OZL">
-        <group code="0O"/>
-      </product>
-      <product code="OZL">
         <group code="OZ"/>
       </product>
-      <product code="OZM">
-        <group code="CY"/>
+      <product code="OZL">
+        <group code="MY"/>
+      </product>
+      <product code="OZL">
+        <group code="0O"/>
       </product>
       <product code="OZM">
         <group code="MY"/>
@@ -2935,13 +2892,7 @@
         <group code="ML"/>
       </product>
       <product code="OZO">
-        <group code="O9"/>
-      </product>
-      <product code="OZO">
         <group code="OO"/>
-      </product>
-      <product code="OZR">
-        <group code="R6"/>
       </product>
       <product code="OZR">
         <group code="RR"/>
@@ -2953,12 +2904,15 @@
         <group code="PZ"/>
       </product>
       <product code="OZW">
-        <group code="PZ"/>
+        <group code="OW"/>
       </product>
       <product code="OZW">
         <group code="WZ"/>
       </product>
-      <product code="OZW">
+      <product code="SC7">
+        <group code="SQ"/>
+      </product>
+      <product code="SC7">
         <group code="OW"/>
       </product>
       <product code="SC7">
@@ -2981,9 +2935,6 @@
       </product>
       <product code="SZ5">
         <group code="Q1"/>
-      </product>
-      <product code="SZ5">
-        <group code="Q2"/>
       </product>
       <product code="SZ8">
         <group code="Q1"/>
@@ -3010,19 +2961,13 @@
         <group code="M3"/>
       </product>
       <product code="ZC1">
-        <group code="CY"/>
-      </product>
-      <product code="ZC1">
         <group code="OC"/>
       </product>
       <product code="ZC2">
         <group code="OC"/>
       </product>
-      <product code="ZC4">
+      <product code="ZC5">
         <group code="OC"/>
-      </product>
-      <product code="ZC4">
-        <group code="CY"/>
       </product>
       <product code="ZCW">
         <group code="Q3"/>
@@ -3033,7 +2978,7 @@
       <product code="ZL2">
         <group code="0O"/>
       </product>
-      <product code="ZL4">
+      <product code="ZL5">
         <group code="0O"/>
       </product>
       <product code="ZM1">
@@ -3042,43 +2987,25 @@
       <product code="ZM2">
         <group code="ML"/>
       </product>
-      <product code="ZM4">
+      <product code="ZM5">
         <group code="ML"/>
       </product>
       <product code="ZS1">
         <group code="SQ"/>
       </product>
-      <product code="ZS1">
-        <group code="PZ"/>
-      </product>
-      <product code="ZS2">
-        <group code="PZ"/>
-      </product>
       <product code="ZS2">
         <group code="SQ"/>
       </product>
-      <product code="ZS4">
-        <group code="PZ"/>
-      </product>
-      <product code="ZS4">
+      <product code="ZS5">
         <group code="SQ"/>
-      </product>
-      <product code="ZW1">
-        <group code="WZ"/>
       </product>
       <product code="ZW1">
         <group code="OW"/>
       </product>
       <product code="ZW2">
-        <group code="WZ"/>
-      </product>
-      <product code="ZW2">
         <group code="OW"/>
       </product>
-      <product code="ZW4">
-        <group code="WZ"/>
-      </product>
-      <product code="ZW4">
+      <product code="ZW5">
         <group code="OW"/>
       </product>
     </products>
@@ -3086,8 +3013,8 @@
       <connection id="341H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.220.72</host-ip>
         <host-ip>205.209.222.72</host-ip>
+        <host-ip>205.209.220.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -3095,8 +3022,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.65</ip>
-        <host-ip>205.209.221.74</host-ip>
         <host-ip>205.209.223.74</host-ip>
+        <host-ip>205.209.221.74</host-ip>
         <port>14341</port>
         <feed>A</feed>
       </connection>
@@ -3104,8 +3031,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.65</ip>
-        <host-ip>205.209.212.74</host-ip>
         <host-ip>205.209.211.74</host-ip>
+        <host-ip>205.209.212.74</host-ip>
         <port>15341</port>
         <feed>B</feed>
       </connection>
@@ -3122,8 +3049,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.107</ip>
-        <host-ip>205.209.214.50</host-ip>
         <host-ip>205.209.213.50</host-ip>
+        <host-ip>205.209.214.50</host-ip>
         <port>15341</port>
         <feed>B</feed>
       </connection>
@@ -3140,8 +3067,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.86</ip>
-        <host-ip>205.209.214.54</host-ip>
         <host-ip>205.209.213.54</host-ip>
+        <host-ip>205.209.214.54</host-ip>
         <port>15341</port>
         <feed>B</feed>
       </connection>
@@ -3149,8 +3076,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.30</ip>
-        <host-ip>205.209.222.113</host-ip>
         <host-ip>205.209.222.112</host-ip>
+        <host-ip>205.209.222.113</host-ip>
         <port>23341</port>
         <feed>A</feed>
       </connection>
@@ -3184,8 +3111,8 @@
       <connection id="342H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.220.72</host-ip>
         <host-ip>205.209.222.72</host-ip>
+        <host-ip>205.209.220.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -3193,8 +3120,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.66</ip>
-        <host-ip>205.209.223.76</host-ip>
         <host-ip>205.209.221.76</host-ip>
+        <host-ip>205.209.223.76</host-ip>
         <port>14342</port>
         <feed>A</feed>
       </connection>
@@ -3220,8 +3147,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.108</ip>
-        <host-ip>205.209.214.48</host-ip>
         <host-ip>205.209.213.48</host-ip>
+        <host-ip>205.209.214.48</host-ip>
         <port>15342</port>
         <feed>B</feed>
       </connection>
@@ -3229,8 +3156,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.87</ip>
-        <host-ip>205.209.222.77</host-ip>
         <host-ip>205.209.222.87</host-ip>
+        <host-ip>205.209.222.77</host-ip>
         <port>14342</port>
         <feed>A</feed>
       </connection>
@@ -3238,8 +3165,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.87</ip>
-        <host-ip>205.209.214.52</host-ip>
         <host-ip>205.209.213.52</host-ip>
+        <host-ip>205.209.214.52</host-ip>
         <port>15342</port>
         <feed>B</feed>
       </connection>
@@ -3247,8 +3174,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.31</ip>
-        <host-ip>205.209.222.109</host-ip>
         <host-ip>205.209.222.108</host-ip>
+        <host-ip>205.209.222.109</host-ip>
         <port>23342</port>
         <feed>A</feed>
       </connection>
@@ -3280,14 +3207,11 @@
       <product code="YM1">
         <group code="OL"/>
       </product>
-      <product code="YM2">
-        <group code="OL"/>
-      </product>
       <product code="YM3">
         <group code="OL"/>
       </product>
-      <product code="YM3">
-        <group code="M5"/>
+      <product code="YM4">
+        <group code="OL"/>
       </product>
     </products>
     <connections>
@@ -3384,6 +3308,9 @@
       <product code="B1U">
         <group code="SM"/>
       </product>
+      <product code="B2A">
+        <group code="06"/>
+      </product>
       <product code="BOB">
         <group code="IV"/>
       </product>
@@ -3408,6 +3335,9 @@
       <product code="FIX">
         <group code="IV"/>
       </product>
+      <product code="FNU">
+        <group code="IV"/>
+      </product>
       <product code="FOB">
         <group code="IV"/>
       </product>
@@ -3415,10 +3345,10 @@
         <group code="IV"/>
       </product>
       <product code="FYA">
-        <group code="TI"/>
+        <group code="SA"/>
       </product>
       <product code="FYA">
-        <group code="SA"/>
+        <group code="TI"/>
       </product>
       <product code="FYN">
         <group code="IV"/>
@@ -3475,10 +3405,10 @@
         <group code="Z1"/>
       </product>
       <product code="TNA">
-        <group code="TI"/>
+        <group code="SX"/>
       </product>
       <product code="TNA">
-        <group code="SX"/>
+        <group code="TI"/>
       </product>
       <product code="TOB">
         <group code="IV"/>
@@ -3532,10 +3462,10 @@
         <group code="ZU"/>
       </product>
       <product code="UBA">
-        <group code="SZ"/>
+        <group code="TI"/>
       </product>
       <product code="UBA">
-        <group code="TI"/>
+        <group code="SZ"/>
       </product>
       <product code="UBB">
         <group code="SZ"/>
@@ -3547,6 +3477,9 @@
         <group code="TI"/>
       </product>
       <product code="UTA">
+        <group code="S3"/>
+      </product>
+      <product code="UTB">
         <group code="S3"/>
       </product>
       <product code="Z3N">
@@ -3659,50 +3592,38 @@
       <product code="OTN">
         <group code="T1"/>
       </product>
-      <product code="OTN">
-        <group code="T$"/>
-      </product>
       <product code="OUB">
         <group code="UB"/>
       </product>
       <product code="OUB">
-        <group code="T$"/>
-      </product>
-      <product code="OZB">
         <group code="T$"/>
       </product>
       <product code="OZB">
         <group code="UZ"/>
       </product>
       <product code="OZB">
-        <group code="UB"/>
-      </product>
-      <product code="OZF">
         <group code="T$"/>
       </product>
       <product code="OZF">
         <group code="0N"/>
       </product>
-      <product code="OZN">
-        <group code="0N"/>
-      </product>
-      <product code="OZN">
+      <product code="OZF">
         <group code="T$"/>
       </product>
       <product code="OZN">
         <group code="TE"/>
       </product>
+      <product code="OZN">
+        <group code="T$"/>
+      </product>
       <product code="OZQ">
         <group code="CF"/>
       </product>
-      <product code="OZQ">
-        <group code="FO"/>
+      <product code="OZT">
+        <group code="N2"/>
       </product>
       <product code="OZT">
         <group code="2$"/>
-      </product>
-      <product code="OZT">
-        <group code="N2"/>
       </product>
       <product code="TN1">
         <group code="T1"/>
@@ -3710,74 +3631,116 @@
       <product code="TN2">
         <group code="T1"/>
       </product>
-      <product code="TN4">
+      <product code="TN5">
         <group code="T1"/>
       </product>
       <product code="UB1">
         <group code="UB"/>
       </product>
       <product code="UB2">
+        <group code="UB"/>
+      </product>
+      <product code="UB5">
+        <group code="UB"/>
+      </product>
+      <product code="WB3">
         <group code="T$"/>
       </product>
-      <product code="UB2">
+      <product code="WB3">
+        <group code="UZ"/>
+      </product>
+      <product code="WB4">
+        <group code="UZ"/>
+      </product>
+      <product code="WF3">
+        <group code="0N"/>
+      </product>
+      <product code="WF4">
+        <group code="0N"/>
+      </product>
+      <product code="WT3">
+        <group code="N2"/>
+      </product>
+      <product code="WT3">
+        <group code="2$"/>
+      </product>
+      <product code="WT4">
+        <group code="N2"/>
+      </product>
+      <product code="WU3">
         <group code="UB"/>
       </product>
-      <product code="UB4">
+      <product code="WU4">
         <group code="UB"/>
       </product>
-      <product code="ZB1">
+      <product code="WX3">
+        <group code="T1"/>
+      </product>
+      <product code="WX4">
+        <group code="T1"/>
+      </product>
+      <product code="WX4">
+        <group code="CF"/>
+      </product>
+      <product code="WX4">
+        <group code="TF"/>
+      </product>
+      <product code="WX4">
+        <group code="N2"/>
+      </product>
+      <product code="WY3">
+        <group code="T$"/>
+      </product>
+      <product code="WY3">
+        <group code="TE"/>
+      </product>
+      <product code="WY3">
+        <group code="T1"/>
+      </product>
+      <product code="WY4">
+        <group code="TE"/>
+      </product>
+      <product code="WY4">
         <group code="T$"/>
       </product>
       <product code="ZB1">
         <group code="UZ"/>
       </product>
       <product code="ZB2">
-        <group code="T$"/>
-      </product>
-      <product code="ZB2">
         <group code="UZ"/>
       </product>
-      <product code="ZB4">
-        <group code="T$"/>
-      </product>
-      <product code="ZB4">
+      <product code="ZB5">
         <group code="UZ"/>
+      </product>
+      <product code="ZF1">
+        <group code="T$"/>
       </product>
       <product code="ZF1">
         <group code="0N"/>
       </product>
-      <product code="ZF1">
-        <group code="T$"/>
-      </product>
-      <product code="ZF2">
-        <group code="T$"/>
-      </product>
       <product code="ZF2">
         <group code="0N"/>
       </product>
-      <product code="ZF4">
+      <product code="ZF5">
         <group code="0N"/>
       </product>
-      <product code="ZF4">
-        <group code="T$"/>
-      </product>
-      <product code="ZN1">
+      <product code="ZF5">
         <group code="T$"/>
       </product>
       <product code="ZN1">
         <group code="TE"/>
       </product>
-      <product code="ZN2">
+      <product code="ZN1">
         <group code="T$"/>
       </product>
       <product code="ZN2">
         <group code="TE"/>
       </product>
-      <product code="ZN4">
-        <group code="TE"/>
-      </product>
-      <product code="ZN4">
+      <product code="ZN5">
         <group code="T$"/>
+      </product>
+      <product code="ZN5">
+        <group code="TE"/>
       </product>
       <product code="ZQ1">
         <group code="C7"/>
@@ -3786,21 +3749,18 @@
         <group code="C6"/>
       </product>
       <product code="ZT1">
-        <group code="2$"/>
+        <group code="N2"/>
       </product>
       <product code="ZT1">
-        <group code="N2"/>
+        <group code="2$"/>
       </product>
       <product code="ZT2">
         <group code="N2"/>
       </product>
-      <product code="ZT2">
+      <product code="ZT5">
         <group code="2$"/>
       </product>
-      <product code="ZT4">
-        <group code="2$"/>
-      </product>
-      <product code="ZT4">
+      <product code="ZT5">
         <group code="N2"/>
       </product>
     </products>
@@ -3808,8 +3768,8 @@
       <connection id="345H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.220.72</host-ip>
         <host-ip>205.209.222.72</host-ip>
+        <host-ip>205.209.220.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -3817,8 +3777,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.69</ip>
-        <host-ip>205.209.223.72</host-ip>
-        <host-ip>205.209.221.72</host-ip>
+        <host-ip>205.209.223.76</host-ip>
+        <host-ip>205.209.221.76</host-ip>
         <port>14345</port>
         <feed>A</feed>
       </connection>
@@ -3826,8 +3786,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.69</ip>
-        <host-ip>205.209.211.72</host-ip>
-        <host-ip>205.209.212.72</host-ip>
+        <host-ip>205.209.211.76</host-ip>
+        <host-ip>205.209.212.76</host-ip>
         <port>15345</port>
         <feed>B</feed>
       </connection>
@@ -3844,8 +3804,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.111</ip>
-        <host-ip>205.209.214.50</host-ip>
         <host-ip>205.209.213.50</host-ip>
+        <host-ip>205.209.214.50</host-ip>
         <port>15345</port>
         <feed>B</feed>
       </connection>
@@ -3862,8 +3822,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.90</ip>
-        <host-ip>205.209.214.54</host-ip>
         <host-ip>205.209.213.54</host-ip>
+        <host-ip>205.209.214.54</host-ip>
         <port>15345</port>
         <feed>B</feed>
       </connection>
@@ -3871,8 +3831,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.34</ip>
-        <host-ip>205.209.222.112</host-ip>
         <host-ip>205.209.222.113</host-ip>
+        <host-ip>205.209.222.112</host-ip>
         <port>23345</port>
         <feed>A</feed>
       </connection>
@@ -3880,8 +3840,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.97</ip>
-        <host-ip>205.209.213.66</host-ip>
         <host-ip>205.209.214.66</host-ip>
+        <host-ip>205.209.213.66</host-ip>
         <port>22345</port>
         <feed>B</feed>
       </connection>
@@ -4032,8 +3992,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.112</ip>
-        <host-ip>205.209.222.75</host-ip>
         <host-ip>205.209.222.81</host-ip>
+        <host-ip>205.209.222.75</host-ip>
         <port>14346</port>
         <feed>A</feed>
       </connection>
@@ -4041,8 +4001,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.112</ip>
-        <host-ip>205.209.214.50</host-ip>
         <host-ip>205.209.213.50</host-ip>
+        <host-ip>205.209.214.50</host-ip>
         <port>15346</port>
         <feed>B</feed>
       </connection>
@@ -4050,8 +4010,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.91</ip>
-        <host-ip>205.209.222.79</host-ip>
         <host-ip>205.209.222.83</host-ip>
+        <host-ip>205.209.222.79</host-ip>
         <port>14346</port>
         <feed>A</feed>
       </connection>
@@ -4102,7 +4062,7 @@
         <group code="ST"/>
       </product>
       <product code="ALI">
-        <group code="ST"/>
+        <group code="AL"/>
       </product>
       <product code="AUP">
         <group code="ST"/>
@@ -4111,10 +4071,10 @@
         <group code="ST"/>
       </product>
       <product code="GC">
-        <group code="GL"/>
+        <group code="GC"/>
       </product>
       <product code="GC">
-        <group code="GC"/>
+        <group code="GL"/>
       </product>
       <product code="GCK">
         <group code="GC"/>
@@ -4162,10 +4122,10 @@
         <group code="GC"/>
       </product>
       <product code="SI">
-        <group code="SI"/>
+        <group code="SL"/>
       </product>
       <product code="SI">
-        <group code="SL"/>
+        <group code="SI"/>
       </product>
       <product code="SIL">
         <group code="SI"/>
@@ -4193,8 +4153,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.192</ip>
-        <host-ip>205.209.221.79</host-ip>
         <host-ip>205.209.223.79</host-ip>
+        <host-ip>205.209.221.79</host-ip>
         <port>14360</port>
         <feed>A</feed>
       </connection>
@@ -4202,8 +4162,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.192</ip>
-        <host-ip>205.209.212.79</host-ip>
         <host-ip>205.209.211.79</host-ip>
+        <host-ip>205.209.212.79</host-ip>
         <port>15360</port>
         <feed>B</feed>
       </connection>
@@ -4220,8 +4180,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.212</ip>
-        <host-ip>205.209.213.49</host-ip>
         <host-ip>205.209.214.49</host-ip>
+        <host-ip>205.209.213.49</host-ip>
         <port>15360</port>
         <feed>B</feed>
       </connection>
@@ -4229,8 +4189,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.202</ip>
-        <host-ip>205.209.222.78</host-ip>
         <host-ip>205.209.222.88</host-ip>
+        <host-ip>205.209.222.78</host-ip>
         <port>14360</port>
         <feed>A</feed>
       </connection>
@@ -4274,10 +4234,10 @@
       <product code="H2E">
         <group code="1U"/>
       </product>
-      <product code="H3E">
+      <product code="H4E">
         <group code="1U"/>
       </product>
-      <product code="H4E">
+      <product code="H5E">
         <group code="1U"/>
       </product>
       <product code="HXE">
@@ -4296,25 +4256,19 @@
         <group code="OG"/>
       </product>
       <product code="OG2">
-        <group code="1Y"/>
-      </product>
-      <product code="OG2">
         <group code="OG"/>
-      </product>
-      <product code="OG3">
-        <group code="OG"/>
-      </product>
-      <product code="OG3">
-        <group code="1Y"/>
       </product>
       <product code="OG4">
         <group code="OG"/>
       </product>
-      <product code="SO">
-        <group code="SO"/>
+      <product code="OG5">
+        <group code="OG"/>
       </product>
       <product code="SO">
         <group code="S1"/>
+      </product>
+      <product code="SO">
+        <group code="SO"/>
       </product>
       <product code="SO1">
         <group code="SO"/>
@@ -4322,10 +4276,10 @@
       <product code="SO2">
         <group code="SO"/>
       </product>
-      <product code="SO3">
+      <product code="SO4">
         <group code="SO"/>
       </product>
-      <product code="SO4">
+      <product code="SO5">
         <group code="SO"/>
       </product>
     </products>
@@ -4333,8 +4287,8 @@
       <connection id="361H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.222.72</host-ip>
         <host-ip>205.209.220.72</host-ip>
+        <host-ip>205.209.222.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -4369,8 +4323,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.213</ip>
-        <host-ip>205.209.214.49</host-ip>
         <host-ip>205.209.213.49</host-ip>
+        <host-ip>205.209.214.49</host-ip>
         <port>15361</port>
         <feed>B</feed>
       </connection>
@@ -4378,8 +4332,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.203</ip>
-        <host-ip>205.209.222.78</host-ip>
         <host-ip>205.209.222.88</host-ip>
+        <host-ip>205.209.222.78</host-ip>
         <port>14361</port>
         <feed>A</feed>
       </connection>
@@ -4396,8 +4350,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.25</ip>
-        <host-ip>205.209.222.111</host-ip>
         <host-ip>205.209.222.110</host-ip>
+        <host-ip>205.209.222.111</host-ip>
         <port>23361</port>
         <feed>A</feed>
       </connection>
@@ -4432,9 +4386,6 @@
       <product code="CC0">
         <group code="VX"/>
       </product>
-      <product code="CPL">
-        <group code="VX"/>
-      </product>
       <product code="EAF">
         <group code="VX"/>
       </product>
@@ -4458,8 +4409,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.128</ip>
-        <host-ip>205.209.223.77</host-ip>
         <host-ip>205.209.221.77</host-ip>
+        <host-ip>205.209.223.77</host-ip>
         <port>14380</port>
         <feed>A</feed>
       </connection>
@@ -4476,8 +4427,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.170</ip>
-        <host-ip>205.209.222.82</host-ip>
         <host-ip>205.209.222.76</host-ip>
+        <host-ip>205.209.222.82</host-ip>
         <port>14380</port>
         <feed>A</feed>
       </connection>
@@ -4494,8 +4445,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.149</ip>
-        <host-ip>205.209.222.84</host-ip>
         <host-ip>205.209.222.80</host-ip>
+        <host-ip>205.209.222.84</host-ip>
         <port>14380</port>
         <feed>A</feed>
       </connection>
@@ -4503,8 +4454,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.149</ip>
-        <host-ip>205.209.213.55</host-ip>
         <host-ip>205.209.214.55</host-ip>
+        <host-ip>205.209.213.55</host-ip>
         <port>15380</port>
         <feed>B</feed>
       </connection>
@@ -4521,8 +4472,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.74</ip>
-        <host-ip>205.209.214.67</host-ip>
         <host-ip>205.209.213.67</host-ip>
+        <host-ip>205.209.214.67</host-ip>
         <port>22380</port>
         <feed>B</feed>
       </connection>
@@ -4536,13 +4487,7 @@
       <product code="9G">
         <group code="GY"/>
       </product>
-      <product code="CPE">
-        <group code="GY"/>
-      </product>
       <product code="EAX">
-        <group code="GY"/>
-      </product>
-      <product code="PCL">
         <group code="GY"/>
       </product>
     </products>
@@ -4550,8 +4495,8 @@
       <connection id="381H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.220.72</host-ip>
         <host-ip>205.209.222.72</host-ip>
+        <host-ip>205.209.220.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -4559,8 +4504,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.129</ip>
-        <host-ip>205.209.221.77</host-ip>
         <host-ip>205.209.223.77</host-ip>
+        <host-ip>205.209.221.77</host-ip>
         <port>14381</port>
         <feed>A</feed>
       </connection>
@@ -4568,8 +4513,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.129</ip>
-        <host-ip>205.209.211.77</host-ip>
         <host-ip>205.209.212.77</host-ip>
+        <host-ip>205.209.211.77</host-ip>
         <port>15381</port>
         <feed>B</feed>
       </connection>
@@ -4577,8 +4522,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.171</ip>
-        <host-ip>205.209.222.82</host-ip>
         <host-ip>205.209.222.76</host-ip>
+        <host-ip>205.209.222.82</host-ip>
         <port>14381</port>
         <feed>A</feed>
       </connection>
@@ -4586,8 +4531,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.171</ip>
-        <host-ip>205.209.213.51</host-ip>
         <host-ip>205.209.214.51</host-ip>
+        <host-ip>205.209.213.51</host-ip>
         <port>15381</port>
         <feed>B</feed>
       </connection>
@@ -4604,8 +4549,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.150</ip>
-        <host-ip>205.209.213.55</host-ip>
         <host-ip>205.209.214.55</host-ip>
+        <host-ip>205.209.213.55</host-ip>
         <port>15381</port>
         <feed>B</feed>
       </connection>
@@ -4613,8 +4558,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.12</ip>
-        <host-ip>205.209.222.115</host-ip>
         <host-ip>205.209.222.114</host-ip>
+        <host-ip>205.209.222.115</host-ip>
         <port>23381</port>
         <feed>A</feed>
       </connection>
@@ -4622,8 +4567,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.75</ip>
-        <host-ip>205.209.214.67</host-ip>
         <host-ip>205.209.213.67</host-ip>
+        <host-ip>205.209.214.67</host-ip>
         <port>22381</port>
         <feed>B</feed>
       </connection>
@@ -5174,6 +5119,9 @@
       <product code="BD">
         <group code="09"/>
       </product>
+      <product code="BDB">
+        <group code="BB"/>
+      </product>
       <product code="BF">
         <group code="09"/>
       </product>
@@ -5220,10 +5168,10 @@
         <group code="BD"/>
       </product>
       <product code="BZ">
-        <group code="IE"/>
+        <group code="OP"/>
       </product>
       <product code="BZ">
-        <group code="OP"/>
+        <group code="IE"/>
       </product>
       <product code="BZL">
         <group code="TM"/>
@@ -5386,6 +5334,12 @@
       </product>
       <product code="EFM">
         <group code="RF"/>
+      </product>
+      <product code="EGB">
+        <group code="CP"/>
+      </product>
+      <product code="EGN">
+        <group code="CP"/>
       </product>
       <product code="EL1">
         <group code="PT"/>
@@ -5622,10 +5576,10 @@
         <group code="RF"/>
       </product>
       <product code="MB">
-        <group code="IE"/>
+        <group code="OP"/>
       </product>
       <product code="MB">
-        <group code="OP"/>
+        <group code="IE"/>
       </product>
       <product code="MBC">
         <group code="CC"/>
@@ -5867,21 +5821,6 @@
       <product code="RLX">
         <group code="PT"/>
       </product>
-      <product code="RMF">
-        <group code="CP"/>
-      </product>
-      <product code="RMG">
-        <group code="CP"/>
-      </product>
-      <product code="RMK">
-        <group code="CP"/>
-      </product>
-      <product code="RMS">
-        <group code="CP"/>
-      </product>
-      <product code="RMU">
-        <group code="CP"/>
-      </product>
       <product code="RT">
         <group code="WS"/>
       </product>
@@ -6058,8 +5997,8 @@
       <connection id="382H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.222.72</host-ip>
         <host-ip>205.209.220.72</host-ip>
+        <host-ip>205.209.222.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -6112,8 +6051,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.151</ip>
-        <host-ip>205.209.213.55</host-ip>
         <host-ip>205.209.214.55</host-ip>
+        <host-ip>205.209.213.55</host-ip>
         <port>15382</port>
         <feed>B</feed>
       </connection>
@@ -6121,8 +6060,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.18</ip>
-        <host-ip>205.209.222.114</host-ip>
         <host-ip>205.209.222.115</host-ip>
+        <host-ip>205.209.222.114</host-ip>
         <port>23382</port>
         <feed>A</feed>
       </connection>
@@ -6157,9 +6096,6 @@
       <product code="ATX">
         <group code="EP"/>
       </product>
-      <product code="ATX">
-        <group code="P2"/>
-      </product>
       <product code="AWZ">
         <group code="LO"/>
       </product>
@@ -6172,56 +6108,41 @@
       <product code="BE">
         <group code="OT"/>
       </product>
-      <product code="BE">
-        <group code="OB"/>
-      </product>
       <product code="BW1">
         <group code="OT"/>
       </product>
       <product code="BW2">
         <group code="OT"/>
       </product>
-      <product code="BW3">
-        <group code="OT"/>
-      </product>
       <product code="BW4">
         <group code="OT"/>
       </product>
-      <product code="BZO">
-        <group code="LO"/>
-      </product>
-      <product code="BZO">
-        <group code="1N"/>
+      <product code="BW5">
+        <group code="OT"/>
       </product>
       <product code="BZO">
         <group code="PR"/>
       </product>
-      <product code="C01">
+      <product code="C19">
         <group code="LO"/>
       </product>
-      <product code="C02">
+      <product code="C20">
         <group code="LO"/>
       </product>
-      <product code="C24">
+      <product code="C21">
         <group code="LO"/>
       </product>
-      <product code="C25">
+      <product code="C22">
         <group code="LO"/>
       </product>
-      <product code="C26">
+      <product code="C23">
         <group code="LO"/>
-      </product>
-      <product code="C27">
-        <group code="LO"/>
-      </product>
-      <product code="C28">
-        <group code="LO"/>
-      </product>
-      <product code="CE1">
-        <group code="OF"/>
       </product>
       <product code="CE3">
         <group code="OF"/>
+      </product>
+      <product code="CHY">
+        <group code="XZ"/>
       </product>
       <product code="CVR">
         <group code="OF"/>
@@ -6229,14 +6150,8 @@
       <product code="DNM">
         <group code="LO"/>
       </product>
-      <product code="FAY">
-        <group code="XZ"/>
-      </product>
       <product code="ICD">
         <group code="LO"/>
-      </product>
-      <product code="LCE">
-        <group code="1N"/>
       </product>
       <product code="LCE">
         <group code="LO"/>
@@ -6257,70 +6172,43 @@
         <group code="LO"/>
       </product>
       <product code="LO">
-        <group code="LO"/>
+        <group code="1N"/>
       </product>
       <product code="LO">
-        <group code="1N"/>
+        <group code="LO"/>
       </product>
       <product code="LO1">
         <group code="LO"/>
       </product>
-      <product code="LO1">
-        <group code="1N"/>
-      </product>
       <product code="LO2">
         <group code="LO"/>
       </product>
-      <product code="LO2">
-        <group code="1N"/>
-      </product>
-      <product code="LO3">
+      <product code="LO4">
         <group code="LO"/>
       </product>
       <product code="LO4">
         <group code="1N"/>
       </product>
-      <product code="LO4">
+      <product code="LO5">
         <group code="LO"/>
       </product>
-      <product code="OB">
-        <group code="OT"/>
-      </product>
-      <product code="OB">
-        <group code="1B"/>
-      </product>
-      <product code="OB">
-        <group code="LO"/>
+      <product code="LO5">
+        <group code="1N"/>
       </product>
       <product code="OB">
         <group code="OB"/>
+      </product>
+      <product code="OB">
+        <group code="1B"/>
       </product>
       <product code="ODB">
         <group code="OT"/>
       </product>
       <product code="OH">
-        <group code="1I"/>
-      </product>
-      <product code="OH">
-        <group code="OT"/>
-      </product>
-      <product code="OH">
-        <group code="OH"/>
-      </product>
-      <product code="OSX">
-        <group code="1Z"/>
-      </product>
-      <product code="OSX">
         <group code="OH"/>
       </product>
       <product code="OSX">
         <group code="OT"/>
-      </product>
-      <product code="OSX">
-        <group code="OB"/>
-      </product>
-      <product code="WAY">
-        <group code="1N"/>
       </product>
       <product code="WAY">
         <group code="LO"/>
@@ -6333,8 +6221,8 @@
       <connection id="383H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.220.72</host-ip>
         <host-ip>205.209.222.72</host-ip>
+        <host-ip>205.209.220.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -6351,8 +6239,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.131</ip>
-        <host-ip>205.209.211.77</host-ip>
         <host-ip>205.209.212.77</host-ip>
+        <host-ip>205.209.211.77</host-ip>
         <port>15383</port>
         <feed>B</feed>
       </connection>
@@ -6360,8 +6248,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.173</ip>
-        <host-ip>205.209.222.73</host-ip>
         <host-ip>205.209.222.85</host-ip>
+        <host-ip>205.209.222.73</host-ip>
         <port>14383</port>
         <feed>A</feed>
       </connection>
@@ -6396,8 +6284,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.22</ip>
-        <host-ip>205.209.222.109</host-ip>
         <host-ip>205.209.222.108</host-ip>
+        <host-ip>205.209.222.109</host-ip>
         <port>23383</port>
         <feed>A</feed>
       </connection>
@@ -6405,8 +6293,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.85</ip>
-        <host-ip>205.209.214.64</host-ip>
         <host-ip>205.209.213.64</host-ip>
+        <host-ip>205.209.214.64</host-ip>
         <port>22383</port>
         <feed>B</feed>
       </connection>
@@ -6427,7 +6315,7 @@
         <group code="ST"/>
       </product>
       <product code="HRC">
-        <group code="ST"/>
+        <group code="HR"/>
       </product>
       <product code="KT">
         <group code="KT"/>
@@ -6441,6 +6329,9 @@
       <product code="PL">
         <group code="PL"/>
       </product>
+      <product code="PLT">
+        <group code="PE"/>
+      </product>
       <product code="PPS">
         <group code="PU"/>
       </product>
@@ -6448,7 +6339,7 @@
         <group code="ST"/>
       </product>
       <product code="TIO">
-        <group code="ST"/>
+        <group code="IO"/>
       </product>
       <product code="TT">
         <group code="TT"/>
@@ -6470,8 +6361,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.132</ip>
-        <host-ip>205.209.221.79</host-ip>
         <host-ip>205.209.223.79</host-ip>
+        <host-ip>205.209.221.79</host-ip>
         <port>14384</port>
         <feed>A</feed>
       </connection>
@@ -6479,8 +6370,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.132</ip>
-        <host-ip>205.209.212.79</host-ip>
         <host-ip>205.209.211.79</host-ip>
+        <host-ip>205.209.212.79</host-ip>
         <port>15384</port>
         <feed>B</feed>
       </connection>
@@ -6533,8 +6424,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.83</ip>
-        <host-ip>205.209.213.67</host-ip>
         <host-ip>205.209.214.67</host-ip>
+        <host-ip>205.209.213.67</host-ip>
         <port>22384</port>
         <feed>B</feed>
       </connection>
@@ -6545,11 +6436,14 @@
       <product code="0PO">
         <group code="#0"/>
       </product>
+      <product code="HRO">
+        <group code="H1"/>
+      </product>
       <product code="ICP">
         <group code="I1"/>
       </product>
       <product code="ICT">
-        <group code="I1"/>
+        <group code="I5"/>
       </product>
       <product code="PAO">
         <group code="P3"/>
@@ -6562,8 +6456,8 @@
       <connection id="385H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.222.72</host-ip>
         <host-ip>205.209.220.72</host-ip>
+        <host-ip>205.209.222.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -6598,8 +6492,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.175</ip>
-        <host-ip>205.209.214.50</host-ip>
         <host-ip>205.209.213.50</host-ip>
+        <host-ip>205.209.214.50</host-ip>
         <port>15385</port>
         <feed>B</feed>
       </connection>
@@ -6616,8 +6510,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.154</ip>
-        <host-ip>205.209.214.54</host-ip>
         <host-ip>205.209.213.54</host-ip>
+        <host-ip>205.209.214.54</host-ip>
         <port>15385</port>
         <feed>B</feed>
       </connection>
@@ -7204,6 +7098,12 @@
       <product code="DCE">
         <group code="FD"/>
       </product>
+      <product code="DEB">
+        <group code="PW"/>
+      </product>
+      <product code="DEP">
+        <group code="PW"/>
+      </product>
       <product code="DFE">
         <group code="FD"/>
       </product>
@@ -7321,9 +7221,6 @@
       <product code="GL">
         <group code="FD"/>
       </product>
-      <product code="GL">
-        <group code="ZZ"/>
-      </product>
       <product code="GLS">
         <group code="08"/>
       </product>
@@ -7359,6 +7256,9 @@
       </product>
       <product code="HFT">
         <group code="FT"/>
+      </product>
+      <product code="HH">
+        <group code="HX"/>
       </product>
       <product code="HH">
         <group code="NG"/>
@@ -7434,6 +7334,12 @@
       </product>
       <product code="IT">
         <group code="FD"/>
+      </product>
+      <product code="ITB">
+        <group code="PW"/>
+      </product>
+      <product code="ITP">
+        <group code="PW"/>
       </product>
       <product code="IU">
         <group code="FD"/>
@@ -7645,8 +7551,14 @@
       <product code="N9L">
         <group code="PW"/>
       </product>
+      <product code="NBD">
+        <group code="FD"/>
+      </product>
       <product code="NBN">
         <group code="FD"/>
+      </product>
+      <product code="NBP">
+        <group code="HX"/>
       </product>
       <product code="NCD">
         <group code="PW"/>
@@ -7791,6 +7703,9 @@
       </product>
       <product code="NX">
         <group code="FD"/>
+      </product>
+      <product code="NYP">
+        <group code="HX"/>
       </product>
       <product code="NZN">
         <group code="FD"/>
@@ -8041,6 +7956,9 @@
       <product code="S9">
         <group code="FD"/>
       </product>
+      <product code="SDD">
+        <group code="PW"/>
+      </product>
       <product code="SFN">
         <group code="FD"/>
       </product>
@@ -8068,6 +7986,9 @@
       <product code="SN">
         <group code="FD"/>
       </product>
+      <product code="SRT">
+        <group code="PW"/>
+      </product>
       <product code="SS">
         <group code="FD"/>
       </product>
@@ -8089,34 +8010,22 @@
       <product code="SZN">
         <group code="FD"/>
       </product>
-      <product code="T01">
-        <group code="08"/>
-      </product>
-      <product code="T02">
-        <group code="08"/>
-      </product>
       <product code="T03">
         <group code="08"/>
       </product>
-      <product code="T04">
+      <product code="T19">
         <group code="08"/>
       </product>
-      <product code="T05">
+      <product code="T20">
         <group code="08"/>
       </product>
-      <product code="T08">
+      <product code="T21">
         <group code="08"/>
       </product>
-      <product code="T09">
+      <product code="T22">
         <group code="08"/>
       </product>
-      <product code="T10">
-        <group code="08"/>
-      </product>
-      <product code="T24">
-        <group code="08"/>
-      </product>
-      <product code="T25">
+      <product code="T23">
         <group code="08"/>
       </product>
       <product code="T26">
@@ -8126,6 +8035,12 @@
         <group code="08"/>
       </product>
       <product code="T28">
+        <group code="08"/>
+      </product>
+      <product code="T29">
+        <group code="08"/>
+      </product>
+      <product code="T30">
         <group code="08"/>
       </product>
       <product code="T3L">
@@ -8155,6 +8070,9 @@
       <product code="TH">
         <group code="FT"/>
       </product>
+      <product code="THD">
+        <group code="HX"/>
+      </product>
       <product code="TK">
         <group code="FT"/>
       </product>
@@ -8168,6 +8086,15 @@
         <group code="FD"/>
       </product>
       <product code="TT2">
+        <group code="FD"/>
+      </product>
+      <product code="TTD">
+        <group code="FD"/>
+      </product>
+      <product code="TTE">
+        <group code="HX"/>
+      </product>
+      <product code="TTF">
         <group code="FD"/>
       </product>
       <product code="TXN">
@@ -8196,6 +8123,9 @@
       </product>
       <product code="UDL">
         <group code="PW"/>
+      </product>
+      <product code="UKG">
+        <group code="FD"/>
       </product>
       <product code="UML">
         <group code="PW"/>
@@ -8400,8 +8330,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.134</ip>
-        <host-ip>205.209.211.77</host-ip>
         <host-ip>205.209.212.77</host-ip>
+        <host-ip>205.209.211.77</host-ip>
         <port>15386</port>
         <feed>B</feed>
       </connection>
@@ -8427,8 +8357,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.155</ip>
-        <host-ip>205.209.222.83</host-ip>
         <host-ip>205.209.222.79</host-ip>
+        <host-ip>205.209.222.83</host-ip>
         <port>14386</port>
         <feed>A</feed>
       </connection>
@@ -8475,9 +8405,6 @@
       <product code="A4H">
         <group code="EF"/>
       </product>
-      <product code="A4H">
-        <group code="EX"/>
-      </product>
       <product code="A4J">
         <group code="EF"/>
       </product>
@@ -8497,9 +8424,6 @@
         <group code="GZ"/>
       </product>
       <product code="AG2">
-        <group code="ON"/>
-      </product>
-      <product code="AG5">
         <group code="ON"/>
       </product>
       <product code="AM2">
@@ -8526,9 +8450,6 @@
       <product code="CLB">
         <group code="EF"/>
       </product>
-      <product code="CPF">
-        <group code="P5"/>
-      </product>
       <product code="CPR">
         <group code="EF"/>
       </product>
@@ -8539,31 +8460,19 @@
         <group code="ON"/>
       </product>
       <product code="G3B">
-        <group code="C2"/>
-      </product>
-      <product code="G3B">
-        <group code="GZ"/>
-      </product>
-      <product code="G3B">
         <group code="ON"/>
-      </product>
-      <product code="G4X">
-        <group code="GZ"/>
       </product>
       <product code="G4X">
         <group code="ON"/>
       </product>
-      <product code="G4X">
-        <group code="1T"/>
+      <product code="G6B">
+        <group code="ON"/>
       </product>
       <product code="GVR">
         <group code="PC"/>
       </product>
       <product code="IAY">
         <group code="ON"/>
-      </product>
-      <product code="IAY">
-        <group code="1T"/>
       </product>
       <product code="KDB">
         <group code="GZ"/>
@@ -8577,14 +8486,17 @@
       <product code="LN2">
         <group code="LG"/>
       </product>
-      <product code="LN3">
-        <group code="LG"/>
-      </product>
-      <product code="LN3">
-        <group code="1T"/>
-      </product>
       <product code="LN4">
         <group code="LG"/>
+      </product>
+      <product code="LN5">
+        <group code="LG"/>
+      </product>
+      <product code="LNE">
+        <group code="EF"/>
+      </product>
+      <product code="LNE">
+        <group code="GZ"/>
       </product>
       <product code="LNE">
         <group code="ON"/>
@@ -8602,13 +8514,10 @@
         <group code="IZ"/>
       </product>
       <product code="ON">
-        <group code="1T"/>
-      </product>
-      <product code="ON">
-        <group code="LG"/>
-      </product>
-      <product code="ON">
         <group code="ON"/>
+      </product>
+      <product code="ON">
+        <group code="1T"/>
       </product>
       <product code="ON1">
         <group code="ON"/>
@@ -8616,10 +8525,10 @@
       <product code="ON2">
         <group code="ON"/>
       </product>
-      <product code="ON3">
+      <product code="ON4">
         <group code="ON"/>
       </product>
-      <product code="ON4">
+      <product code="ON5">
         <group code="ON"/>
       </product>
       <product code="PMA">
@@ -8631,34 +8540,22 @@
       <product code="RPF">
         <group code="EF"/>
       </product>
-      <product code="U01">
+      <product code="U19">
         <group code="GZ"/>
       </product>
-      <product code="U02">
-        <group code="LG"/>
-      </product>
-      <product code="U02">
+      <product code="U20">
         <group code="GZ"/>
       </product>
-      <product code="U24">
+      <product code="U21">
         <group code="GZ"/>
       </product>
-      <product code="U26">
+      <product code="U22">
         <group code="GZ"/>
       </product>
-      <product code="U27">
+      <product code="U23">
         <group code="GZ"/>
       </product>
-      <product code="U28">
-        <group code="GZ"/>
-      </product>
-      <product code="Z24">
-        <group code="PP"/>
-      </product>
-      <product code="Z25">
-        <group code="PP"/>
-      </product>
-      <product code="Z26">
+      <product code="Z19">
         <group code="PP"/>
       </product>
     </products>
@@ -8666,8 +8563,8 @@
       <connection id="387H2A">
         <type feed-type="H">Historical Replay</type>
         <protocol>TCP/IP</protocol>
-        <host-ip>205.209.222.72</host-ip>
         <host-ip>205.209.220.72</host-ip>
+        <host-ip>205.209.222.72</host-ip>
         <port>10000</port>
         <feed>A</feed>
       </connection>
@@ -8675,8 +8572,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.135</ip>
-        <host-ip>205.209.221.77</host-ip>
         <host-ip>205.209.223.77</host-ip>
+        <host-ip>205.209.221.77</host-ip>
         <port>14387</port>
         <feed>A</feed>
       </connection>
@@ -8684,8 +8581,8 @@
         <type feed-type="I">Incremental</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.135</ip>
-        <host-ip>205.209.212.77</host-ip>
         <host-ip>205.209.211.77</host-ip>
+        <host-ip>205.209.212.77</host-ip>
         <port>15387</port>
         <feed>B</feed>
       </connection>
@@ -8702,8 +8599,8 @@
         <type feed-type="N">Instrument Replay</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.177</ip>
-        <host-ip>205.209.214.49</host-ip>
         <host-ip>205.209.213.49</host-ip>
+        <host-ip>205.209.214.49</host-ip>
         <port>15387</port>
         <feed>B</feed>
       </connection>
@@ -8711,8 +8608,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.31.156</ip>
-        <host-ip>205.209.222.78</host-ip>
         <host-ip>205.209.222.88</host-ip>
+        <host-ip>205.209.222.78</host-ip>
         <port>14387</port>
         <feed>A</feed>
       </connection>
@@ -8720,8 +8617,8 @@
         <type feed-type="S">Snapshot</type>
         <protocol>UDP/IP</protocol>
         <ip>224.0.32.156</ip>
-        <host-ip>205.209.214.53</host-ip>
         <host-ip>205.209.213.53</host-ip>
+        <host-ip>205.209.214.53</host-ip>
         <port>15387</port>
         <feed>B</feed>
       </connection>
@@ -8729,8 +8626,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.23</ip>
-        <host-ip>205.209.222.111</host-ip>
         <host-ip>205.209.222.110</host-ip>
+        <host-ip>205.209.222.111</host-ip>
         <port>23387</port>
         <feed>A</feed>
       </connection>
@@ -8738,8 +8635,8 @@
         <type feed-type="SMBO">Snapshot-MBO</type>
         <protocol>UDP/IP</protocol>
         <ip>233.72.75.86</ip>
-        <host-ip>205.209.213.65</host-ip>
         <host-ip>205.209.214.65</host-ip>
+        <host-ip>205.209.213.65</host-ip>
         <port>22387</port>
         <feed>B</feed>
       </connection>
@@ -9577,13 +9474,13 @@
         <group code="05"/>
       </product>
       <product code="MWE">
+        <group code="MK"/>
+      </product>
+      <product code="MWE">
         <group code="MB"/>
       </product>
       <product code="MWE">
         <group code="MW"/>
-      </product>
-      <product code="MWE">
-        <group code="MK"/>
       </product>
       <product code="MY1">
         <group code="05"/>
@@ -9752,6 +9649,9 @@
       <product code="MU8">
         <group code="O7"/>
       </product>
+      <product code="MU9">
+        <group code="O7"/>
+      </product>
       <product code="OIC">
         <group code="O1"/>
       </product>
@@ -9858,188 +9758,7 @@
     </connections>
   </channel>
   <channel id="520" label="MEXDER Futures">
-    <products>
-      <product code="M:0215">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:0216">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:0217">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:0218">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:0219">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:0220">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:0221">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:1015">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:1016">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:1017">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:1018">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:1019">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:1020">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:1021">
-        <group code="M:FS"/>
-      </product>
-      <product code="M:AXL">
-        <group code="M:07"/>
-      </product>
-      <product code="M:CE91">
-        <group code="M:FT"/>
-      </product>
-      <product code="M:CXC">
-        <group code="M:04"/>
-      </product>
-      <product code="M:DA02">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA03">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA04">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA05">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA08">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA09">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA10">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA11">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA12">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA13">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA14">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA15">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA16">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA17">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA18">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA19">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA24">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA25">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA26">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA27">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DA28">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:DC18">
-        <group code="M:FB"/>
-      </product>
-      <product code="M:DC24">
-        <group code="M:FB"/>
-      </product>
-      <product code="M:DEUA">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:EURO">
-        <group code="M:FD"/>
-      </product>
-      <product code="M:FEM">
-        <group code="M:05"/>
-      </product>
-      <product code="M:GCA">
-        <group code="M:06"/>
-      </product>
-      <product code="M:GMEX">
-        <group code="M:14"/>
-      </product>
-      <product code="M:IPC">
-        <group code="M:01"/>
-      </product>
-      <product code="M:JN21">
-        <group code="M:FB"/>
-      </product>
-      <product code="M:M10">
-        <group code="M:FB"/>
-      </product>
-      <product code="M:M20">
-        <group code="M:FB"/>
-      </product>
-      <product code="M:M3">
-        <group code="M:FB"/>
-      </product>
-      <product code="M:M30">
-        <group code="M:FB"/>
-      </product>
-      <product code="M:MAIZ">
-        <group code="M:27"/>
-      </product>
-      <product code="M:MEXT">
-        <group code="M:25"/>
-      </product>
-      <product code="M:MIP">
-        <group code="M:30"/>
-      </product>
-      <product code="M:MR26">
-        <group code="M:FB"/>
-      </product>
-      <product code="M:MY31">
-        <group code="M:FB"/>
-      </product>
-      <product code="M:NV42">
-        <group code="M:FB"/>
-      </product>
-      <product code="M:TE28">
-        <group code="M:FT"/>
-      </product>
-      <product code="M:WAL">
-        <group code="M:03"/>
-      </product>
-      <product code="M:X1">
-        <group code="M:FW"/>
-      </product>
-    </products>
+    <products/>
     <connections>
       <connection id="520H2A">
         <type feed-type="H">Historical Replay</type>
@@ -10106,14 +9825,7 @@
     </connections>
   </channel>
   <channel id="521" label="MEXDER Options">
-    <products>
-      <product code="M:DA">
-        <group code="M:22"/>
-      </product>
-      <product code="M:IP">
-        <group code="M:01"/>
-      </product>
-    </products>
+    <products/>
     <connections>
       <connection id="521H2A">
         <type feed-type="H">Historical Replay</type>
@@ -10179,72 +9891,4 @@
       </connection>
     </connections>
   </channel>
-    <channel id="648" label="MEXDER Options">
-        <connections>
-            <connection id="648IA">
-                <type feed-type="I">Incremental</type>
-                <protocol>UDP/IP</protocol>
-                <ip>224.0.28.126</ip>
-                <!--<host-ip>127.0.0.1</host-ip>-->
-                <port>11648</port>
-                <feed>A</feed>
-            </connection>
-            <connection id="648IB">
-                <type feed-type="I">Incremental</type>
-                <protocol>UDP/IP</protocol>
-                <ip>224.0.25.101</ip>
-                <!--<host-ip>69.50.112.46</host-ip>-->
-                <port>11748</port>
-                <feed>B</feed>
-            </connection>
-            <connection id="648NA">
-                <type feed-type="N">Instrument Replay</type>
-                <protocol>UDP/IP</protocol>
-                <ip>224.0.28.126</ip>
-                <!--<host-ip>224.0.28.125</host-ip>-->
-                <port>16648</port>
-                <feed>A</feed>
-            </connection>
-            <!--<connection id="648NB">-->
-            <!--<type feed-type="N">Instrument Replay</type>-->
-            <!--<protocol>UDP/IP</protocol>-->
-            <!--<ip>224.0.28.125</ip>-->
-            <!--<host-ip>127.0.0.1</host-ip>-->
-            <!--<port>11644</port>-->
-            <!--<feed>B</feed>-->
-            <!--</connection>-->
-            <connection id="648SA">
-                <type feed-type="S">Snapshot</type>
-                <protocol>UDP/IP</protocol>
-                <ip>224.0.25.127</ip>
-                <!--<host-ip>69.50.112.78</host-ip>-->
-                <port>19648</port>
-                <feed>A</feed>
-            </connection>
-            <connection id="648SB">
-                <type feed-type="S">Snapshot</type>
-                <protocol>UDP/IP</protocol>
-                <ip>224.0.28.167</ip>
-                <host-ip>69.50.112.78</host-ip>
-                <port>7521</port>
-                <feed>B</feed>
-            </connection>
-            <connection id="648SAMBO">
-                <type feed-type="SMBO">Snapshot-MBO</type>
-                <protocol>UDP/IP</protocol>
-                <ip>224.0.25.254</ip>
-                <!--<host-ip>69.50.112.126</host-ip>-->
-                <port>20648</port>
-                <feed>A</feed>
-            </connection>
-            <connection id="648SBMBO">
-            <type feed-type="SMBO">Snapshot-MBO</type>
-            <protocol>UDP/IP</protocol>
-            <ip>224.0.25.253</ip>
-            <host-ip>69.50.112.126</host-ip>
-            <port>22310</port>
-            <feed>B</feed>
-            </connection>
-        </connections>
-    </channel>
 </configuration>
