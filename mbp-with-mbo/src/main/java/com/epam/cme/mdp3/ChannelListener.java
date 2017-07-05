@@ -24,7 +24,7 @@ public interface ChannelListener extends CoreChannelListener {
      * @param secDesc             Security description
      * @param msgSeqNum           Message sequence number
      * @param securityId          Security ID
-     * @param orderEntry        MBO Entry of Group from MDP Incremental Refresh Message
+     * @param orderEntry          MBO Entry of Group from MDP Incremental Refresh Message
      * @param mdEntry             MBP Entry of Group from MDP Incremental Refresh Message. It can be null when MBO Incremental Refresh is received in separated template.
      */
     void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,

@@ -14,7 +14,6 @@ package com.epam.cme.mdp3.control;
 
 import com.epam.cme.mdp3.MdpMessage;
 import com.epam.cme.mdp3.SemanticMsgType;
-import com.epam.cme.mdp3.core.control.ChannelController;
 import com.epam.cme.mdp3.sbe.message.meta.MdpMessageType;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 

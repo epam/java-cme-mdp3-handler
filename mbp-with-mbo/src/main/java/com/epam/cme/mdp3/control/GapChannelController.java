@@ -16,7 +16,6 @@ import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
 import com.epam.cme.mdp3.core.channel.tcp.TCPMessageRequester;
 import com.epam.cme.mdp3.core.channel.tcp.TCPPacketListener;
-import com.epam.cme.mdp3.core.control.ChannelController;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

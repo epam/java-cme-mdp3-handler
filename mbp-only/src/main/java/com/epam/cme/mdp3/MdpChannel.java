@@ -164,20 +164,6 @@ public interface MdpChannel {
     void startSnapshotFeedB() throws MdpFeedException;
 
     /**
-     * Starts Snapshot MBO Feed A.
-     *
-     * @throws MdpFeedException
-     */
-    void startSnapshotMBOFeedA() throws MdpFeedException;
-
-    /**
-     * Starts Snapshot MBO Feed B.
-     *
-     * @throws MdpFeedException
-     */
-    void startSnapshotMBOFeedB() throws MdpFeedException;
-
-    /**
      * Starts Instrumental Feed A.
      *
      * @throws MdpFeedException
@@ -212,16 +198,6 @@ public interface MdpChannel {
     void stopSnapshotFeedB();
 
     /**
-     * Stops Snapshot MBO Feed A.
-     */
-    void stopSnapshotMBOFeedA();
-
-    /**
-     * Stops Snapshot MBO Feed B.
-     */
-    void stopSnapshotMBOFeedB();
-
-    /**
      * Stops Instrumental Feed A.
      */
     void stopInstrumentFeedA();
@@ -246,14 +222,10 @@ public interface MdpChannel {
      */
     void startSnapshotFeeds();
 
-    void startSnapshotMBOFeeds();
-
     /**
      * Stops Snapshot Feeds.
      */
     void stopSnapshotFeeds();
-
-    void stopSnapshotMBOFeeds();
 
     /**
      * Subscribes to the given Security with the given Subscription options and Depth.

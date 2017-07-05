@@ -10,10 +10,12 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.epam.cme.mdp3.core.channel;
+package com.epam.cme.mdp3.channel;
 
-import com.epam.cme.mdp3.*;
+import com.epam.cme.mdp3.core.channel.MdpFeedContext;
+import com.epam.cme.mdp3.core.channel.MdpFeedListener;
 import com.epam.cme.mdp3.core.control.InstrumentController;
+import com.epam.cme.mdp3.core.control.InstrumentManager;
 import com.epam.cme.mdp3.sbe.message.SbeGroup;
 import com.epam.cme.mdp3.sbe.message.SbeString;
 import com.epam.cme.mdp3.sbe.message.meta.MdpMessageType;
@@ -36,6 +38,7 @@ public class ChannelInstruments implements MdpFeedListener {
     private static final int INSTRUMENT_CYCLES_MAX = 2; // do we need an option in configuration for this?
 
     private final ChannelContext channelContext;
+    private final InstrumentManager instrumentManager;
     private final IntObjMap<InstrumentController> instruments = HashIntObjMaps.newMutableMap();
     private AtomicInteger msgCountDown = new AtomicInteger(PRCD_MSG_COUNT_NULL);
 
@@ -45,6 +48,12 @@ public class ChannelInstruments implements MdpFeedListener {
 
     public ChannelInstruments(final ChannelContext channelContext) {
         this.channelContext = channelContext;
+        this.instrumentManager = null;
+    }
+
+    public ChannelInstruments(final ChannelContext channelContext, final InstrumentManager instrumentManager) {
+        this.channelContext = channelContext;
+        this.instrumentManager = instrumentManager;
     }
 
     @Override
@@ -112,7 +121,7 @@ public class ChannelInstruments implements MdpFeedListener {
     }
 
     private void registerController(final int securityId, final String secDesc, final int subscriptionFlags, final byte maxDepth, final int gapThreshold) {
-        this.instruments.put(securityId, new InstrumentController(channelContext, securityId, secDesc, subscriptionFlags, maxDepth, gapThreshold));
+//        this.instruments.put(securityId, new InstrumentController(channelContext, securityId, secDesc, subscriptionFlags, maxDepth, gapThreshold));
     }
 
     public void registerSecurity(final MdpMessage secDef, final int subscriptionFlags, final byte maxDepth) {
@@ -131,6 +140,9 @@ public class ChannelInstruments implements MdpFeedListener {
     }
 
     public boolean registerSecurity(final int securityId, final String secDesc, final int subscriptionFlags, final byte maxDepth) {
+        if(instrumentManager != null) {
+            instrumentManager.registerSecurity(securityId, secDesc, subscriptionFlags, maxDepth);
+        }
         boolean updatedState;
         synchronized (this.instruments) {
             InstrumentController instrumentController = find(securityId);
@@ -161,6 +173,9 @@ public class ChannelInstruments implements MdpFeedListener {
     }
 
     public void discontinueSecurity(final int securityId) {
+        if(instrumentManager != null) {
+            instrumentManager.discontinueSecurity(securityId);
+        }
         synchronized (this.instruments) {
             InstrumentController instrumentController = find(securityId);
             if (instrumentController != null) {

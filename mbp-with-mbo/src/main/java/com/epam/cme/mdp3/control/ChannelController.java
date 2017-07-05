@@ -15,16 +15,10 @@ package com.epam.cme.mdp3.control;
 import com.epam.cme.mdp3.MdpPacket;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
 
-public class StubChannelController implements ChannelController {
-    @Override
-    public void handleSnapshotPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {}
+public interface ChannelController {
+    void handleSnapshotPacket(MdpFeedContext feedContext, MdpPacket mdpPacket);
+    void handleIncrementalPacket(MdpFeedContext feedContext, MdpPacket mdpPacket);
 
-    @Override
-    public void handleIncrementalPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {}
-
-    @Override
-    public void preClose() {}
-
-    @Override
-    public void close() {}
+    void preClose();
+    void close();
 }

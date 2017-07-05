@@ -55,6 +55,10 @@ public class ChannelContext {
         return this.getChannel().hasMdListener();
     }
 
+    public boolean isSnapshotFeedsActive() {
+        return channel.isSnapshotFeedsActive();
+    }
+
     public int getGapThreshold() {
         return gapThreshold;
     }
@@ -233,6 +237,10 @@ public class ChannelContext {
 
     public void unsubscribeToSnapshotsForInstrument(final Integer securityId) {
         channel.unsubscribeFromSnapshotsForInstrument(securityId);
+    }
+
+    public long getPrcdSeqNum() {
+        return getChannel().getController().getPrcdSeqNum();
     }
 
     public ChannelState getChannelState() {

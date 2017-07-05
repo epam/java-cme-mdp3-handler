@@ -10,42 +10,45 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.epam.cme.mdp3.core.channel;
+package com.epam.cme.mdp3.channel;
 
 import com.epam.cme.mdp3.ChannelListener;
 import com.epam.cme.mdp3.Feed;
 import com.epam.cme.mdp3.FeedType;
 import com.epam.cme.mdp3.MdpChannel;
 import com.epam.cme.mdp3.core.cfg.Configuration;
+import com.epam.cme.mdp3.core.channel.MdpFeedWorker;
+import com.epam.cme.mdp3.core.channel.tcp.MdpTCPMessageRequester;
 import com.epam.cme.mdp3.core.control.InstrumentController;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypeBuildException;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.service.DefaultScheduledServiceHolder;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class MdpChannelBuilder {
+    public static final int DEF_INCR_QUEUE_SIZE = 15000;
+    public static final int DEF_GAP_THRESHOLD = 5;
     private final String channelId;
     private URI cfgURI;
     private URI schemaURI;
     private MdpMessageTypes mdpMessageTypes;
 
-    private String incrementalFeedAni;
-    private String incrementalFeedBni;
-    private String snapshotFeedAni;
-    private String snapshotFeedBni;
-    private String instrumentFeedAni;
-    private String instrumentFeedBni;
+    private Map<FeedType, String> feedANetworkInterfaces = new HashMap<>();
+    private Map<FeedType, String> feedBNetworkInterfaces = new HashMap<>();
 
     private ChannelListener channelListener;
     private boolean noScheduler = false;
     private ScheduledExecutorService scheduler;
 
-    private int queueSlotInitBufferSize = InstrumentController.DEF_QUEUE_SLOT_INIT_BUFFER_SIZE;
-    private int incrQueueSize = InstrumentController.DEF_INCR_QUEUE_SIZE;
-    private int gapThreshold = InstrumentController.DEF_GAP_THRESHOLD;
+    private int incrQueueSize = DEF_INCR_QUEUE_SIZE;
+    private int gapThreshold = DEF_GAP_THRESHOLD;
     private int rcvBufSize = MdpFeedWorker.RCV_BUFFER_SIZE;
+    private String tcpUsername = MdpTCPMessageRequester.DEFAULT_USERNAME;
+    private String tcpPassword = MdpTCPMessageRequester.DEFAULT_PASSWORD;
 
     public MdpChannelBuilder(final String channelId) {
         this.channelId = channelId;
@@ -69,24 +72,10 @@ public class MdpChannelBuilder {
     }
 
     public MdpChannelBuilder setNetworkInterface(final FeedType feedType, final Feed feed, final String networkInterface) {
-        if (feedType == FeedType.I) {
-            if (feed == Feed.A) {
-                this.incrementalFeedAni = networkInterface;
-            } else if (feed == Feed.B) {
-                this.incrementalFeedBni = networkInterface;
-            }
-        } else if (feedType == FeedType.S) {
-            if (feed == Feed.A) {
-                this.snapshotFeedAni = networkInterface;
-            } else if (feed == Feed.B) {
-                this.snapshotFeedBni = networkInterface;
-            }
-        } else if (feedType == FeedType.N) {
-            if (feed == Feed.A) {
-                this.instrumentFeedAni = networkInterface;
-            } else if (feed == Feed.B) {
-                this.instrumentFeedBni = networkInterface;
-            }
+        if (feed == Feed.A) {
+            feedANetworkInterfaces.put(feedType, networkInterface);
+        } else if (feed == Feed.B) {
+            feedBNetworkInterfaces.put(feedType, networkInterface);
         }
         return this;
     }
@@ -98,11 +87,6 @@ public class MdpChannelBuilder {
 
     public MdpChannelBuilder usingScheduler(final ScheduledExecutorService scheduler) {
         this.scheduler = scheduler;
-        return this;
-    }
-
-    public MdpChannelBuilder usingQueueSlotInitBufferSize(final int queueSlotInitBufferSize) {
-        this.queueSlotInitBufferSize = queueSlotInitBufferSize;
         return this;
     }
 
@@ -126,27 +110,34 @@ public class MdpChannelBuilder {
         return this;
     }
 
+    public MdpChannelBuilder setTcpUsername(String tcpUsername) {
+        this.tcpUsername = tcpUsername;
+        return this;
+    }
+
+    public MdpChannelBuilder setTcpPassword(String tcpPassword) {
+        this.tcpPassword = tcpPassword;
+        return this;
+    }
+
     public MdpChannel build() {
         try {
             final Configuration cfg = new Configuration(this.cfgURI);
             final MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(this.schemaURI);
 
-            MdpChannelImpl mdpChannel;
-
-            if (!noScheduler && scheduler != null) {
+            if (!noScheduler && scheduler == null) {
                 scheduler = DefaultScheduledServiceHolder.getScheduler();
             }
-            mdpChannel = new MdpChannelImpl(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes, queueSlotInitBufferSize, incrQueueSize, gapThreshold);
 
-            mdpChannel.setIncrementalFeedAni(this.incrementalFeedAni);
-            mdpChannel.setIncrementalFeedBni(this.incrementalFeedBni);
-            mdpChannel.setSnapshotFeedAni(this.snapshotFeedAni);
-            mdpChannel.setSnapshotFeedBni(this.snapshotFeedBni);
-            mdpChannel.setInstrumentFeedAni(this.instrumentFeedAni);
-            mdpChannel.setInstrumentFeedBni(this.instrumentFeedBni);
+            MdpChannel mdpChannel = new MbpMboMdpChannel(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes, queueSlotInitBufferSize,
+                    incrQueueSize, gapThreshold, mbpEnable, mboEnable, tcpUsername, tcpPassword);
+
+            mdpChannel.setNetworkInterfaces(Feed.A, feedANetworkInterfaces);
+            mdpChannel.setNetworkInterfaces(Feed.B, feedBNetworkInterfaces);
             mdpChannel.setRcvBufSize(this.rcvBufSize);
 
-            if (this.channelListener != null) mdpChannel.registerListener(this.channelListener);
+            if (channelListener != null) mdpChannel.registerListener(channelListener);
+            if (mboChannelListener != null) mdpChannel.registerListener(mboChannelListener);
             return mdpChannel;
         } catch (Exception e) {
             throw new IllegalStateException("Failed to build MDP Channel", e);
