@@ -1,11 +1,10 @@
 package com.epam.cme.mdp3.test.mbo;
 
-import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.test.ModelUtils;
-import com.epam.cme.mdp3.test.TestChannelListener;
+import com.epam.cme.mdp3.test.TestMBOChannelListener;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -16,7 +15,7 @@ import static com.epam.cme.mdp3.test.Constants.*;
 import static org.junit.Assert.assertNotNull;
 
 public class MBOMessageProcessing {
-    private TestChannelListener testListener = new TestChannelListener();
+    private TestMBOChannelListener testListener = new TestMBOChannelListener();
     private MdpChannel mdpChannel;
     private MdpMessageTypes mdpMessageTypes;
 

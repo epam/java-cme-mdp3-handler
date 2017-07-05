@@ -1,11 +1,10 @@
 package com.epam.cme.mdp3.test.mbo;
 
-import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
-import com.epam.cme.mdp3.core.control.*;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.test.ModelUtils;
-import com.epam.cme.mdp3.test.TestChannelListener;
+import com.epam.cme.mdp3.test.TestMBOChannelListener;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,7 +19,7 @@ import static org.junit.Assert.*;
 
 
 public class MBOChannelControllerRouterTest {
-    private TestChannelListener testListener = new TestChannelListener();
+    private TestMBOChannelListener testListener = new TestMBOChannelListener();
     private String channelId = "648";
     private int testSecurityId = 99;
     private ChannelController channelController;
@@ -31,10 +30,10 @@ public class MBOChannelControllerRouterTest {
     public void init() throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(TEMPLATE_NAME).toURI());
-        List<ChannelListener> listeners = Collections.singletonList(testListener);
+        List<MBOChannelListener> listeners = Collections.singletonList(testListener);
         instrumentManager = new MBOInstrumentManager(channelId, listeners);
         instrumentManager.registerSecurity(testSecurityId, secDesc, 0, (byte)0);
-        channelController = new MBOChannelControllerRouter(instrumentManager, mdpMessageTypes);
+        channelController = new MBOChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes, Collections.singletonList(testListener));
     }
 
     @Test
@@ -60,7 +59,7 @@ public class MBOChannelControllerRouterTest {
         ByteBuffer mboIncrementTestMessage = ModelUtils.getMBOIncrementTestMessage(1, testSecurityId, orderID, mDOrderPriority, mDUpdateAction, mDEntryType, mDDisplayQty, mDEntryPx);
         mdpPacketWithIncrement.wrapFromBuffer(mboIncrementTestMessage);
         channelController.handleIncrementalPacket(incrementContext, mdpPacketWithIncrement);
-        TestChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
+        TestMBOChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
         assertNotNull(incrementalRefreshEntity);
         assertEquals(channelId, incrementalRefreshEntity.getChannelId());
         assertEquals(secDesc, incrementalRefreshEntity.getSecDesc());
@@ -77,6 +76,19 @@ public class MBOChannelControllerRouterTest {
     }
 
     @Test
+    public void controllerMustProcessSecurityDefinitionAndSendToClient() throws InterruptedException {
+        final MdpPacket mdpPacketWithInstrumentDefinition = MdpPacket.instance();
+        final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
+        ByteBuffer instrumentDefinitionTestMessage = ModelUtils.getMDInstrumentDefinitionFuture27(1, testSecurityId);
+        mdpPacketWithInstrumentDefinition.wrapFromBuffer(instrumentDefinitionTestMessage);
+        channelController.handleIncrementalPacket(incrementContext, mdpPacketWithInstrumentDefinition);
+        Pair<String,MdpMessage> securityMessagePair = testListener.nextSecurityMessage();
+        assertNotNull(securityMessagePair);
+        assertEquals(channelId, securityMessagePair.getLeft());
+        assertEquals(SemanticMsgType.SecurityDefinition, securityMessagePair.getRight().getSemanticMsgType());
+    }
+
+    @Test
     public void controllerMustProcessMBOIncrementInMBPTemplate() throws Exception {
         int secId1 = 1, secId2 = 4, secId3 = 8;
         short ref1 = 2, ref2 = 3;
@@ -90,7 +102,7 @@ public class MBOChannelControllerRouterTest {
 
         channelController.handleIncrementalPacket(incrementContext, mdpPacketWithIncrement);
 
-        TestChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
+        TestMBOChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
         assertNotNull(incrementalRefreshEntity);
         FieldSet orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
         assertEquals(ref1, orderIDEntry.getUInt8(REFERENCE_ID));

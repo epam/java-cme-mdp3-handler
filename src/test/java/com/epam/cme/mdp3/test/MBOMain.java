@@ -14,22 +14,26 @@ package com.epam.cme.mdp3.test;
 
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
-import com.epam.cme.mdp3.core.control.InstrumentState;
 import com.epam.cme.mdp3.sbe.message.SbeDouble;
 import com.epam.cme.mdp3.sbe.message.SbeGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
-import static com.epam.cme.mdp3.FeedType.SMBO;
 import static com.epam.cme.mdp3.mktdata.MdConstants.SECURITY_ID;
 
 public class MBOMain {
     private static final Logger logger = LoggerFactory.getLogger(MBOMain.class);
     private static Map<String, MBOBook> mboBook = new HashMap<>();
 
-    private static class ChannelListenerImpl implements ChannelListener {
+    private static class ChannelListenerImpl implements MBOChannelListener {
+        private final MdpGroup mdpGroup = SbeGroup.instance();
+        private final SbeDouble sbeDouble = SbeDouble.instance();
+        private final boolean traceEnabled = logger.isTraceEnabled();
+
         @Override
         public void onFeedStarted(String channelId, FeedType feedType, Feed feed) {
             logger.info("Channel '{}': {} feed {} is started", channelId, feedType, feed);
@@ -47,6 +51,9 @@ public class MBOMain {
 
         @Override
         public void onPacket(String channelId, FeedType feedType, Feed feed, MdpPacket mdpPacket) {
+//            if (feedType != FeedType.S) {
+//                logger.info("{} - {} {}: {}", channelId, feedType, feed, mdpPacket.getMsgSeqNum());
+//            }
             /*if (feedType != FeedType.S) {
                 logger.info("{} {}: {}", feedType, feed, mdpPacket);
                 /*final long seqNum = mdpPacket.getMsgSeqNum();
@@ -78,84 +85,73 @@ public class MBOMain {
         }
 
         @Override
-        public void onInstrumentStateChanged(final String channelId, int securityId, final String secDesc, InstrumentState prevState, InstrumentState newState) {
-            if (newState != InstrumentState.INITIAL) {
-                logger.info("Channel '{}'s instrument {}-{} state is changed from '{}' to '{}'", channelId, securityId, secDesc, prevState, newState);
-            }
-        }
-
-        @Override
         public int onSecurityDefinition(final String channelId, final MdpMessage mdpMessage) {
 //            logger.info("Received SecurityDefinition(d). ChannelId: {}, Schema Id: {}", channelId, mdpMessage.getSchemaId());
             return MdEventFlags.NOTHING;
         }
 
         @Override
-        public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, final FieldSet incrRefreshEntry) {
-//            logger.info("[{}] onIncrementalRefresh: ChannelId: {}, SecurityId: {}-{}, MatchEventIndicator: {} (byte representation: '{}')",
-//                    msgSeqNum, channelId, securityId, secDesc, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
-
-        }
-
-        @Override
         public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
                                      final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
-//            long orderId;
-//            long mdOrderPriority;
-//            double mdEntryPx;
-//            long mdDisplayQty;
-//            int mdUpdateAction;
-//            char mdEntryType;
-//            if(mdEntry == null){//MBO only
-//                orderId = orderIDEntry.getUInt64(37);
-//                mdOrderPriority = orderIDEntry.getUInt64(37707);
-//                SbeDouble sbeDouble = SbeDouble.instance();
-//                orderIDEntry.getDouble(270, sbeDouble);
-//                mdEntryPx = sbeDouble.asDouble();
-//                mdDisplayQty = orderIDEntry.getInt32(37706);
-//                mdUpdateAction = orderIDEntry.getUInt8(279);
-//                mdEntryType = orderIDEntry.getChar(269);
-////                String result = String.format("MBO only     onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
-////                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
-////                logger.info(result);
-//            } else {
-//                orderId = orderIDEntry.getUInt64(37);
-//                mdOrderPriority = orderIDEntry.getUInt64(37707);
-//                mdDisplayQty = orderIDEntry.getInt32(37706);
-//                mdUpdateAction = orderIDEntry.getUInt8(37708);
-//
-//                SbeDouble sbeDouble = SbeDouble.instance();
-//                mdEntry.getDouble(270, sbeDouble);
-//                mdEntryPx = sbeDouble.asDouble();
-//                mdEntryType = mdEntry.getChar(269);
-////                String result = String.format("MBO with MBP onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
-////                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
-////                logger.info(result);
-//            }
+            long orderId;
+            long mdOrderPriority;
+            double mdEntryPx;
+            long mdDisplayQty;
+            int mdUpdateAction;
+            char mdEntryType;
+            if(mdEntry == null){//MBO only
+                orderId = orderIDEntry.getUInt64(37);
+                mdOrderPriority = orderIDEntry.getUInt64(37707);
+                orderIDEntry.getDouble(270, sbeDouble);
+                mdEntryPx = sbeDouble.asDouble();
+                mdDisplayQty = orderIDEntry.getInt32(37706);
+                mdUpdateAction = orderIDEntry.getUInt8(279);
+                mdEntryType = orderIDEntry.getChar(269);
+                if(traceEnabled){
+                    String result = String.format("MBO only     onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
+                            channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
+                    logger.trace(result);
+                }
+            } else {
+                orderId = orderIDEntry.getUInt64(37);
+                mdOrderPriority = orderIDEntry.getUInt64(37707);
+                mdDisplayQty = orderIDEntry.getInt32(37706);
+                mdUpdateAction = orderIDEntry.getUInt8(37708);
+
+                mdEntry.getDouble(270, sbeDouble);
+                mdEntryPx = sbeDouble.asDouble();
+                mdEntryType = mdEntry.getChar(269);
+                if(traceEnabled) {
+                    String result = String.format("MBO with MBP onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
+                            channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
+                    logger.trace(result);
+                }
+            }
 ////            updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdUpdateAction, mdEntryType);
 
         }
 
         @Override
         public void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage){
-//            int securityId = snptMessage.getInt32(SECURITY_ID);
-//            MdpGroup mdpGroup = SbeGroup.instance();
-//            snptMessage.getGroup(268, mdpGroup);
-//
-//            while (mdpGroup.hashNext()){
-//                mdpGroup.next();
-//                long orderId = mdpGroup.getUInt64(37);
-//                long mdOrderPriority = mdpGroup.getUInt64(37707);
-//                SbeDouble sbeDouble = SbeDouble.instance();
-//                mdpGroup.getDouble(270, sbeDouble);
-//                double mdEntryPx = sbeDouble.asDouble();
-//                long mdDisplayQty = mdpGroup.getInt32(37706);
-//                char mdEntryType = mdpGroup.getChar(269);
-////                String result = String.format("onSnapshotMBOFullRefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s'",
-////                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType);
-////                logger.info(result);
-////                updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, 0, mdEntryType);
-//            }
+            int securityId = snptMessage.getInt32(SECURITY_ID);
+
+            snptMessage.getGroup(268, mdpGroup);
+
+            while (mdpGroup.hashNext()){
+                mdpGroup.next();
+                long orderId = mdpGroup.getUInt64(37);
+                long mdOrderPriority = mdpGroup.getUInt64(37707);
+                mdpGroup.getDouble(270, sbeDouble);
+                double mdEntryPx = sbeDouble.asDouble();
+                long mdDisplayQty = mdpGroup.getInt32(37706);
+                char mdEntryType = mdpGroup.getChar(269);
+                if(traceEnabled) {
+                    String result = String.format("onSnapshotMBOFullRefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s'",
+                            channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdEntryType);
+                    logger.trace(result);
+                }
+//                updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, 0, mdEntryType);
+            }
         }
 
         private void updateBook(String instrumentId, long orderId, long mdOrderPriority, double mdEntryPx, long mdDisplayQty, int mdUpdateAction, char mdEntryType){
@@ -190,12 +186,6 @@ public class MBOMain {
         }
 
         @Override
-        public void onSnapshotFullRefresh(final String channelId, String secDesc, final MdpMessage snptMessage) {
-//            logger.info("onFullRefresh: ChannelId: {}, SecurityId: {}-{}.",
-//                    channelId, snptMessage.getInt32(SECURITY_ID), secDesc);
-        }
-
-        @Override
         public void onRequestForQuote(String channelId, MdpMessage rfqMessage) {
             //logger.info("onRequestForQuote");
         }
@@ -210,7 +200,8 @@ public class MBOMain {
         channelInfos.put(channelId, Arrays.asList(groups));
     }
 
-    private static MdpChannel openChannel(final String channelId, final Set<InstrumentInfo> instruments, String networkInterface) throws Exception {
+    private static MdpChannel openChannel(final String channelId, final Set<InstrumentInfo> instruments,
+                                          String networkInterface, ScheduledExecutorService executorService) throws Exception {
         final MdpChannel mdpChannel = new MdpChannelBuilder(channelId,
                 MBOMain.class.getResource("/config.xml").toURI(),
                 MBOMain.class.getResource("/templates_FixBinary.xml").toURI())
@@ -221,6 +212,8 @@ public class MBOMain {
                 .setNetworkInterface(FeedType.N, Feed.A, networkInterface).setNetworkInterface(FeedType.N, Feed.B, networkInterface)
                 .mbpEnable(false)
                 .mboEnable(true)
+                .usingIncrQueueSize(15000)
+                .usingScheduler(executorService)
                 .build();
         instruments.forEach(instrumentInfo -> mdpChannel.subscribe(instrumentInfo.instrumentId, instrumentInfo.desc));
         mdpChannel.startIncrementalFeedA();
@@ -248,13 +241,15 @@ public class MBOMain {
 
         final Map<String, List<String>> channelInfos = new HashMap<>();
 //        defineChannel(channelInfos, "310", "ES");
-//        defineChannel(channelInfos, "314", "6A", "6B", "6J", "6S");
+        defineChannel(channelInfos, "314", "6A", "6B", "6J", "6S");
 //        defineChannel(channelInfos, "318", "NQ");
         defineChannel(channelInfos, "382", "CL");
-//        defineChannel(channelInfos, "360", "HG", "GC", "SI");
+        defineChannel(channelInfos, "360", "HG", "GC", "SI");
 //        defineChannel(channelInfos, "320", "6C", "6E", "6M", "6N");
 //        defineChannel(channelInfos, "342", "YM");
-//        defineChannel(channelInfos, "344", "ZB", "ZN", "ZF");
+        defineChannel(channelInfos, "344", "ZB", "ZN", "ZF");
+
+        final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(channelInfos.size());
 
         final Map<String, Set<InstrumentInfo>> resolvedInstruments = new HashMap<>();
         channelInfos.forEach((s, groups) -> resolvedInstruments.put(s, new ChannelHelper().resolveInstruments(s, groups, networkInterface)));
@@ -264,7 +259,7 @@ public class MBOMain {
             resolvedInstruments.forEach((s, instrumentInfos) -> {
                 if (!resolvedInstruments.isEmpty()) {
                     try {
-                        openChannels.add(openChannel(s, instrumentInfos, networkInterface));
+                        openChannels.add(openChannel(s, instrumentInfos, networkInterface, executorService));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -282,6 +277,7 @@ public class MBOMain {
                     mboBook.forEach((s, book) -> book.clear());
                 } else if(((char)read) == '3') {
                     openChannels.forEach(MdpChannel::close);
+                    executorService.shutdownNow();
                     return;
                 }
             }

@@ -1,1 +1,5 @@
 rootProject.name = 'b2bits-jmdp3'
+include 'core'
+include 'mbp-only'
+include 'mbp-with-mbo'
+

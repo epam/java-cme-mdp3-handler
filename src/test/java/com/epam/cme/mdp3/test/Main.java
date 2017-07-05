@@ -12,18 +12,14 @@
 
 package com.epam.cme.mdp3.test;
 
-import com.epam.cme.mdp3.*;
+import com.epam.cme.mdp3.MdpChannel;
 import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
 import com.epam.cme.mdp3.core.control.InstrumentState;
-import com.epam.cme.mdp3.mktdata.enums.SecurityTradingStatus;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
-import static com.epam.cme.mdp3.mktdata.MdConstants.SECURITY_ID;
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -92,21 +88,9 @@ public class Main {
         }
 
         @Override
-        public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                             final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry){
-            logger.info("[{}] onIncrementalMBORefresh: ChannelId: {}, SecurityId: {}-{}",
-                    msgSeqNum, channelId, securityId, secDesc);
-        }
-
-        @Override
         public void onSnapshotFullRefresh(final String channelId, String secDesc, final MdpMessage snptMessage) {
             /*logger.info("onFullRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}",
                     channelId, snptMessage.getInt32(SECURITY_ID), secDesc, snptMessage.getUInt32(RPT_SEQ_NUM));*/
-        }
-
-        @Override
-        public void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage){
-            logger.info("onMBOFullRefresh: ChannelId: {}, SecurityId: {}-{}.", channelId, snptMessage.getInt32(SECURITY_ID), secDesc);
         }
 
         @Override

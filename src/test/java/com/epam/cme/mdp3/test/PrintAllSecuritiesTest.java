@@ -12,7 +12,6 @@
 
 package com.epam.cme.mdp3.test;
 
-import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
 import com.epam.cme.mdp3.sbe.message.SbeGroup;
 import com.epam.cme.mdp3.sbe.message.SbeString;

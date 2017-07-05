@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -25,9 +26,9 @@ public class GapChannelControllerTest {
     private TestChannelController testChannelController;
     private final int bufferCapacity = 10;
     private final String testChannelId = "1";
-    private TestRecoveryManager testRecoveryManager;
+    private TestSnapshotRecoveryManager testRecoveryManager;
     private boolean recoveryStarted;
-    private TestChannelListener testChannelListener;
+    private TestMBOChannelListener testChannelListener;
     private InstrumentManager instrumentManager;
 
     @Before
@@ -37,27 +38,27 @@ public class GapChannelControllerTest {
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
         Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(bufferCapacity);
-        testRecoveryManager = new TestRecoveryManager();
+        testRecoveryManager = new TestSnapshotRecoveryManager();
         MBOSnapshotCycleHandler mboSnapshotCycleHandler = new OffHeapMBOSnapshotCycleHandler();
-        testChannelListener = new TestChannelListener();
-        instrumentManager = new MBOInstrumentManager("TEST", Collections.singletonList(testChannelListener));
-        ChannelController targetForBuffered = new MBOBufferedMessageRouter(instrumentManager, mdpMessageTypes, mboSnapshotCycleHandler);
-        gapChannelController = new GapChannelController(testChannelController, targetForBuffered, testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes, mboSnapshotCycleHandler);
+        testChannelListener = new TestMBOChannelListener();
+        List<MBOChannelListener> mboChannelListeners = Collections.singletonList(testChannelListener);
+        instrumentManager = new MBOInstrumentManager("TEST", mboChannelListeners);
+        ChannelController targetForBuffered = new MBOBufferedMessageRouter(testChannelId, instrumentManager, mdpMessageTypes, mboChannelListeners, mboSnapshotCycleHandler);
+        gapChannelController = new GapChannelController(mboChannelListeners, testChannelController, targetForBuffered, testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes, mboSnapshotCycleHandler, null, null);
 
     }
 
-//    MBO does not send its state to client
-//    @Test
-//    public void itMustChangeItsStateAndBeReadyToWorkAfterSnapshot() throws InterruptedException {
-//        int lastMsgSeqNumProcessed = 1000;
-//        Pair<MdpFeedContext, MdpPacket> mdpFeedContextMdpPacketPair = sendInitialMBOSnapshot(lastMsgSeqNumProcessed);
-//        assertNotNull(mdpFeedContextMdpPacketPair);
-//
-//        Pair<ChannelState, ChannelState> channelStateChannelStatePair = testChannelListener.nextChannelState();
-//        assertNotNull(channelStateChannelStatePair);
-//        assertEquals(ChannelState.INITIAL, channelStateChannelStatePair.getLeft());
-//        assertEquals(ChannelState.SYNC, channelStateChannelStatePair.getRight());
-//    }
+    @Test
+    public void itMustChangeItsStateAndBeReadyToWorkAfterSnapshot() throws InterruptedException {
+        assertNull(testChannelListener.getPrevSate());
+        assertNull(testChannelListener.getCurrentSate());
+        int lastMsgSeqNumProcessed = 1000;
+        Pair<MdpFeedContext, MdpPacket> mdpFeedContextMdpPacketPair = sendInitialMBOSnapshot(lastMsgSeqNumProcessed);
+        assertNotNull(mdpFeedContextMdpPacketPair);
+
+        assertEquals(ChannelState.INITIAL, testChannelListener.getPrevSate());
+        assertEquals(ChannelState.SYNC, testChannelListener.getCurrentSate());
+    }
 
     @Test
     public void duplicateMessagesWhichWereTakenFromBufferAndHaveSeqNumGreaterThanHighSnapshotSeqShouldBeIgnored() throws Exception {
@@ -155,16 +156,18 @@ public class GapChannelControllerTest {
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
         Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(bufferCapacity);
-        testRecoveryManager = new TestRecoveryManager();
+        testRecoveryManager = new TestSnapshotRecoveryManager();
         int gapThreshold = 3;
-        gapChannelController = new GapChannelController(testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes, new OffHeapMBOSnapshotCycleHandler());
+        gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener), testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes, new OffHeapMBOSnapshotCycleHandler(), null, null);
 
 
         int lastMsgSeqNumProcessed = 0;
         sendInitialMBOSnapshot(lastMsgSeqNumProcessed);
         final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(1));
+        gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(1));
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(2));
+        gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(4));
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(4));
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(5));
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(3));
@@ -254,19 +257,6 @@ public class GapChannelControllerTest {
         return mdpPacket;
     }
 
-    private class TestChannelListener implements VoidChannelListener {
-        private BlockingQueue<Pair<Integer, Long>> incrementalQueue = new LinkedBlockingQueue<>();
-        @Override
-        public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                            final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry){
-            incrementalQueue.add(new ImmutablePair<>(securityId, msgSeqNum));
-        }
-
-        public Pair<Integer, Long> nextPair() throws Exception {
-            return incrementalQueue.poll(WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
-        }
-    }
-
     private class TestChannelController implements ChannelController {
         private BlockingQueue<Pair<MdpFeedContext, MdpPacket>> snapshotQueue = new LinkedBlockingQueue<>();
         private BlockingQueue<Pair<MdpFeedContext, MdpPacket>> incrementalQueue = new LinkedBlockingQueue<>();
@@ -300,7 +290,7 @@ public class GapChannelControllerTest {
         }
     }
 
-    private class TestRecoveryManager implements GapChannelController.RecoveryManager{
+    private class TestSnapshotRecoveryManager implements GapChannelController.SnapshotRecoveryManager {
 
         @Override
         public void startRecovery() {
@@ -310,6 +300,36 @@ public class GapChannelControllerTest {
         @Override
         public void stopRecovery() {
             recoveryStarted = false;
+        }
+    }
+
+    private class TestMBOChannelListener implements VoidMBOChannelListener {
+        private ChannelState prevSate;
+        private ChannelState currentSate;
+        private BlockingQueue<Pair<Integer, Long>> incrementalQueue = new LinkedBlockingQueue<>();
+
+        @Override
+        public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
+                                            final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry){
+            incrementalQueue.add(new ImmutablePair<>(securityId, msgSeqNum));
+        }
+
+        public Pair<Integer, Long> nextPair() throws Exception {
+            return incrementalQueue.poll(WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
+        }
+
+        @Override
+        public void onChannelStateChanged(String channelId, ChannelState prevState, ChannelState newState) {
+            this.prevSate = prevState;
+            this.currentSate = newState;
+        }
+
+        public ChannelState getCurrentSate() {
+            return currentSate;
+        }
+
+        public ChannelState getPrevSate() {
+            return prevSate;
         }
     }
 }

@@ -221,6 +221,23 @@ public class ModelUtils {
         return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
     }
 
+    public static ByteBuffer getLogin(long sequence){
+        short bufferOffset = 0;
+        final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();
+        MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+        AdminLogin15Encoder loginEncoder = new AdminLogin15Encoder();
+        messageHeaderEncoder.wrap(mutableDirectBuffer, bufferOffset)
+                .blockLength(loginEncoder.sbeBlockLength())
+                .templateId(loginEncoder.sbeTemplateId())
+                .schemaId(loginEncoder.sbeSchemaId())
+                .version(loginEncoder.sbeSchemaVersion());
+        bufferOffset += messageHeaderEncoder.encodedLength();
+        loginEncoder.wrap(mutableDirectBuffer, bufferOffset);
+        loginEncoder.heartBtInt((byte)2);
+        bufferOffset += loginEncoder.encodedLength();
+        return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
+    }
+
     private static byte[] getMDPHeader(long sequence, long sendingTime){
         final NativeBytesStore mdpHeader = NativeBytesStore.nativeStoreWithFixedCapacity(MDP_HEADER_SIZE);
         mdpHeader.writeUnsignedInt(MESSAGE_SEQ_NUM_OFFSET, sequence);

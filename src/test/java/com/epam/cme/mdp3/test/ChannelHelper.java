@@ -1,14 +1,11 @@
 package com.epam.cme.mdp3.test;
 
-import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
-import com.epam.cme.mdp3.core.channel.MdpFeedException;
 import com.epam.cme.mdp3.sbe.message.SbeString;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypeBuildException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
