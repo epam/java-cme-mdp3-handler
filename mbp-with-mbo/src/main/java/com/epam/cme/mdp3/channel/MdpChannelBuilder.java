@@ -19,7 +19,6 @@ import com.epam.cme.mdp3.MdpChannel;
 import com.epam.cme.mdp3.core.cfg.Configuration;
 import com.epam.cme.mdp3.core.channel.MdpFeedWorker;
 import com.epam.cme.mdp3.core.channel.tcp.MdpTCPMessageRequester;
-import com.epam.cme.mdp3.core.control.InstrumentController;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypeBuildException;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.service.DefaultScheduledServiceHolder;
@@ -36,14 +35,11 @@ public class MdpChannelBuilder {
     private URI cfgURI;
     private URI schemaURI;
     private MdpMessageTypes mdpMessageTypes;
-
     private Map<FeedType, String> feedANetworkInterfaces = new HashMap<>();
     private Map<FeedType, String> feedBNetworkInterfaces = new HashMap<>();
-
     private ChannelListener channelListener;
     private boolean noScheduler = false;
     private ScheduledExecutorService scheduler;
-
     private int incrQueueSize = DEF_INCR_QUEUE_SIZE;
     private int gapThreshold = DEF_GAP_THRESHOLD;
     private int rcvBufSize = MdpFeedWorker.RCV_BUFFER_SIZE;
@@ -129,15 +125,11 @@ public class MdpChannelBuilder {
                 scheduler = DefaultScheduledServiceHolder.getScheduler();
             }
 
-            MdpChannel mdpChannel = new MbpMboMdpChannel(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes, queueSlotInitBufferSize,
-                    incrQueueSize, gapThreshold, mbpEnable, mboEnable, tcpUsername, tcpPassword);
-
-            mdpChannel.setNetworkInterfaces(Feed.A, feedANetworkInterfaces);
-            mdpChannel.setNetworkInterfaces(Feed.B, feedBNetworkInterfaces);
-            mdpChannel.setRcvBufSize(this.rcvBufSize);
+            MdpChannel mdpChannel = new MbpMboMdpChannel(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes,
+                     incrQueueSize, rcvBufSize, gapThreshold, tcpUsername, tcpPassword, feedANetworkInterfaces, feedBNetworkInterfaces);
 
             if (channelListener != null) mdpChannel.registerListener(channelListener);
-            if (mboChannelListener != null) mdpChannel.registerListener(mboChannelListener);
+
             return mdpChannel;
         } catch (Exception e) {
             throw new IllegalStateException("Failed to build MDP Channel", e);

@@ -13,7 +13,7 @@
 package com.epam.cme.mdp3.test;
 
 import com.epam.cme.mdp3.*;
-import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
+import com.epam.cme.mdp3.channel.MdpChannelBuilder;
 import com.epam.cme.mdp3.sbe.message.SbeDouble;
 import com.epam.cme.mdp3.sbe.message.SbeGroup;
 import org.slf4j.Logger;
@@ -24,7 +24,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static com.epam.cme.mdp3.MdConstants.SECURITY_ID;
-import static com.epam.cme.mdp3.mktdata.MdConstants.SECURITY_ID;
 
 public class MBOMain {
     private static final Logger logger = LoggerFactory.getLogger(MBOMain.class);
@@ -155,6 +154,16 @@ public class MBOMain {
             }
         }
 
+        @Override
+        public void onIncrementalRefresh(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet incrRefreshEntry) {
+
+        }
+
+        @Override
+        public void onSnapshotFullRefresh(String channelId, String secDesc, MdpMessage snptMessage) {
+
+        }
+
         private void updateBook(String instrumentId, long orderId, long mdOrderPriority, double mdEntryPx, long mdDisplayQty, int mdUpdateAction, char mdEntryType){
             if(!mboBook.containsKey(instrumentId)){
                 mboBook.put(instrumentId, new MBOBook());
@@ -211,15 +220,13 @@ public class MBOMain {
                 .setNetworkInterface(FeedType.S, Feed.A, networkInterface).setNetworkInterface(FeedType.S, Feed.B, networkInterface)
                 .setNetworkInterface(FeedType.I, Feed.A, networkInterface).setNetworkInterface(FeedType.I, Feed.B, networkInterface)
                 .setNetworkInterface(FeedType.N, Feed.A, networkInterface).setNetworkInterface(FeedType.N, Feed.B, networkInterface)
-                .mbpEnable(false)
-                .mboEnable(true)
-                .usingIncrQueueSize(15000)
+                .usingIncrQueueSize(MdpChannelBuilder.DEF_INCR_QUEUE_SIZE)
                 .usingScheduler(executorService)
                 .build();
         instruments.forEach(instrumentInfo -> mdpChannel.subscribe(instrumentInfo.instrumentId, instrumentInfo.desc));
-        mdpChannel.startIncrementalFeedA();
-        mdpChannel.startIncrementalFeedB();
-        mdpChannel.startSnapshotMBOFeedA();
+        mdpChannel.startFeed(FeedType.I, Feed.A);
+        mdpChannel.startFeed(FeedType.I, Feed.B);
+        mdpChannel.startFeed(FeedType.SMBO, Feed.A);
         return mdpChannel;
     }
 

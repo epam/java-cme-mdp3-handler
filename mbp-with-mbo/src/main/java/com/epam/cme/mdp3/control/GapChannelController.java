@@ -180,6 +180,10 @@ public class GapChannelController implements MdpChannelController {
         switchState(ChannelState.CLOSED);
     }
 
+    public ChannelState getState() {
+        return currentState;
+    }
+
     public interface SnapshotRecoveryManager {
         void startRecovery();
         void stopRecovery();

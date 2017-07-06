@@ -38,7 +38,7 @@ public class MBOChannelControllerRouterTest {
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(Constants.TEMPLATE_NAME).toURI());
         List<ChannelListener> listeners = Collections.singletonList(testListener);
         instrumentManager = new MdpInstrumentManager(channelId, listeners);
-        instrumentManager.registerSecurity(testSecurityId, secDesc, 0, (byte)0);
+        instrumentManager.registerSecurity(testSecurityId, secDesc);
         channelController = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes, Collections.singletonList(testListener));
     }
 
@@ -98,9 +98,9 @@ public class MBOChannelControllerRouterTest {
     public void controllerMustProcessMBOIncrementInMBPTemplate() throws Exception {
         int secId1 = 1, secId2 = 4, secId3 = 8;
         short ref1 = 2, ref2 = 3;
-        instrumentManager.registerSecurity(secId1, secDesc, 0, (byte)0);
-        instrumentManager.registerSecurity(secId2, secDesc, 0, (byte)0);
-        instrumentManager.registerSecurity(secId3, secDesc, 0, (byte)0);
+        instrumentManager.registerSecurity(secId1, secDesc);
+        instrumentManager.registerSecurity(secId2, secDesc);
+        instrumentManager.registerSecurity(secId3, secDesc);
         ByteBuffer mboIncrementTestMessage = ModelUtils.getMBPWithMBOIncrementTestMessage(1, new int[]{secId1, secId2, secId3}, new short[]{ref1, ref2});
         final MdpPacket mdpPacketWithIncrement = MdpPacket.instance();
         final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);

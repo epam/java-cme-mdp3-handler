@@ -10,21 +10,38 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.epam.cme.mdp3.control;
+package com.epam.cme.mdp3.test;
 
-import com.epam.cme.mdp3.MdpPacket;
-import com.epam.cme.mdp3.core.channel.MdpFeedContext;
+public class InstrumentInfo {
+    final int instrumentId;
+    final String desc;
 
-public class StubChannelController implements ChannelController {
-    @Override
-    public void handleSnapshotPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {}
-
-    @Override
-    public void handleIncrementalPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {}
-
-    @Override
-    public void preClose() {}
+    public InstrumentInfo(final int instrumentId, final String desc) {
+        this.instrumentId = instrumentId;
+        this.desc = desc;
+    }
 
     @Override
-    public void close() {}
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        InstrumentInfo that = (InstrumentInfo) o;
+
+        if (instrumentId != that.instrumentId) return false;
+        return desc.equals(that.desc);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = instrumentId;
+        result = 31 * result + desc.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Instrument{" + instrumentId + ", '" + desc + "'}";
+    }
 }

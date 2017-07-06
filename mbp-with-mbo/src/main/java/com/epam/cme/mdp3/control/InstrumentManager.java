@@ -15,6 +15,7 @@ package com.epam.cme.mdp3.control;
 
 public interface InstrumentManager {
     InstrumentController getMBOInstrumentController(int securityId);
-    void registerSecurity(int securityId, String secDesc, int subscriptionFlags, byte maxDepth);
+    void registerSecurity(int securityId, String secDesc);
     void discontinueSecurity(int securityId);
+    void updateSecDesc(int securityId, String secDesc);
 }

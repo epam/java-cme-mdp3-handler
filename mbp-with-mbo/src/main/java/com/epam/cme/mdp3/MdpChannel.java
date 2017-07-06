@@ -32,30 +32,6 @@ public interface MdpChannel {
      */
     void close();
 
-    /**
-     * Enables mode in which user application subscribed to all Securities with default Book Depth and Subscription options.
-     */
-    void enableAllSecuritiesMode();
-
-    /**
-     * Disabled mode in which user application subscribed to all Securities.
-     */
-    void disableAllSecuritiesMode();
-
-    /**
-     * Gets current value of Default Subscription Options.
-     *
-     * @return Default Subscription Options (bitset)
-     * @see MdEventFlags
-     */
-    int getDefSubscriptionOptions();
-
-    /**
-     * Sets new Default Subscription Options.
-     *
-     * @param defSubscriptionOptions Default Subscription Options
-     */
-    void setDefSubscriptionOptions(int defSubscriptionOptions);
 
     /**
      * Gets current State of the channel.

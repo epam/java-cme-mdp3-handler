@@ -23,7 +23,7 @@ public class InstrumentController {
     private List<ChannelListener> listeners;
     private final String channelId;
     private final int securityId;
-    private final String secDesc;
+    private String secDesc;
     private volatile boolean enable = true;
 
     public InstrumentController(List<ChannelListener> listeners, String channelId, int securityId, String secDesc) {
@@ -56,5 +56,9 @@ public class InstrumentController {
 
     public void disable(){
         enable = false;
+    }
+
+    public void updateSecDesc(String secDesc) {
+        this.secDesc = secDesc;
     }
 }

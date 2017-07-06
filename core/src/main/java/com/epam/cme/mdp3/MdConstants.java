@@ -17,6 +17,7 @@ public interface MdConstants {
 
     int LAST_MSG_SEQ_NUM_PROCESSED = 369;
     int SECURITY_ID = 48;
+    int SEC_DESC_TAG = 55;
     int RPT_SEQ_NUM = 83;
     int NO_MD_ENTRIES = 268;
     int INCR_RFRSH_MD_ENTRY_TYPE = 269;

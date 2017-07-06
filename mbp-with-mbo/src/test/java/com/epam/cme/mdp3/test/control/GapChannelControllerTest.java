@@ -62,8 +62,7 @@ public class GapChannelControllerTest {
     @Test
     public void duplicateMessagesWhichWereTakenFromBufferAndHaveSeqNumGreaterThanHighSnapshotSeqShouldBeIgnored() throws Exception {
         int instrument = 1, instrumentLastMsgSeqNumProcessed = 1, incrementSequence = 2;
-        byte ignored = 0;
-        instrumentManager.registerSecurity(instrument, "", ignored, ignored);
+        instrumentManager.registerSecurity(instrument, "");
 
         final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(incrementSequence, new int[]{instrument}, new short[]{1}));
@@ -83,8 +82,7 @@ public class GapChannelControllerTest {
     @Test
     public void duplicateMessagesWhichWereTakenFromBufferAndHaveSeqNumLessThanHighSnapshotSeqShouldBeIgnored() throws Exception {
         int instrument = 1, instrumentLastMsgSeqNumProcessed = 1, incrementSequence = 2;
-        byte ignored = 0;
-        instrumentManager.registerSecurity(instrument, "", ignored, ignored);
+        instrumentManager.registerSecurity(instrument, "");
 
         final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(incrementSequence, new int[]{instrument}, new short[]{1}));
@@ -110,7 +108,7 @@ public class GapChannelControllerTest {
         int instrument2 = 2, instrument2lastMsgSeqNumProcessed = 3, instrument2Sequence = 4;
 
         byte ignored = 0;
-        instrumentManager.registerSecurity(instrument1, "", ignored, ignored);
+        instrumentManager.registerSecurity(instrument1, "");
 
         final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
         gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(instrument1Sequence, new int[]{instrument1}, new short[]{1}));

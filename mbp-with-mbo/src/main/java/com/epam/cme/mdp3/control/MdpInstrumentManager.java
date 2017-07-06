@@ -39,7 +39,7 @@ public class MdpInstrumentManager implements InstrumentManager {
     }
 
     @Override
-    public void registerSecurity(int securityId, String secDesc, int subscriptionFlags, byte maxDepth) {
+    public void registerSecurity(int securityId, String secDesc) {
         InstrumentController instrumentController = instruments.get(securityId);
         if(instrumentController == null) {
             instruments.put(securityId, new InstrumentController(listeners, channelId, securityId, secDesc));
@@ -55,6 +55,16 @@ public class MdpInstrumentManager implements InstrumentManager {
             log.warn("discontinueSecurity method was called but there is no security with id '{}'", securityId);
         } else {
             instrumentController.disable();
+        }
+    }
+
+    @Override
+    public void updateSecDesc(int securityId, String secDesc) {
+        InstrumentController instrumentController = instruments.get(securityId);
+        if(instrumentController == null) {
+            log.warn("updateSecDesc method was called but there is no security with id '{}'", securityId);
+        } else {
+            instrumentController.updateSecDesc(secDesc);
         }
     }
 }

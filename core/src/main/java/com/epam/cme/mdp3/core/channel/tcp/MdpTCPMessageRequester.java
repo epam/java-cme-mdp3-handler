@@ -25,12 +25,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
-public class MdpTCPMessageRequester implements TCPMessageRequester {
+public class MdpTCPMessageRequester<T extends CoreChannelListener> implements TCPMessageRequester {
     private static final Logger logger = LoggerFactory.getLogger(MdpTCPChannel.class);
     public static final String DEFAULT_USERNAME = "CME";
     public static final String DEFAULT_PASSWORD = "CME";
     public final static int NUMBER_OF_SIZE_BYTES = 2;
-    private List<CoreChannelListener> coreChannelListeners;
+    private List<T> coreChannelListeners;
     private final MdpMessageTypes mdpMessageTypes;
     private final TCPChannel tcpChannel;
     private final static int REQUEST_TIMEOUT_IN_MSEC = 4000;
@@ -45,7 +45,7 @@ public class MdpTCPMessageRequester implements TCPMessageRequester {
     private volatile int requestCounter;
     private final String channelId;
 
-    public MdpTCPMessageRequester(String channelId, List<CoreChannelListener> coreChannelListeners, MdpMessageTypes mdpMessageTypes, TCPChannel tcpChannel, String username, String password) {
+    public MdpTCPMessageRequester(String channelId, List<T> coreChannelListeners, MdpMessageTypes mdpMessageTypes, TCPChannel tcpChannel, String username, String password) {
         this.channelId = channelId;
         this.coreChannelListeners = coreChannelListeners;
         this.mdpMessageTypes = mdpMessageTypes;

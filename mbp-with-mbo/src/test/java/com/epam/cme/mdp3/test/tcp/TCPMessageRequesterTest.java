@@ -44,7 +44,7 @@ public class TCPMessageRequesterTest {
         String channelId1 = "1";
         List<CoreChannelListener> mboListeners = Collections.emptyList();
 
-        messageRequester = new MdpTCPMessageRequester(channelId1, mboListeners, null, tcpChannel, MdpTCPMessageRequester.DEFAULT_USERNAME,
+        messageRequester = new MdpTCPMessageRequester<>(channelId1, mboListeners, null, tcpChannel, MdpTCPMessageRequester.DEFAULT_USERNAME,
                 MdpTCPMessageRequester.DEFAULT_PASSWORD);
     }
 
