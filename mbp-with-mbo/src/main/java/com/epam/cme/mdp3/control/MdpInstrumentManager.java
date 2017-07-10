@@ -34,7 +34,7 @@ public class MdpInstrumentManager implements InstrumentManager {
     }
 
     @Override
-    public InstrumentController getMBOInstrumentController(int securityId) {
+    public InstrumentController getInstrumentController(int securityId) {
         return instruments.get(securityId);
     }
 

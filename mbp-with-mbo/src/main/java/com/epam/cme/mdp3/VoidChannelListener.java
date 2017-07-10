@@ -60,7 +60,7 @@ public interface VoidChannelListener extends ChannelListener {
     }
 
     @Override
-    default void onIncrementalMBORefresh(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet orderEntry, FieldSet mdEntry) {
+    default void onIncrementalRefresh(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet orderEntry, FieldSet mdEntry) {
 
     }
 
@@ -70,12 +70,7 @@ public interface VoidChannelListener extends ChannelListener {
     }
 
     @Override
-    default void onIncrementalRefresh(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet incrRefreshEntry) {
-
-    }
-
-    @Override
-    default void onSnapshotFullRefresh(String channelId, String secDesc, MdpMessage snptMessage) {
+    default void onSnapshotMBPFullRefresh(String channelId, String secDesc, MdpMessage snptMessage) {
 
     }
 }

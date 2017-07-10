@@ -1,11 +1,8 @@
 package com.epam.cme.mdp3.test.control;
 
 import com.epam.cme.mdp3.*;
-import com.epam.cme.mdp3.control.ChannelControllerRouter;
-import com.epam.cme.mdp3.control.InstrumentManager;
-import com.epam.cme.mdp3.control.MdpInstrumentManager;
+import com.epam.cme.mdp3.control.*;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
-import com.epam.cme.mdp3.control.ChannelController;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.test.Constants;
 import com.epam.cme.mdp3.test.ModelUtils;
@@ -31,6 +28,7 @@ public class MBOChannelControllerRouterTest {
     private ChannelController channelController;
     private String secDesc = "for test";
     private InstrumentManager instrumentManager;
+    private TestInstrumentObserver instrumentObserver = new TestInstrumentObserver(channelId);
 
     @Before
     public void init() throws Exception {
@@ -39,17 +37,28 @@ public class MBOChannelControllerRouterTest {
         List<ChannelListener> listeners = Collections.singletonList(testListener);
         instrumentManager = new MdpInstrumentManager(channelId, listeners);
         instrumentManager.registerSecurity(testSecurityId, secDesc);
-        channelController = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes, Collections.singletonList(testListener));
+        channelController = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes,
+                Collections.singletonList(testListener), instrumentObserver, Collections.emptyList());
     }
 
     @Test
-    public void controllerMustProcessSnapshotMessageAndSendToClient() throws InterruptedException {
+    public void controllerMustProcessMBOSnapshotMessageAndSendToClient() throws InterruptedException {
         final MdpPacket mdpPacketWithSnapshot = MdpPacket.instance();
         final MdpFeedContext smboContext = new MdpFeedContext(Feed.A, FeedType.SMBO);
         ByteBuffer mboSnapshotTestMessage = ModelUtils.getMBOSnapshotTestMessage(1, testSecurityId);
         mdpPacketWithSnapshot.wrapFromBuffer(mboSnapshotTestMessage);
         channelController.handleSnapshotPacket(smboContext, mdpPacketWithSnapshot);
         assertNotNull(testListener.nextMBOSnapshotMessage());
+    }
+
+    @Test
+    public void controllerMustProcessMBPSnapshotMessageAndSendToClient() throws InterruptedException {
+        final MdpPacket mdpPacketWithSnapshot = MdpPacket.instance();
+        final MdpFeedContext smboContext = new MdpFeedContext(Feed.A, FeedType.SMBO);
+        ByteBuffer mboSnapshotTestMessage = ModelUtils.getMBPSnapshotTestMessage(1, testSecurityId);
+        mdpPacketWithSnapshot.wrapFromBuffer(mboSnapshotTestMessage);
+        channelController.handleSnapshotPacket(smboContext, mdpPacketWithSnapshot);
+        assertNotNull(testListener.nextMBPSnapshotMessage());
     }
 
     @Test
@@ -88,14 +97,14 @@ public class MBOChannelControllerRouterTest {
         ByteBuffer instrumentDefinitionTestMessage = ModelUtils.getMDInstrumentDefinitionFuture27(1, testSecurityId);
         mdpPacketWithInstrumentDefinition.wrapFromBuffer(instrumentDefinitionTestMessage);
         channelController.handleIncrementalPacket(incrementContext, mdpPacketWithInstrumentDefinition);
-        Pair<String,MdpMessage> securityMessagePair = testListener.nextSecurityMessage();
+        Pair<String,MdpMessage> securityMessagePair = instrumentObserver.nextSecurityMessage();
         assertNotNull(securityMessagePair);
         assertEquals(channelId, securityMessagePair.getLeft());
         assertEquals(SemanticMsgType.SecurityDefinition, securityMessagePair.getRight().getSemanticMsgType());
     }
 
     @Test
-    public void controllerMustProcessMBOIncrementInMBPTemplate() throws Exception {
+    public void controllerMustProcessMBO2and3IncrementInMBPTemplate() throws Exception {
         int secId1 = 1, secId2 = 4, secId3 = 8;
         short ref1 = 2, ref2 = 3;
         instrumentManager.registerSecurity(secId1, secDesc);
@@ -111,15 +120,114 @@ public class MBOChannelControllerRouterTest {
         TestChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
         assertNotNull(incrementalRefreshEntity);
         FieldSet orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        assertEquals(ref1, orderIDEntry.getUInt8(REFERENCE_ID));
         FieldSet mdEntry = incrementalRefreshEntity.getMdEntry();
+        assertNull(orderIDEntry);
+        assertNotNull(mdEntry);
+        assertEquals(secId1, mdEntry.getInt32(SECURITY_ID));
+
+        incrementalRefreshEntity = testListener.nextIncrementMessage();
+        assertNotNull(incrementalRefreshEntity);
+        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
+        mdEntry = incrementalRefreshEntity.getMdEntry();
+        assertNotNull(orderIDEntry);
+        assertNotNull(mdEntry);
+        assertEquals(secId2, mdEntry.getInt32(SECURITY_ID));
+        assertEquals(ref1, orderIDEntry.getUInt8(REFERENCE_ID));
+
+        incrementalRefreshEntity = testListener.nextIncrementMessage();
+        assertNotNull(incrementalRefreshEntity);
+        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
+        mdEntry = incrementalRefreshEntity.getMdEntry();
+        assertNotNull(orderIDEntry);
+        assertNotNull(mdEntry);
+        assertEquals(secId3, mdEntry.getInt32(SECURITY_ID));
+        assertEquals(ref2, orderIDEntry.getUInt8(REFERENCE_ID));
+
+        incrementalRefreshEntity = testListener.nextIncrementMessage();
+        assertNull(incrementalRefreshEntity);
+    }
+
+    @Test
+    public void controllerMustProcessMBO1and3IncrementInMBPTemplate() throws Exception {
+        int secId1 = 1, secId2 = 4, secId3 = 8;
+        short ref1 = 1, ref2 = 3;
+        instrumentManager.registerSecurity(secId1, secDesc);
+        instrumentManager.registerSecurity(secId2, secDesc);
+        instrumentManager.registerSecurity(secId3, secDesc);
+        ByteBuffer mboIncrementTestMessage = ModelUtils.getMBPWithMBOIncrementTestMessage(1, new int[]{secId1, secId2, secId3}, new short[]{ref1, ref2});
+        final MdpPacket mdpPacketWithIncrement = MdpPacket.instance();
+        final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
+        mdpPacketWithIncrement.wrapFromBuffer(mboIncrementTestMessage);
+
+        channelController.handleIncrementalPacket(incrementContext, mdpPacketWithIncrement);
+
+        TestChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
+        assertNotNull(incrementalRefreshEntity);
+        FieldSet orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
+        FieldSet mdEntry = incrementalRefreshEntity.getMdEntry();
+        assertNotNull(orderIDEntry);
+        assertNotNull(mdEntry);
+        assertEquals(secId1, mdEntry.getInt32(SECURITY_ID));
+        assertEquals(ref1, orderIDEntry.getUInt8(REFERENCE_ID));
+
+        incrementalRefreshEntity = testListener.nextIncrementMessage();
+        assertNotNull(incrementalRefreshEntity);
+        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
+        mdEntry = incrementalRefreshEntity.getMdEntry();
+        assertNull(orderIDEntry);
+        assertNotNull(mdEntry);
         assertEquals(secId2, mdEntry.getInt32(SECURITY_ID));
 
         incrementalRefreshEntity = testListener.nextIncrementMessage();
         assertNotNull(incrementalRefreshEntity);
         orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        assertEquals(ref2, orderIDEntry.getUInt8(REFERENCE_ID));
         mdEntry = incrementalRefreshEntity.getMdEntry();
+        assertNotNull(orderIDEntry);
+        assertNotNull(mdEntry);
+        assertEquals(secId3, mdEntry.getInt32(SECURITY_ID));
+        assertEquals(ref2, orderIDEntry.getUInt8(REFERENCE_ID));
+
+        incrementalRefreshEntity = testListener.nextIncrementMessage();
+        assertNull(incrementalRefreshEntity);
+    }
+
+    @Test
+    public void controllerMustProcessMBPWhenMBOEntitiesAreLess() throws Exception {
+        int secId1 = 1, secId2 = 4, secId3 = 8;
+        short ref1 = 1;
+        instrumentManager.registerSecurity(secId1, secDesc);
+        instrumentManager.registerSecurity(secId2, secDesc);
+        instrumentManager.registerSecurity(secId3, secDesc);
+        ByteBuffer mboIncrementTestMessage = ModelUtils.getMBPWithMBOIncrementTestMessage(1, new int[]{secId1, secId2, secId3}, new short[]{ref1});
+        final MdpPacket mdpPacketWithIncrement = MdpPacket.instance();
+        final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
+        mdpPacketWithIncrement.wrapFromBuffer(mboIncrementTestMessage);
+
+        channelController.handleIncrementalPacket(incrementContext, mdpPacketWithIncrement);
+
+        TestChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
+        assertNotNull(incrementalRefreshEntity);
+        FieldSet orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
+        FieldSet mdEntry = incrementalRefreshEntity.getMdEntry();
+        assertNotNull(orderIDEntry);
+        assertNotNull(mdEntry);
+        assertEquals(secId1, mdEntry.getInt32(SECURITY_ID));
+        assertEquals(ref1, orderIDEntry.getUInt8(REFERENCE_ID));
+
+        incrementalRefreshEntity = testListener.nextIncrementMessage();
+        assertNotNull(incrementalRefreshEntity);
+        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
+        mdEntry = incrementalRefreshEntity.getMdEntry();
+        assertNull(orderIDEntry);
+        assertNotNull(mdEntry);
+        assertEquals(secId2, mdEntry.getInt32(SECURITY_ID));
+
+        incrementalRefreshEntity = testListener.nextIncrementMessage();
+        assertNotNull(incrementalRefreshEntity);
+        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
+        mdEntry = incrementalRefreshEntity.getMdEntry();
+        assertNull(orderIDEntry);
+        assertNotNull(mdEntry);
         assertEquals(secId3, mdEntry.getInt32(SECURITY_ID));
 
         incrementalRefreshEntity = testListener.nextIncrementMessage();

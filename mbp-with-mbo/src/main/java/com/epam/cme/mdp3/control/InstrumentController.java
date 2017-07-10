@@ -37,15 +37,23 @@ public class InstrumentController {
         if(enable) {
             short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
             for (ChannelListener channelListener : listeners) {
-                channelListener.onIncrementalMBORefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry, mdEntry);
+                channelListener.onIncrementalRefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry, mdEntry);
             }
         }
     }
 
-    public void handleSnapshotMDEntry(MdpMessage mdpMessage){
+    public void handleMBOSnapshotMDEntry(MdpMessage mdpMessage){
         if(enable) {
             for (ChannelListener channelListener : listeners) {
                 channelListener.onSnapshotMBOFullRefresh(channelId, secDesc, mdpMessage);
+            }
+        }
+    }
+
+    public void handleMBPSnapshotMDEntry(MdpMessage mdpMessage){
+        if(enable) {
+            for (ChannelListener channelListener : listeners) {
+                channelListener.onSnapshotMBPFullRefresh(channelId, secDesc, mdpMessage);
             }
         }
     }

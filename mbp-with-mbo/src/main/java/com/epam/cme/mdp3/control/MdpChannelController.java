@@ -19,7 +19,6 @@ import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 
 public interface MdpChannelController extends ChannelController {
     int MBO_INCREMENT_MESSAGE_TEMPLATE_ID = 43;
-    int MBO_CONTAINS_INCREMENT_MESSAGE_TEMPLATE_ID = 32;
     int MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID = 44;
 
     default void updateSemanticMsgType(MdpMessageTypes mdpMessageTypes, MdpMessage mdpMessage) {
@@ -28,18 +27,9 @@ public interface MdpChannelController extends ChannelController {
         mdpMessage.setMessageType(messageType);
     }
 
-    default boolean isMessageSupported(MdpMessage mdpMessage){
+    default boolean isIncrementalMessageSupported(MdpMessage mdpMessage){
         SemanticMsgType semanticMsgType = mdpMessage.getSemanticMsgType();
-        int schemaId = mdpMessage.getSchemaId();
-        if(SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType)) {
-            return (MBO_INCREMENT_MESSAGE_TEMPLATE_ID == schemaId
-                    || (MBO_CONTAINS_INCREMENT_MESSAGE_TEMPLATE_ID == schemaId)
-            );
-        } else if(SemanticMsgType.MarketDataSnapshotFullRefresh.equals(semanticMsgType)){
-            return MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID == schemaId;
-        } else {
-            return false;
-        }
+        return SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType);
     }
 
     default boolean isIncrementOnlyForMBO(MdpMessage mdpMessage){
@@ -47,5 +37,10 @@ public interface MdpChannelController extends ChannelController {
         int schemaId = mdpMessage.getSchemaId();
         return SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType)
                 && MBO_INCREMENT_MESSAGE_TEMPLATE_ID == schemaId;
+    }
+
+    default boolean isMBOSnapshot(MdpMessage mdpMessage){
+        int schemaId = mdpMessage.getSchemaId();
+        return MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID == schemaId;
     }
 }

@@ -15,6 +15,7 @@ package com.epam.cme.mdp3.control;
 
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
+import com.epam.cme.mdp3.mktdata.enums.MDEntryType;
 import com.epam.cme.mdp3.sbe.message.SbeGroup;
 import com.epam.cme.mdp3.sbe.message.SbeGroupEntry;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
@@ -22,32 +23,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.Consumer;
+
+import static com.epam.cme.mdp3.MdConstants.INCR_RFRSH_MD_ENTRY_TYPE;
 
 public class ChannelControllerRouter implements MdpChannelController {
     private static final Logger logger = LoggerFactory.getLogger(ChannelControllerRouter.class);
     private final InstrumentManager instrumentManager;
-    private final MdpMessageTypes mdpMessageTypes;
     private final MdpGroupEntry mdEntry = SbeGroupEntry.instance();
     private final MdpGroup noMdEntriesGroup = SbeGroup.instance();
+    private MdpMessageTypes mdpMessageTypes;
     private final List<ChannelListener> channelListeners;
+    private final InstrumentObserver instrumentObserver;
+    private final List<Consumer<MdpMessage>> emptyBookConsumers;
     private final String channelId;
 
-    public ChannelControllerRouter(String channelId, InstrumentManager instrumentManager, MdpMessageTypes mdpMessageTypes, List<ChannelListener> channelListeners){
+    public ChannelControllerRouter(String channelId, InstrumentManager instrumentManager,
+                                   MdpMessageTypes mdpMessageTypes, List<ChannelListener> channelListeners,
+                                   InstrumentObserver instrumentObserver, List<Consumer<MdpMessage>> emptyBookConsumers){
         this.channelId = channelId;
         this.instrumentManager = instrumentManager;
         this.mdpMessageTypes = mdpMessageTypes;
         this.channelListeners = channelListeners;
+        this.instrumentObserver = instrumentObserver;
+        this.emptyBookConsumers = emptyBookConsumers;
     }
 
     @Override
     public void handleSnapshotPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {
         for (MdpMessage mdpMessage : mdpPacket) {
             updateSemanticMsgType(mdpMessageTypes, mdpMessage);
-            if (isMessageSupported(mdpMessage)) {
-                int securityId = getSecurityId(mdpMessage);
-                InstrumentController instrumentController = instrumentManager.getMBOInstrumentController(securityId);
-                if (instrumentController != null) {
-                    instrumentController.handleSnapshotMDEntry(mdpMessage);
+            int securityId = getSecurityId(mdpMessage);
+            InstrumentController instrumentController = instrumentManager.getInstrumentController(securityId);
+            if (instrumentController != null) {
+                if (isMBOSnapshot(mdpMessage)) {
+                    instrumentController.handleMBOSnapshotMDEntry(mdpMessage);
+                } else {
+                    instrumentController.handleMBPSnapshotMDEntry(mdpMessage);
                 }
             }
         }
@@ -72,12 +84,11 @@ public class ChannelControllerRouter implements MdpChannelController {
                     handleSecurityStatus(mdpMessage);
                     break;
                 case SecurityDefinition:
-                    handleSecurityDefinition(mdpMessage);
+                    instrumentObserver.onMessage(feedContext, mdpMessage);
                     break;
                 default:
                     logger.debug("Message has been ignored due to its SemanticMsgType '{}'", semanticMsgType);
             }
-
         }
     }
 
@@ -92,14 +103,14 @@ public class ChannelControllerRouter implements MdpChannelController {
     }
 
     protected void routeEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
-        InstrumentController instrumentController = instrumentManager.getMBOInstrumentController(securityId);
+        InstrumentController instrumentController = instrumentManager.getInstrumentController(securityId);
         if (instrumentController != null) {
             instrumentController.handleIncrementMDEntry(mdpMessage, orderIDEntry, mdEntry, msgSeqNum);
         }
     }
 
     private void handleIncrementalMessage(MdpMessage mdpMessage, MdpGroup mdpGroup, MdpGroupEntry mdpGroupEntry, long msgSeqNum){
-        if (isMessageSupported(mdpMessage)) {
+        if (isIncrementalMessageSupported(mdpMessage)) {
             if (isIncrementOnlyForMBO(mdpMessage)) {
                 mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, mdpGroup);
                 while (mdpGroup.hashNext()) {
@@ -109,18 +120,51 @@ public class ChannelControllerRouter implements MdpChannelController {
                     routeEntry(securityId, mdpMessage, mdpGroupEntry, null, msgSeqNum);
                 }
             } else {
-                if (mdpMessage.getGroup(MdConstants.NO_ORDER_ID_ENTRIES, mdpGroup)) {
-                    while (mdpGroup.hashNext()) {
-                        mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, noMdEntriesGroup);
-                        mdpGroup.next();
-                        mdpGroup.getEntry(mdpGroupEntry);
-                        short entryNum = mdpGroupEntry.getUInt8(MdConstants.REFERENCE_ID);
-                        noMdEntriesGroup.getEntry(entryNum, mdEntry);
-                        int securityId = mdEntry.getInt32(MdConstants.SECURITY_ID);
-                        routeEntry(securityId, mdpMessage, mdpGroupEntry, mdEntry, msgSeqNum);
+                if (mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, noMdEntriesGroup)) {
+                    boolean hasOrderEntries = mdpMessage.getGroup(MdConstants.NO_ORDER_ID_ENTRIES, mdpGroup)
+                            && isOrderEntityContainsReference(mdpGroup, mdpGroupEntry);
+                    short mdEntryPosition = 0;
+                    short orderIDEntryPosition = 1;
+                    MdpGroupEntry orderEntry;
+                    while (noMdEntriesGroup.hashNext()) {
+                        noMdEntriesGroup.next();
+                        noMdEntriesGroup.getEntry(mdEntry);
+                        if(hasOrderEntries && orderIDEntryPosition <= mdpGroup.getNumInGroup()) {
+                            mdEntryPosition++;
+                            mdpGroup.getEntry(orderIDEntryPosition, mdpGroupEntry);
+                            short entryNum = mdpGroupEntry.getUInt8(MdConstants.REFERENCE_ID);
+                            if(mdEntryPosition == entryNum) {
+                                orderEntry = mdpGroupEntry;
+                                orderIDEntryPosition++;
+                            } else {
+                                orderEntry = null;
+                            }
+                        } else {
+                            orderEntry = null;
+                        }
+                        final MDEntryType mdEntryType = MDEntryType.fromFIX(mdEntry.getChar(INCR_RFRSH_MD_ENTRY_TYPE));
+                        if (mdEntryType == MDEntryType.EmptyBook) {
+                            emptyBookConsumers.forEach(mdpMessageConsumer -> mdpMessageConsumer.accept(mdpMessage));
+                        } else {
+                            int securityId = mdEntry.getInt32(MdConstants.SECURITY_ID);
+                            routeEntry(securityId, mdpMessage, orderEntry, mdEntry, msgSeqNum);
+                        }
                     }
                 }
             }
+        }
+    }
+
+    /**
+     *
+     * @return true if it is not TradeSummary order entity
+     */
+    private boolean isOrderEntityContainsReference(MdpGroup mdpGroup, MdpGroupEntry mdpGroupEntry){
+        if(mdpGroup.hashNext()) {
+            mdpGroup.getEntry(1, mdpGroupEntry);
+            return mdpGroupEntry.hasField(MdConstants.REFERENCE_ID);
+        } else {
+            return false;
         }
     }
 
@@ -134,12 +178,6 @@ public class ChannelControllerRouter implements MdpChannelController {
         int securityId = getSecurityId(mdpMessage);
         for (ChannelListener listener : channelListeners) {
             listener.onSecurityStatus(channelId, securityId, mdpMessage);
-        }
-    }
-
-    private void handleSecurityDefinition(MdpMessage mdpMessage){
-        for (ChannelListener listener : channelListeners) {
-            listener.onSecurityDefinition(channelId, mdpMessage);
         }
     }
 

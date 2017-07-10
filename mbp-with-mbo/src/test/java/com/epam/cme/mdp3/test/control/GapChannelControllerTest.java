@@ -42,8 +42,10 @@ public class GapChannelControllerTest {
         testChannelListener = new TestChannelListener();
         List<ChannelListener> mboChannelListeners = Collections.singletonList(testChannelListener);
         instrumentManager = new MdpInstrumentManager("TEST", mboChannelListeners);
-        ChannelController targetForBuffered = new BufferedMessageRouter(testChannelId, instrumentManager, mdpMessageTypes, mboChannelListeners, mboSnapshotCycleHandler);
-        gapChannelController = new GapChannelController(mboChannelListeners, testChannelController, targetForBuffered, testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes, mboSnapshotCycleHandler, null, null);
+        ChannelController targetForBuffered = new BufferedMessageRouter(testChannelId, instrumentManager, mdpMessageTypes,
+                mboChannelListeners, mboSnapshotCycleHandler, new TestInstrumentObserver(testChannelId), Collections.emptyList());
+        gapChannelController = new GapChannelController(mboChannelListeners, testChannelController, targetForBuffered,
+                testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes, mboSnapshotCycleHandler, mboSnapshotCycleHandler,null, null);
 
     }
 
@@ -154,7 +156,8 @@ public class GapChannelControllerTest {
         Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestSnapshotRecoveryManager();
         int gapThreshold = 3;
-        gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener), testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes, new OffHeapSnapshotCycleHandler(), null, null);
+        OffHeapSnapshotCycleHandler cycleHandler = new OffHeapSnapshotCycleHandler();
+        gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener), testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes, cycleHandler, cycleHandler, null, null);
 
 
         int lastMsgSeqNumProcessed = 0;

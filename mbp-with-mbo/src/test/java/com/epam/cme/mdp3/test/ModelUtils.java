@@ -16,6 +16,10 @@ public class ModelUtils {
         return getMBOSnapshotTestMessage(sequence, securityId, 100, 1, 1, 1);
     }
 
+    public static ByteBuffer getMBPSnapshotTestMessage(long sequence, int securityId) {
+        return getMBPSnapshotTestMessage(sequence, securityId, 100, 1);
+    }
+
     public static ByteBuffer getMBOOnlyIncrementWith12TestEntries(long sequence, int securityId){
         short bufferOffset = 0;
         final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();
@@ -160,6 +164,32 @@ public class ModelUtils {
         PRICEEncoder priceEncoder = noMDEntriesEncoder.mDEntryPx();
         priceEncoder.mantissa(5);
         bufferOffset += snapshotFullRefreshOrderBook44Encoder.encodedLength();
+        return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
+    }
+
+    public static ByteBuffer getMBPSnapshotTestMessage(long sequence, int securityId, long lastMsgSeqNumProcessed, long totNumReports){
+        short bufferOffset = 0;
+        final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();
+        MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+        SnapshotFullRefresh38Encoder snapshotFullRefresh38Encoder = new SnapshotFullRefresh38Encoder();
+        messageHeaderEncoder.wrap(mutableDirectBuffer, bufferOffset)
+                .blockLength(snapshotFullRefresh38Encoder.sbeBlockLength())
+                .templateId(snapshotFullRefresh38Encoder.sbeTemplateId())
+                .schemaId(snapshotFullRefresh38Encoder.sbeSchemaId())
+                .version(snapshotFullRefresh38Encoder.sbeSchemaVersion());
+        bufferOffset += messageHeaderEncoder.encodedLength();
+
+        snapshotFullRefresh38Encoder.wrap(mutableDirectBuffer, bufferOffset)
+                .totNumReports(totNumReports)
+                .lastMsgSeqNumProcessed(lastMsgSeqNumProcessed)
+                .securityID(securityId);
+        SnapshotFullRefresh38Encoder.NoMDEntriesEncoder noMDEntriesEncoder = snapshotFullRefresh38Encoder.noMDEntriesCount(1)
+                .next()
+                .mDEntrySize(10)
+                .mDPriceLevel((byte)1);
+        PRICENULLEncoder pricenullEncoder = noMDEntriesEncoder.mDEntryPx();
+        pricenullEncoder.mantissa(5);
+        bufferOffset += snapshotFullRefresh38Encoder.encodedLength();
         return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
     }
 

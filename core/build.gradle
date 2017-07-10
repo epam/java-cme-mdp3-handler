@@ -9,6 +9,10 @@ repositories {
     mavenCentral()
 }
 
+jar {
+    baseName 'b2bits-jmdp3-core'
+}
+
 dependencies {
     compile group: 'net.openhft', name: 'chronicle-bytes', version: '1.7.17'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'

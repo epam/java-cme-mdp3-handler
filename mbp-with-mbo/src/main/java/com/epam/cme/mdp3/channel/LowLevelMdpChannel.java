@@ -39,9 +39,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
-public class MbpMboMdpChannel implements MdpChannel {
-    private static final Logger logger = LoggerFactory.getLogger(MbpMboMdpChannel.class);
+public class LowLevelMdpChannel implements MdpChannel {
+    private static final Logger logger = LoggerFactory.getLogger(LowLevelMdpChannel.class);
 
     private static final int FEED_IDLE_CHECK_DELAY = 100;
     private static final TimeUnit FEED_IDLE_CHECK_DELAY_UNIT = TimeUnit.SECONDS;
@@ -61,18 +62,18 @@ public class MbpMboMdpChannel implements MdpChannel {
     private volatile long lastIncrPcktReceived = 0;
     private final InstrumentManager instrumentManager;
     private final MdpMessageTypes mdpMessageTypes;
-    private final InstrumentObserver instrumentObserver = new InstrumentObserver();
+    private final InstrumentObserver instrumentObserver = new InstrumentObserverImpl();
 
-    MbpMboMdpChannel(final ScheduledExecutorService scheduledExecutorService,
-                     final ChannelCfg channelCfg,
-                     final MdpMessageTypes mdpMessageTypes,
-                     final int incrQueueSize,
-                     final int rcvBufSize,
-                     final int gapThreshold,
-                     final String tcpUsername,
-                     final String tcpPassword,
-                     final Map<FeedType, String> feedANetworkInterfaces,
-                     final Map<FeedType, String> feedBNetworkInterfaces) {
+    LowLevelMdpChannel(final ScheduledExecutorService scheduledExecutorService,
+                       final ChannelCfg channelCfg,
+                       final MdpMessageTypes mdpMessageTypes,
+                       final int incrQueueSize,
+                       final int rcvBufSize,
+                       final int gapThreshold,
+                       final String tcpUsername,
+                       final String tcpPassword,
+                       final Map<FeedType, String> feedANetworkInterfaces,
+                       final Map<FeedType, String> feedBNetworkInterfaces) {
         this.scheduledExecutorService = scheduledExecutorService;
         this.channelCfg = channelCfg;
         this.rcvBufSize = rcvBufSize;
@@ -82,14 +83,19 @@ public class MbpMboMdpChannel implements MdpChannel {
         String channelId = channelCfg.getId();
         instrumentManager = new MdpInstrumentManager(channelId, listeners);
         Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(incrQueueSize);
-        ChannelController target = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes, listeners);
-        SnapshotCycleHandler cycleHandler = new OffHeapSnapshotCycleHandler();
-        ChannelController targetForBuffered = new BufferedMessageRouter(channelId, instrumentManager, mdpMessageTypes, listeners, cycleHandler);
+        List<Consumer<MdpMessage>> emptyBookConsumers = new ArrayList<>();
+        ChannelController target = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes, listeners,
+                instrumentObserver, emptyBookConsumers);
+        SnapshotCycleHandler mboCycleHandler = new OffHeapSnapshotCycleHandler();
+        SnapshotCycleHandler mbpCycleHandler = new OffHeapSnapshotCycleHandler();
+        ChannelController targetForBuffered = new BufferedMessageRouter(channelId, instrumentManager, mdpMessageTypes,
+                listeners, mboCycleHandler, instrumentObserver, emptyBookConsumers);
         ConnectionCfg connectionCfg = channelCfg.getConnectionCfg(FeedType.H, Feed.A);
         TCPChannel tcpChannel = new MdpTCPChannel(connectionCfg);
         TCPMessageRequester tcpMessageRequester = new MdpTCPMessageRequester<>(channelId, listeners, mdpMessageTypes, tcpChannel, tcpUsername, tcpPassword);
         this.channelController = new GapChannelController(listeners, target, targetForBuffered, getRecoveryManager(), buffer, gapThreshold,
-                channelId, mdpMessageTypes, cycleHandler, scheduledExecutorService, tcpMessageRequester);
+                channelId, mdpMessageTypes, mboCycleHandler, mbpCycleHandler, scheduledExecutorService, tcpMessageRequester);
+        emptyBookConsumers.add(channelController);
         if (scheduledExecutorService != null) initChannelStateThread();
     }
 
@@ -297,11 +303,13 @@ public class MbpMboMdpChannel implements MdpChannel {
         };
     }
 
-    private class InstrumentObserver {
+    private class InstrumentObserverImpl implements InstrumentObserver {
         private static final int PRCD_MSG_COUNT_NULL = Integer.MAX_VALUE;   // max value used as undefined (null)
         private static final int INSTRUMENT_CYCLES_MAX = 2; // do we need an option in configuration for this?
         private AtomicInteger msgCountDown = new AtomicInteger(PRCD_MSG_COUNT_NULL);
+        private final SbeString strValObj = SbeString.allocate(256);
 
+        @Override
         public void onPacket(final MdpFeedContext feedContext, final MdpPacket instrumentPacket) {
             final Iterator<MdpMessage> mdpMessageIterator = instrumentPacket.iterator();
             MdpMessage mdpMessage;
@@ -316,15 +324,18 @@ public class MbpMboMdpChannel implements MdpChannel {
             }
         }
 
-        private void onMessage(final MdpFeedContext feedContext, final MdpMessage secDefMsg) {
+        @Override
+        public void onMessage(final MdpFeedContext feedContext, final MdpMessage secDefMsg) {
             final int subscriptionFlags = notifySecurityDefinitionListeners(secDefMsg);
             final int securityId = secDefMsg.getInt32(MdConstants.SECURITY_ID);
+            if(logger.isDebugEnabled()) {
+                logger.debug("Subscription flags for channel '{}' and instrument '{}' are '{}'", getId(), securityId, subscriptionFlags);
+            }
             String secDesc = null;
-            final SbeString strValObj = feedContext.getStrValObj();
             if(secDefMsg.getString(MdConstants.SEC_DESC_TAG, strValObj)) {
                 secDesc = strValObj.getString();
             }
-            if (!MdEventFlags.hasMessage(subscriptionFlags)) {
+            if (MdEventFlags.hasMessage(subscriptionFlags)) {
                 instrumentManager.registerSecurity(securityId, secDesc);
             } else {
                 instrumentManager.updateSecDesc(securityId, secDesc);

@@ -75,7 +75,7 @@ public class SnapshotCycleHandlerTest {
         assertEquals(lastMsgSeqNumProcessed, cycleHandler.getSmallestSnapshotSequence());
     }
 
-    @Ignore
+    @Ignore("We don't need to do it")
     @Test
     public void metaDataMustBeRebuiltIfItContainsDifferentSequences(){
         long totNumReports = 2;
@@ -120,7 +120,7 @@ public class SnapshotCycleHandlerTest {
         assertEquals(lastMsgSeqNumProcessed, cycleHandler.getSmallestSnapshotSequence());
     }
 
-    @Ignore
+    @Ignore("We don't need to do it")
     @Test
     public void itMustResetMetadataAndWorkCorrectlyInCaseWhenTotalChunkWasDecreased(){
         long totNumReports = 2;
@@ -148,7 +148,7 @@ public class SnapshotCycleHandlerTest {
         assertEquals(lastMsgSeqNumProcessed, cycleHandler.getSmallestSnapshotSequence());
     }
 
-    @Ignore
+    @Ignore("We don't need to do it")
     @Test
     public void itMustResetMetadataAndWorkCorrectlyInCaseWhenTotalChunkWasIncreased(){
         int securityId1 = 10;

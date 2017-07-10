@@ -10,29 +10,13 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.epam.cme.mdp3.mktdata.mbo;
+package com.epam.cme.mdp3.control;
 
-import com.epam.cme.mdp3.mktdata.Price;
+import com.epam.cme.mdp3.MdpMessage;
+import com.epam.cme.mdp3.MdpPacket;
+import com.epam.cme.mdp3.core.channel.MdpFeedContext;
 
-import java.util.Iterator;
-import java.util.TreeSet;
-
-public interface OrderBook {
-    int getSecurityId();
-
-    byte getDepth();
-
-    TreeSet<OrderEntity> getBids(Price price);
-
-    TreeSet<OrderEntity> getOffers(Price price);
-
-    OrderEntity getBid(long orderId);
-
-    OrderEntity getOffer(long orderId);
-
-    int getBidPosition(long orderId);
-
-    int getOfferPosition(long orderId);
-
-    Iterator<TreeSet<OrderEntity>> iterator();
+public interface InstrumentObserver {
+    void onPacket(final MdpFeedContext feedContext, final MdpPacket instrumentPacket);
+    void onMessage(final MdpFeedContext feedContext, final MdpMessage secDefMsg);
 }

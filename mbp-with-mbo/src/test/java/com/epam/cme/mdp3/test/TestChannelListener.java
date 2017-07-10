@@ -15,6 +15,7 @@ public class TestChannelListener implements ChannelListener {
     private ChannelState currentSate;
     private BlockingQueue<IncrementalRefreshEntity> incrementQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<String,MdpMessage>> mboSnapshotQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<Pair<String,MdpMessage>> mbpSnapshotQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<String,MdpMessage>> securitiesQueue = new LinkedBlockingQueue<>();
 
     @Override
@@ -55,9 +56,9 @@ public class TestChannelListener implements ChannelListener {
     }
 
     @Override
-    public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
+    public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, final int securityId,
                                  final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
-        incrementQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry.copy(), mdEntry != null ? mdEntry.copy() : null));
+        incrementQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry != null ? orderIDEntry.copy() : null, mdEntry != null ? mdEntry.copy() : null));
     }
 
     @Override
@@ -66,13 +67,8 @@ public class TestChannelListener implements ChannelListener {
     }
 
     @Override
-    public void onIncrementalRefresh(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet incrRefreshEntry) {
-
-    }
-
-    @Override
-    public void onSnapshotFullRefresh(String channelId, String secDesc, MdpMessage snptMessage) {
-
+    public void onSnapshotMBPFullRefresh(String channelId, String secDesc, MdpMessage snptMessage) {
+        mbpSnapshotQueue.add(new ImmutablePair<>(channelId, snptMessage.copy()));
     }
 
     @Override
@@ -87,6 +83,10 @@ public class TestChannelListener implements ChannelListener {
 
     public Pair<String,MdpMessage> nextMBOSnapshotMessage() throws InterruptedException {
         return mboSnapshotQueue.poll(Constants.WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
+    }
+
+    public Pair<String,MdpMessage> nextMBPSnapshotMessage() throws InterruptedException {
+        return mbpSnapshotQueue.poll(Constants.WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     public Pair<String,MdpMessage> nextSecurityMessage() throws InterruptedException {

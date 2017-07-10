@@ -18,13 +18,15 @@ import com.epam.cme.mdp3.MdpMessage;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BufferedMessageRouter extends ChannelControllerRouter {
     private SnapshotCycleHandler cycleHandler;
 
     public BufferedMessageRouter(String channelId, InstrumentManager instrumentManager, MdpMessageTypes mdpMessageTypes,
-                                 List<ChannelListener> channelListeners, SnapshotCycleHandler cycleHandler) {
-        super(channelId, instrumentManager, mdpMessageTypes, channelListeners);
+                                 List<ChannelListener> channelListeners, SnapshotCycleHandler cycleHandler,
+                                 InstrumentObserver instrumentObserver, List<Consumer<MdpMessage>> emptyBookConsumers) {
+        super(channelId, instrumentManager, mdpMessageTypes, channelListeners, instrumentObserver, emptyBookConsumers);
         this.cycleHandler = cycleHandler;
     }
 

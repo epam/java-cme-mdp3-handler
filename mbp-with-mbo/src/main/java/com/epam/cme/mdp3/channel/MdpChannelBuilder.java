@@ -125,7 +125,7 @@ public class MdpChannelBuilder {
                 scheduler = DefaultScheduledServiceHolder.getScheduler();
             }
 
-            MdpChannel mdpChannel = new MbpMboMdpChannel(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes,
+            MdpChannel mdpChannel = new LowLevelMdpChannel(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes,
                      incrQueueSize, rcvBufSize, gapThreshold, tcpUsername, tcpPassword, feedANetworkInterfaces, feedBNetworkInterfaces);
 
             if (channelListener != null) mdpChannel.registerListener(channelListener);

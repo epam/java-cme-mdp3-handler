@@ -27,7 +27,7 @@ public interface ChannelListener extends CoreChannelListener {
      * @param orderEntry          MBO Entry of Group from MDP Incremental Refresh Message
      * @param mdEntry             MBP Entry of Group from MDP Incremental Refresh Message. It can be null when MBO Incremental Refresh is received in separated template.
      */
-    void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
+    void onIncrementalRefresh(final String channelId, final short matchEventIndicator, final int securityId,
                                          final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry);
 
     /**
@@ -40,24 +40,12 @@ public interface ChannelListener extends CoreChannelListener {
     void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage);
 
     /**
-     * Called when MDP Incremental Refresh Message is received and Security-related entry is processed.
-     *
-     * @param channelId           ID of MDP Channel
-     * @param matchEventIndicator MDP Event indicator (bitset, @see <a href="http://www.cmegroup.com/confluence/display/EPICSANDBOX/MDP+3.0+-+Market+Data+Incremental+Refresh">MDP 3.0 - Market Data Incremental Refresh</a>)
-     * @param secDesc             Security description
-     * @param msgSeqNum           Message sequence number
-     * @param securityId          Security ID
-     * @param incrRefreshEntry    Entry of Group from MDP Incremental Refresh Message
-     */
-    void onIncrementalRefresh(final String channelId, final short matchEventIndicator, final int securityId, final String secDesc, final long msgSeqNum, final FieldSet incrRefreshEntry);
-
-    /**
      * Called when MDP Snapshot Full Refresh Message is received and processed.
      *
      * @param channelId   ID of MDP Channel
      * @param secDesc     Security description
-     * @param snptMessage MDP Snapshot Full Refresh Message
+     * @param snptMessage MDP Snapshot Full Refresh Message for MBP
      */
-    void onSnapshotFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage);
+    void onSnapshotMBPFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage);
 
 }

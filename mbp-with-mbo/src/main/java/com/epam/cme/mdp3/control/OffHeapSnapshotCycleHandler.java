@@ -38,9 +38,10 @@ public class OffHeapSnapshotCycleHandler implements SnapshotCycleHandler {
     }
 
     @Override
-    public void update(long totNumReports, long lastMsgSeqNumProcessed, int securityId, long noChunks, long currentChunk){
+    public void update(long totNumReports, long lastMsgSeqNumProcessed, int securityId, long noChunks, long currentChunk) {
         if(currentChunk > noChunks) {
             logger.error("Current chunk number '{}' is more than noChunks number '{}' for securityId '{}'", currentChunk, noChunks, securityId);
+            return;
         }
         if(dataSize != totNumReports){
             dataSize = (int)totNumReports;
@@ -60,7 +61,7 @@ public class OffHeapSnapshotCycleHandler implements SnapshotCycleHandler {
 
         LongArray currentArray = securityIdMetaData.getValue();
         if(securityIdMetaData.getKey() != noChunks) {
-            if(currentArray.getLength() < noChunks){
+            if(currentArray.getLength() < noChunks) {
                 currentArray.reInit(noChunks);
             }
             securityIdMetaData.setKey(noChunks);
@@ -95,9 +96,9 @@ public class OffHeapSnapshotCycleHandler implements SnapshotCycleHandler {
                     if(seq != SNAPSHOT_SEQUENCE_UNDEFINED){
                         if(result == SNAPSHOT_SEQUENCE_UNDEFINED) {
                             result = seq;
-                        } else if(highest && seq > result){
+                        } else if(highest && seq > result) {
                             result = seq;
-                        } else if(!highest && seq < result){
+                        } else if(!highest && seq < result) {
                             result = seq;
                         }
                     } else {

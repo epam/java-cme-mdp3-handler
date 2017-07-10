@@ -24,8 +24,9 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
-public class GapChannelController implements MdpChannelController {
+public class GapChannelController implements MdpChannelController, Consumer<MdpMessage> {
     private static final Logger log = LoggerFactory.getLogger(GapChannelController.class);
     public static final int MAX_NUMBER_OF_TCP_ATTEMPTS = 3;
     private final Lock lock = new ReentrantLock();
@@ -35,10 +36,12 @@ public class GapChannelController implements MdpChannelController {
     private final ChannelController target;
     private final ChannelController targetForBuffered;
     private final String channelId;
-    private final SnapshotCycleHandler cycleHandler;
+    private final SnapshotCycleHandler mboCycleHandler;
+    private final SnapshotCycleHandler mbpCycleHandler;
     private long lastProcessedSeqNum;
     private long smallestSnapshotSequence;
     private long highestSnapshotSequence;
+    private boolean wasChannelResetInPrcdPacket;
     private ChannelState currentState = ChannelState.INITIAL;
     private MdpMessageTypes mdpMessageTypes;
     private boolean receivingCycle = false;
@@ -49,8 +52,11 @@ public class GapChannelController implements MdpChannelController {
 
 
 
-    public GapChannelController(List<ChannelListener> channelListeners, ChannelController target, ChannelController targetForBuffered, SnapshotRecoveryManager snapshotRecoveryManager, Buffer<MdpPacket> buffer,
-                                int gapThreshold, String channelId, MdpMessageTypes mdpMessageTypes, SnapshotCycleHandler cycleHandler, ScheduledExecutorService executor, TCPMessageRequester tcpMessageRequester) {
+    public GapChannelController(List<ChannelListener> channelListeners, ChannelController target,
+                                ChannelController targetForBuffered, SnapshotRecoveryManager snapshotRecoveryManager,
+                                Buffer<MdpPacket> buffer, int gapThreshold, String channelId, MdpMessageTypes mdpMessageTypes,
+                                SnapshotCycleHandler mboCycleHandler, SnapshotCycleHandler mbpCycleHandler,
+                                ScheduledExecutorService executor, TCPMessageRequester tcpMessageRequester) {
         this.channelListeners = channelListeners;
         this.buffer = buffer;
         this.snapshotRecoveryManager = snapshotRecoveryManager;
@@ -58,7 +64,8 @@ public class GapChannelController implements MdpChannelController {
         this.gapThreshold = gapThreshold;
         this.channelId = channelId;
         this.mdpMessageTypes = mdpMessageTypes;
-        this.cycleHandler = cycleHandler;
+        this.mboCycleHandler = mboCycleHandler;
+        this.mbpCycleHandler = mbpCycleHandler;
         this.targetForBuffered = targetForBuffered;
         this.executor = executor;
         if(tcpMessageRequester != null) {
@@ -78,11 +85,19 @@ public class GapChannelController implements MdpChannelController {
             lock.lock();
             if(mdpPacket.getMsgSeqNum() == 1) {
                 if(receivingCycle) {
-                    smallestSnapshotSequence = cycleHandler.getSmallestSnapshotSequence();
-                    highestSnapshotSequence = cycleHandler.getHighestSnapshotSequence();
+                    smallestSnapshotSequence = mboCycleHandler.getSmallestSnapshotSequence();
+                    highestSnapshotSequence = mboCycleHandler.getHighestSnapshotSequence();
                     if (smallestSnapshotSequence != SnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED
-                            && highestSnapshotSequence != SnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED) {
-                        lastProcessedSeqNum = cycleHandler.getHighestSnapshotSequence();
+                            && highestSnapshotSequence != SnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED
+                            && mbpCycleHandler.getSmallestSnapshotSequence() != SnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED
+                            && mbpCycleHandler.getHighestSnapshotSequence() != SnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED) {
+                        if(mbpCycleHandler.getSmallestSnapshotSequence() != smallestSnapshotSequence
+                                || mbpCycleHandler.getHighestSnapshotSequence() != highestSnapshotSequence) {
+                            log.error("MBP(Highest '{}', Smallest '{}') and MBO(Highest '{}', Smallest '{}') snapshots are not synchronized",
+                                    mbpCycleHandler.getHighestSnapshotSequence(), mbpCycleHandler.getSmallestSnapshotSequence(),
+                                    mboCycleHandler.getHighestSnapshotSequence(), mboCycleHandler.getSmallestSnapshotSequence());
+                        }
+                        lastProcessedSeqNum = highestSnapshotSequence;
                         snapshotRecoveryManager.stopRecovery();
                         switchState(ChannelState.SYNC);
                         processMessagesFromBuffer(feedContext);
@@ -90,7 +105,8 @@ public class GapChannelController implements MdpChannelController {
                         numberOfTCPAttempts = 0;
                     }
                 } else {
-                    cycleHandler.reset();
+                    mboCycleHandler.reset();
+                    mbpCycleHandler.reset();
                     receivingCycle = true;
                 }
             }
@@ -100,13 +116,15 @@ public class GapChannelController implements MdpChannelController {
                     if(receivingCycle) {
                         for (MdpMessage mdpMessage : mdpPacket) {
                             updateSemanticMsgType(mdpMessageTypes, mdpMessage);
-                            if (isMessageSupported(mdpMessage)) {
-                                long lastMsgSeqNumProcessed = mdpMessage.getUInt32(MdConstants.LAST_MSG_SEQ_NUM_PROCESSED);
-                                int securityId = mdpMessage.getInt32(MdConstants.SECURITY_ID);
+                            long lastMsgSeqNumProcessed = mdpMessage.getUInt32(MdConstants.LAST_MSG_SEQ_NUM_PROCESSED);
+                            int securityId = mdpMessage.getInt32(MdConstants.SECURITY_ID);
+                            long totNumReports = mdpMessage.getUInt32(MdConstants.TOT_NUM_REPORTS);
+                            if (isMBOSnapshot(mdpMessage)) {
                                 long noChunks = mdpMessage.getUInt32(MdConstants.NO_CHUNKS);
                                 long currentChunk = mdpMessage.getUInt32(MdConstants.CURRENT_CHUNK);
-                                long totNumReports = mdpMessage.getUInt32(MdConstants.TOT_NUM_REPORTS);
-                                cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId, noChunks, currentChunk);
+                                mboCycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId, noChunks, currentChunk);
+                            } else {
+                                mbpCycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId, 1, 1);
                             }
                         }
                         target.handleSnapshotPacket(feedContext, mdpPacket);
@@ -132,7 +150,11 @@ public class GapChannelController implements MdpChannelController {
                     long expectedSequence = lastProcessedSeqNum + 1;
                     if(pkgSequence == expectedSequence) {
                         target.handleIncrementalPacket(feedContext, mdpPacket);
-                        lastProcessedSeqNum = pkgSequence;
+                        if (wasChannelResetInPrcdPacket) {
+                            wasChannelResetInPrcdPacket = false;
+                        } else {
+                            lastProcessedSeqNum = pkgSequence;
+                        }
                         processMessagesFromBuffer(feedContext);
                     } else if(pkgSequence > expectedSequence) {
                         buffer.add(mdpPacket);
@@ -144,7 +166,7 @@ public class GapChannelController implements MdpChannelController {
                                 tcpRecoveryProcessor.setBeginSeqNo(expectedSequence);
                                 tcpRecoveryProcessor.setEndSeqNo(pkgSequence - 1);
                                 executor.execute(tcpRecoveryProcessor);
-                                numberOfTCPAttempts++;//todo
+                                numberOfTCPAttempts++;
                             } else {
                                 snapshotRecoveryManager.startRecovery();
                             }
@@ -182,6 +204,20 @@ public class GapChannelController implements MdpChannelController {
 
     public ChannelState getState() {
         return currentState;
+    }
+
+    @Override
+    public void accept(MdpMessage resetMessage) {
+        channelListeners.forEach(channelListener -> channelListener.onBeforeChannelReset(channelId, resetMessage));
+        lastProcessedSeqNum = 0;
+        smallestSnapshotSequence = 0;
+        highestSnapshotSequence = 0;
+        wasChannelResetInPrcdPacket = true;
+        if(currentState != ChannelState.SYNC) {
+            switchState(ChannelState.SYNC);
+            snapshotRecoveryManager.stopRecovery();
+        }
+        channelListeners.forEach(channelListener -> channelListener.onFinishedChannelReset(channelId, resetMessage));
     }
 
     public interface SnapshotRecoveryManager {
