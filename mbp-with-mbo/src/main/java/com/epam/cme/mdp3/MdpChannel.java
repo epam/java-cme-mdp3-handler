@@ -64,8 +64,19 @@ public interface MdpChannel {
      */
     List<ChannelListener> getListeners();
 
+    /**
+     * Starts defined feed.
+     * @param feedType
+     * @param feed
+     * @throws MdpFeedException
+     */
     void startFeed(FeedType feedType, Feed feed) throws MdpFeedException;
 
+    /**
+     * Stops defined feed.
+     * @param feedType
+     * @param feed
+     */
     void stopFeed(FeedType feedType, Feed feed);
 
     /**
@@ -74,7 +85,7 @@ public interface MdpChannel {
     void stopAllFeeds();
 
     /**
-     * Subscribes to the given Security with the default Subscription options and the default Depth.
+     * Subscribes to the given security.
      *
      * @param securityId Security ID
      * @return true if subscribed with success
@@ -82,7 +93,7 @@ public interface MdpChannel {
     boolean subscribe(int securityId, final String secDesc);
 
     /**
-     * Removes subscription to the given Security ID.
+     * Removes subscription to the given security.
      *
      * @param securityId Security ID
      */

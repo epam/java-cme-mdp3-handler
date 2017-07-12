@@ -37,17 +37,17 @@ public class ModelUtils {
         matchEventIndicatorEncoder.lastQuoteMsg(true);
         MDIncrementalRefreshOrderBook43Encoder.NoMDEntriesEncoder noMDEntriesEncoder = incrementalRefreshOrderBook43Encoder.noMDEntriesCount(12);
         noMDEntriesEncoder.next().orderID(9926951995L).mDOrderPriority(414).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(23).mDEntryPx().mantissa(98682500000L);
-        noMDEntriesEncoder.next().orderID(9926951993L).mDOrderPriority(412).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(59).mDEntryPx().mantissa(98685000000L);
+        noMDEntriesEncoder.next().orderID(9926951993L).mDOrderPriority(412).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Offer).mDDisplayQty(59).mDEntryPx().mantissa(98685000000L);
         noMDEntriesEncoder.next().orderID(9926951992L).mDOrderPriority(411).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(12).mDEntryPx().mantissa(98692500000L);
-        noMDEntriesEncoder.next().orderID(9926951997L).mDOrderPriority(416).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(49).mDEntryPx().mantissa(98677500000L);
-        noMDEntriesEncoder.next().orderID(9926951996L).mDOrderPriority(415).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(92).mDEntryPx().mantissa(98687500000L);
-        noMDEntriesEncoder.next().orderID(9926952003L).mDOrderPriority(422).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(88).mDEntryPx().mantissa(98672500000L);
-        noMDEntriesEncoder.next().orderID(9926952002L).mDOrderPriority(421).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(32).mDEntryPx().mantissa(98677500000L);
-        noMDEntriesEncoder.next().orderID(9926952001L).mDOrderPriority(420).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(99).mDEntryPx().mantissa(98702500000L);
+        noMDEntriesEncoder.next().orderID(9926951997L).mDOrderPriority(416).securityID(securityId).mDUpdateAction(MDUpdateAction.Change).mDEntryType(MDEntryTypeBook.Offer).mDDisplayQty(49).mDEntryPx().mantissa(98677500000L);
+        noMDEntriesEncoder.next().orderID(9926951996L).mDOrderPriority(415).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryType(MDEntryTypeBook.Offer).mDDisplayQty(92).mDEntryPx().mantissa(98687500000L);
+        noMDEntriesEncoder.next().orderID(9926952003L).mDOrderPriority(422).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryType(MDEntryTypeBook.Offer).mDDisplayQty(88).mDEntryPx().mantissa(98672500000L);
+        noMDEntriesEncoder.next().orderID(9926952002L).mDOrderPriority(421).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(32).mDEntryPx().mantissa(98677500000L);
+        noMDEntriesEncoder.next().orderID(9926952001L).mDOrderPriority(420).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(99).mDEntryPx().mantissa(98702500000L);
         noMDEntriesEncoder.next().orderID(9926952000L).mDOrderPriority(419).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(94).mDEntryPx().mantissa(98680000000L);
-        noMDEntriesEncoder.next().orderID(9926952005L).mDOrderPriority(424).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(49).mDEntryPx().mantissa(98675000000L);
-        noMDEntriesEncoder.next().orderID(9926952004L).mDOrderPriority(423).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(54).mDEntryPx().mantissa(98702500000L);
-        noMDEntriesEncoder.next().orderID(9926951983L).mDOrderPriority(402).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(16).mDEntryPx().mantissa(98670000000L);
+        noMDEntriesEncoder.next().orderID(9926952005L).mDOrderPriority(424).securityID(securityId).mDUpdateAction(MDUpdateAction.Change).mDEntryType(MDEntryTypeBook.Bid).mDDisplayQty(49).mDEntryPx().mantissa(98675000000L);
+        noMDEntriesEncoder.next().orderID(9926952004L).mDOrderPriority(423).securityID(securityId).mDUpdateAction(MDUpdateAction.Change).mDEntryType(MDEntryTypeBook.Offer).mDDisplayQty(54).mDEntryPx().mantissa(98702500000L);
+        noMDEntriesEncoder.next().orderID(9926951983L).mDOrderPriority(402).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryType(MDEntryTypeBook.Offer).mDDisplayQty(16).mDEntryPx().mantissa(98670000000L);
         bufferOffset += incrementalRefreshOrderBook43Encoder.encodedLength();
         return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
     }

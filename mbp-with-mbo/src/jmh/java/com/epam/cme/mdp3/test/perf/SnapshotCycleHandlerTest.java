@@ -19,7 +19,7 @@ import org.openjdk.jmh.annotations.*;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
-public class MBOSnapshotCycleHandlerTest {
+public class SnapshotCycleHandlerTest {
     private SnapshotCycleHandler cycleHandler = new OffHeapSnapshotCycleHandler();
     private long totNumReports = 2;
     private int securityId1 = 10;

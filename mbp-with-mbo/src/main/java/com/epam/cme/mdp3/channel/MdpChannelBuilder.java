@@ -100,17 +100,17 @@ public class MdpChannelBuilder {
         return this;
     }
 
-    public MdpChannelBuilder setTcpUsername(String tcpUsername) {
+    public MdpChannelBuilder setTcpUsername(final String tcpUsername) {
         this.tcpUsername = tcpUsername;
         return this;
     }
 
-    public MdpChannelBuilder setTcpPassword(String tcpPassword) {
+    public MdpChannelBuilder setTcpPassword(final String tcpPassword) {
         this.tcpPassword = tcpPassword;
         return this;
     }
 
-    public MdpChannelBuilder setMBOEnable(boolean enabled) {
+    public MdpChannelBuilder setMBOEnable(final boolean enabled) {
         mboEnabled = enabled;
         return this;
     }

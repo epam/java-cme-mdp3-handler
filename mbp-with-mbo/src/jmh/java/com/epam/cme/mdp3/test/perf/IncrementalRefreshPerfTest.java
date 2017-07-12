@@ -35,6 +35,7 @@ public class IncrementalRefreshPerfTest {
     private static MdpChannelBuilder mdpHandlerBuilder;
     private static final int TEST_CHANNEL_ID = 310;
     private static SbeDouble doubleVal = SbeDouble.instance();
+    private volatile static boolean print = false;
 
     static {
         try {
@@ -45,13 +46,13 @@ public class IncrementalRefreshPerfTest {
                         @Override
                         public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
                                                             final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
-                            printMBOEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry, mdEntry, false);
+                            printMBOEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry, mdEntry, print);
                         }
 
                         @Override
                         public void onIncrementalMBPRefresh(final String channelId, final short matchEventIndicator, final int securityId,
                                                             final String secDesc, final long msgSeqNum, final FieldSet mdEntry){
-                            printMBPEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, mdEntry, false);
+                            printMBPEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, mdEntry, print);
                         }
 
                         @Override
@@ -84,32 +85,39 @@ public class IncrementalRefreshPerfTest {
         testState.handleNextTestPacket();
     }
 
+    @Benchmark
+    @BenchmarkMode(Mode.SampleTime)
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    @Fork(1)
+    @Warmup(iterations = 2, time = 3)
+    @Measurement(iterations = 5, time = 5)
+    public void MBOOnly(MBOOnlyIncrementalRefreshTestState testState) {
+        testState.handleNextTestPacket();
+    }
+
 
     private static void printMBOEntity(final String channelId, final short matchEventIndicator, final int securityId,
                                     final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry, boolean print){
-        double mdEntryPx;
-        int mdUpdateAction;
+        MDUpdateAction mdUpdateAction;
         long orderId = orderIDEntry.getUInt64(37);
         long mdOrderPriority = orderIDEntry.getUInt64(37707);
         long mdDisplayQty = orderIDEntry.getInt32(37706);
-        char mdEntryType;
+        MDEntryType mdEntryType;
         if(mdEntry == null) {//MBO only
             orderIDEntry.getDouble(270, doubleVal);
-            mdEntryPx = doubleVal.asDouble();
-            mdUpdateAction = orderIDEntry.getUInt8(279);
-            mdEntryType = orderIDEntry.getChar(269);
+            mdUpdateAction = MDUpdateAction.fromFIX(orderIDEntry.getUInt8(279));
+            mdEntryType = MDEntryType.fromFIX(orderIDEntry.getChar(269));
             if(print) {
-                System.out.printf("MBO only entry: ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')\n",
-                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
+                System.out.printf("\tsecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', priceMantissa - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s'\n",
+                        securityId, secDesc, orderId, mdOrderPriority, doubleVal.getMantissa(), mdDisplayQty, mdEntryType, mdUpdateAction);
             }
         } else {
             mdEntry.getDouble(270, doubleVal);
-            mdEntryPx = doubleVal.asDouble();
-            mdUpdateAction = orderIDEntry.getUInt8(37708);
-            mdEntryType = mdEntry.getChar(269);
+            mdUpdateAction = MDUpdateAction.fromFIX(orderIDEntry.getUInt8(37708));
+            mdEntryType = MDEntryType.fromFIX(mdEntry.getChar(269));
             if(print) {
-                System.out.printf("MBO with MBP entry: ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')\n",
-                        channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
+                System.out.printf("\tsecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', priceMantissa - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s'\n",
+                        securityId, secDesc, orderId, mdOrderPriority, doubleVal.getMantissa(), mdDisplayQty, mdEntryType, mdUpdateAction);
             }
         }
 
@@ -202,6 +210,13 @@ public class IncrementalRefreshPerfTest {
     }
 
     @State(Scope.Benchmark)
+    public static class MBOOnlyIncrementalRefreshTestState extends MBOIncrementalRefreshTestState {
+        protected ByteBuffer getTestPacket(){
+            return ModelUtils.getMBOOnlyIncrementWith12TestEntries(0, SECURITY_ID);
+        }
+    }
+
+    @State(Scope.Benchmark)
     public static class MBPOnlyIncrementalRefreshTestState extends MBOIncrementalRefreshTestState {
         private final MdpFeedContext mbpSnapshotContext = new MdpFeedContext(Feed.A, FeedType.S);
 
@@ -230,6 +245,7 @@ public class IncrementalRefreshPerfTest {
     }
 
     public static void main(String[] args) throws Exception {
+        print = true;
         MBOIncrementalRefreshTestState mboIncrementalRefreshTestState = new MBOIncrementalRefreshTestState();
         mboIncrementalRefreshTestState.doSetup();
         mboIncrementalRefreshTestState.handleNextTestPacket();
@@ -239,6 +255,11 @@ public class IncrementalRefreshPerfTest {
         mboWithMbpIncrementalRefreshTestState.doSetup();
         mboWithMbpIncrementalRefreshTestState.handleNextTestPacket();
         mboWithMbpIncrementalRefreshTestState.doShutdown();
+
+        MBOOnlyIncrementalRefreshTestState mboOnlyIncrementalRefreshTestState = new MBOOnlyIncrementalRefreshTestState();
+        mboOnlyIncrementalRefreshTestState.doSetup();
+        mboOnlyIncrementalRefreshTestState.handleNextTestPacket();
+        mboOnlyIncrementalRefreshTestState.doShutdown();
     }
 
 
