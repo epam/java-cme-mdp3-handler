@@ -320,6 +320,12 @@ In order to run tests from Gradle:
 
 Example of results:
 
+Test machine hardware:
+
+CPU - Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz
+Memory - 16 GB
+Operating System - Windows 10.0, 64 bit Build 14393 (10.0.14393.1198)
+
 Market By Price mode(when MBO is disabled):
 
 ```
