@@ -1,3 +1,7 @@
+2.0.0 (10/07/2017)
+NEW    MBO support has been added.
+NEW    Gap detecting logic has been refactored and changed to handle packets level.
+
 1.0.0 (11/03/2016)
 NEW    Migration to Chronicle Bytes in internal implementation.
 
