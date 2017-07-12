@@ -318,15 +318,17 @@ In order to run tests from Gradle:
 > gradlew jmh
 ```
 
-Example of results:
+### Example of results:
 
-Test machine hardware:
+### Test machine hardware:
 
 CPU - Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz
+
 Memory - 16 GB
+
 Operating System - Windows 10.0, 64 bit Build 14393 (10.0.14393.1198)
 
-Market By Price mode(when MBO is disabled):
+### Market By Price mode(when MBO is disabled):
 
 ```
 ...
@@ -357,7 +359,7 @@ Benchmark                                Mode     Cnt  Score   Error  Units
 IncrementalRefreshPerfTest.MBPOnly     sample  496246  0.809 ▒ 0.004  us/op
 ```
 
-Market By Price and Market By Order mode (MBO only template):
+### Market By Price and Market By Order mode (MBO only template):
 
 ```
 ...
@@ -388,7 +390,7 @@ Benchmark                                Mode     Cnt  Score   Error  Units
 IncrementalRefreshPerfTest.MBOOnly     sample  333551  0.615 ▒ 0.003  us/op
 ```
 
-Market By Price and Market By Order mode (MBO included in MBP template):
+### Market By Price and Market By Order mode (MBO included in MBP template):
 
 ```
 ...
