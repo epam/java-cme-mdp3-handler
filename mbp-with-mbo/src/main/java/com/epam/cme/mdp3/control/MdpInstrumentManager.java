@@ -62,7 +62,7 @@ public class MdpInstrumentManager implements InstrumentManager {
     public void updateSecDesc(int securityId, String secDesc) {
         InstrumentController instrumentController = instruments.get(securityId);
         if(instrumentController == null) {
-            log.warn("updateSecDesc method was called but there is no security with id '{}'", securityId);
+            log.debug("updateSecDesc method was called but there is no security with id '{}'", securityId);
         } else {
             instrumentController.updateSecDesc(secDesc);
         }
