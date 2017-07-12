@@ -17,7 +17,6 @@ Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take adva
 * Simple options to subscribe to Market Data events of application interest;
 * Loading of CME SBE templates;
 * Loading of CME XML channel configuration files;
-* Market by Order (MBO);
 
 ## Code Examples
 
@@ -25,13 +24,12 @@ Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take adva
 
 ```
 import com.epam.cme.mdp3.*;
-import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
-import com.epam.cme.mdp3.core.control.InstrumentState;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.epam.cme.mdp3.channel.MdpChannelBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main {
-    private static final Logger logger = LogManager.getLogger(Main.class);
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     private static class ChannelListenerImpl implements ChannelListener {
         @Override
@@ -65,40 +63,34 @@ public class Main {
         }
 
         @Override
-        public void onInstrumentStateChanged(final String channelId, int securityId, final String secDesc,
-                                             InstrumentState prevState, InstrumentState newState) {
-            logger.info("Channel '{}'s instrument {} state is changed from '{}' to '{}'",
-                channelId, securityId, prevState, newState);
-        }
-
-        @Override
         public int onSecurityDefinition(final String channelId, final MdpMessage mdpMessage) {
             logger.info("Received SecurityDefinition(d). Schema Id: {}", mdpMessage.getSchemaId());
-            return MdEventFlags.NOTHING;
-        }
-
-        @Override
-        public void onIncrementalRefresh(final String channelId, final short matchEventIndicator,
-                                         int securityId, String secDesc,
-                                         long msgSeqNum, final FieldSet incrRefreshEntry) {
-            logger.info("[{}] onIncrementalRefresh: SecurityId: {}-{}. RptSeqNum(83): {}", msgSeqNum, securityId, secDesc, incrRefreshEntry.getUInt32(83));
+            return MdEventFlags.MESSAGE;
         }
 
         @Override
         public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                             final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry){
-            logger.info("[{}] onIncrementalMBORefresh: ChannelId: {}, SecurityId: {}-{}", msgSeqNum, channelId, securityId, secDesc);
+                                            final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry){
+            logger.info("[{}] onIncrementalMBORefresh: ChannelId: {}, SecurityId: {}-{}, OrderId: {}", msgSeqNum, channelId,
+                    securityId, secDesc, orderEntry.getUInt64(37));
         }
 
         @Override
-        public void onSnapshotFullRefresh(final String channelId, String secDesc, final MdpMessage snptMessage) {
-            logger.info("onFullRefresh: SecurityId: {}-{}. RptSeqNum(83): {}",
-                snptMessage.getInt32(48), secDesc, snptMessage.getUInt32(83));
+        public void onIncrementalMBPRefresh(String channelId, short matchEventIndicator, int securityId, String secDesc, 
+                                            long msgSeqNum, FieldSet mdEntry) {
+            logger.info("[{}] onIncrementalMBPRefresh: SecurityId: {}-{}. RptSeqNum(83): {}", msgSeqNum, securityId, 
+                    secDesc, mdEntry.getUInt32(83));
         }
 
         @Override
         public void onSnapshotMBOFullRefresh(final String channelId, final String secDesc, final MdpMessage snptMessage){
-            logger.info("onMBOFullRefresh: ChannelId: {}, SecurityId: {}-{}.", channelId, snptMessage.getInt32(SECURITY_ID), secDesc);
+            logger.info("onMBOFullRefresh: ChannelId: {}, SecurityId: {}-{}.", channelId, snptMessage.getInt32(48), secDesc);
+        }
+
+        @Override
+        public void onSnapshotMBPFullRefresh(String channelId, String secDesc, MdpMessage snptMessage) {
+            logger.info("onMBPFullRefresh: SecurityId: {}-{}. RptSeqNum(83): {}",
+                    snptMessage.getInt32(48), secDesc, snptMessage.getUInt32(83));
         }
 
         @Override
@@ -110,36 +102,35 @@ public class Main {
         public void onSecurityStatus(String channelId, int securityId, MdpMessage secStatusMessage) {
             logger.info("onSecurityStatus. SecurityId: {}, RptSeqNum(83): {}", securityId, secStatusMessage.getUInt32(83));
         }
-    }
 
-    public static void main(String args[]) {
-        try {
-            final MdpChannel mdpChannel311 = new MdpChannelBuilder("311",
-                    Main.class.getResource("/config.xml").toURI(),
-                    Main.class.getResource("/templates_FixBinary.xml").toURI())
-                    .usingListener(new ChannelListenerImpl())
-                    .usingGapThreshold(20)
-                    .build();
+        public static void main(String args[]) {
+            try {
+                final MdpChannel mdpChannel311 = new MdpChannelBuilder("311",
+                        Main.class.getResource("/config.xml").toURI(),
+                        Main.class.getResource("/templates_FixBinary.xml").toURI())
+                        .usingListener(new ChannelListenerImpl())
+                        .usingGapThreshold(3)
+                        .setMBOEnable(true)
+                        .build();
 
-            mdpChannel311.enableAllSecuritiesMode();
-            mdpChannel311.startIncrementalFeedA();
-            mdpChannel311.startIncrementalFeedB();
-            mdpChannel311.startSnapshotFeedA();
-            mdpChannel311.startSnapshotMBOFeedA();
-            System.out.println("Press enter to shutdown.");
-            System.in.read();
-            mdpChannel311.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+                mdpChannel311.startFeed(FeedType.N, Feed.A);
+                mdpChannel311.startFeed(FeedType.I, Feed.A);
+                mdpChannel311.startFeed(FeedType.I, Feed.B);
+                mdpChannel311.startFeed(FeedType.SMBO, Feed.A);
+                System.out.println("Press enter to shutdown.");
+                System.in.read();
+                mdpChannel311.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
-}
 ```
 **Getting all Security Definitions of Channel 311**
 
 ```
 import com.epam.cme.mdp3.*;
-import com.epam.cme.mdp3.core.channel.MdpChannelBuilder;
+import com.epam.cme.mdp3.channel.MdpChannelBuilder;
 import com.epam.cme.mdp3.sbe.message.SbeGroup;
 import com.epam.cme.mdp3.sbe.message.SbeString;
 import org.apache.logging.log4j.LogManager;
@@ -200,22 +191,22 @@ public class PrintAllSecuritiesTest {
         }
     }
 
-    public static void main(String args[ ]) {
+    public static void main(String args[]) {
         try {
             final MdpChannel mdpChannel311 = new MdpChannelBuilder("311",
-                    Main.class.getResource("/config.xml").toURI(),
-                    Main.class.getResource("/templates_FixBinary.xml").toURI())
+                    PrintAllSecuritiesTest.class.getResource("/config.xml").toURI(),
+                    PrintAllSecuritiesTest.class.getResource("/templates_FixBinary.xml").toURI())
                     .usingListener(new ChannelListenerImpl())
                     .build();
 
-            mdpChannel311.startInstrumentFeedA();
+            mdpChannel311.startFeed(FeedType.N, Feed.A);
             synchronized (resultIsReady) {
                 resultIsReady.wait();
             }
             logger.info("Received packets in cycles: {}", counter.get());
             mdpChannel311.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
     }
 }
@@ -257,7 +248,7 @@ required changes) instead of own implementation of all aspects of CME connectivi
 
 This is java library which include just one jar file: b2bits-jmdp3-N.N.jar.
 
-**Dependencies (Apr 24, 2017)**
+**Dependencies (July 10, 2017)**
 - annotations-12.0.jar
 - chronicle-bytes-1.2.4.jar
 - chronicle-core-1.3.6.jar
@@ -277,97 +268,169 @@ This is java library which include just one jar file: b2bits-jmdp3-N.N.jar.
 
 ## API Reference
 
-TBD
+Builder parameters list (`com.epam.cme.mdp3.channel.MdpChannelBuilder`)
 
-## Tests
+| Method name                                                                                     | Description                                                                                                                                                                                              | Default value     |
+| ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| `MdpChannelBuilder#setConfiguration(URI cfgURI)`                                                | Path to the CME Market Data Feed Channel configuration file                                                                                                                                              | null              |
+| `MdpChannelBuilder#setSchema(URI schemaURI)`                                                    | Path to the CME SBE templates file                                                                                                                                                                       | null              |
+| `MdpChannelBuilder#setNetworkInterface(FeedType feedType, Feed feed, String networkInterface)`  | Local network interface that is used for receiving UDP packets. If it is set to null then default local network interface is used.                                                                       | null              |
+| `MdpChannelBuilder#usingListener(ChannelListener channelListener)`                              | User's implementation of ChannelListener, whose methods will be called for received messages                                                                                                             | null              |
+| `MdpChannelBuilder#usingScheduler(ScheduledExecutorService scheduler)`                          | Instance of scheduled executor service, which will be used for running TCP recovery tasks and updating state from snapshot in case of there are no messages from incremental channels for 100 seconds    | null(disabled)    |
+| `MdpChannelBuilder#usingIncrQueueSize(int incrQueueSize)`                                       | Size of the queue that is used for buffering the messages from increment channel during recovery procedure                                                                                               | 15000             |
+| `MdpChannelBuilder#usingGapThreshold(int gapThreshold)`                                         | Amount of lost messages after which recovery procedure starts                                                                                                                                            | 5                 |
+| `MdpChannelBuilder#usingRcvBufSize(int rcvBufSize)`                                             | UDP socket buffer size                                                                                                                                                                                   | 4 * 1024 * 1024   |
+| `MdpChannelBuilder#setTcpUsername(String tcpUsername)`                                          | Username to be used in the Logon (35=A) message to CME TCP replay feed                                                                                                                                   | CME               |
+| `MdpChannelBuilder#setTcpPassword(String tcpPassword)`                                          | Password to be used in the Logon (35=A) message to CME TCP replay feed                                                                                                                                   | CME               |
+| `MdpChannelBuilder#setMBOEnable(boolean enabled)`                                               | Enabling MBO mode in which order entries in the messages are processed and MBO snapshot feed is used                                                                                                     | false(disabled)   |
+| `MdpChannelBuilder#build()`                                                                     | Build the channel with the specified parameters                                                                                                                                                          | -                 |
 
-There are acceptance tests in the project. Test scenarios are based on [Cucumber](https://cucumber.io/) and test data files with MDP Messages (received via CME Certification Environment).
-To run tests from Gradle (warning: unpack data files in /src/cucumber/sim/data):
+Channel parameter list (`com.epam.cme.mdp3.MdpChannel`)
 
-```
-> gradlew cucumber
-```
+| Method name                                                     | Description                                       |
+| --------------------------------------------------------------- | ------------------------------------------------- |
+| `MdpChannel#getId()`                                            | Gets ID of MDP Channel                            |
+| `MdpChannel#close()`                                            | Closes MDP Channel and releases all resources     |
+| `MdpChannel#getState()`                                         | Gets current State of the channel                 |
+| `MdpChannel#registerListener(ChannelListener channelListene)`   | Registers Channel Listener                        |
+| `MdpChannel#removeListener(ChannelListener channelListene)`     | Removes Channel Listener                          |
+| `MdpChannel#getListeners()`                                     | Gets all registered Channel Listeners             |
+| `MdpChannel#startFeed(FeedType feedType, Feed feed)`            | Starts defined feed                               |
+| `MdpChannel#stopFeed(FeedType feedType, Feed feed)`             | Stops defined feed                                |
+| `MdpChannel#stopAllFeeds()`                                     | Stops all Feeds                                   |
+| `MdpChannel#subscribe(int securityId, final String secDesc)`    | Subscribes to the given security                  |
+| `MdpChannel#discontinueSecurity(int securityId)`                | Removes subscription to the given security        |
 
-There is also performance test of incremental refresh handling in the project. Test is based on JMH and use test data file with MDP Messages (received via CME Certification Environment).
-Performance test has the following scenario:
+## Performance tests
 
-1. Find sample incremental refresh MDP packet from data file (for instance, incremental entries from 10 to 14, refreshed securities from 4 to 6)
+There are performance test of incremental refresh handling in the project, the tests is based on JMH and use test data, which is similar to the data received via CME Certification Environment.
+Performance tests have the following scenario:
 
-2. Generate a sequence of test packets from the sample packet (e.g. change sequence numbers of packet and securities)
+1. Generate incremental refresh MDP packet.
+
+2. Adjust a sequence of test packets from the sample packet (e.g. change sequence numbers of packet and securities)
 
 3. Perform test. Each iteration fills buffers with next test packet and calls MDP Handler to process it
 
-To run tests from Gradle (warning: unpack data files in /src/cucumber/sim/data):
+In order to run tests from Gradle:
 
 ```
 > gradlew jmh
 ```
 
-Example of results:
+### Example of results:
 
-Market By Price:
+### Test machine hardware:
+
+CPU - Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz
+
+Memory - 16 GB
+
+Operating System - Windows 10.0, 64 bit Build 14393 (10.0.14393.1198)
+
+### Market By Price mode(when MBO is disabled):
 
 ```
 ...
-Loading test data dump...
-Loading test data dump...Done
-Generating test MDP packets...
-The found MDP Packet sample:
-        msgSeqNum=59343896; secId=556449; rptSeqNum=910008; mdEntryType=Bid; mdAction=Change; level=1; entrySize=137; orderNum=5; priceMa12000000000
-        msgSeqNum=59343896; secId=556449; rptSeqNum=910009; mdEntryType=Bid; mdAction=Change; level=2; entrySize=147; orderNum=7; priceMantissa=11750000000
-        msgSeqNum=59343896; secId=556449; rptSeqNum=910010; mdEntryType=Offer; mdAction=Change; level=1; entrySize=147; orderNum=6; priceMantissa=12500000000
-        msgSeqNum=59343896; secId=556449; rptSeqNum=910011; mdEntryType=Offer; mdAction=Change; level=2; entrySize=79; orderNum=4; priceMantissa=12750000000
-        msgSeqNum=59343896; secId=221807; rptSeqNum=824039; mdEntryType=Offer; mdAction=Change; level=1; entrySize=73; orderNum=3; priceMantissa=17250000000
-        msgSeqNum=59343896; secId=221807; rptSeqNum=824040; mdEntryType=Offer; mdAction=Change; level=2; entrySize=57; orderNum=4; priceMantissa=17500000000
-        msgSeqNum=59343896; secId=575632; rptSeqNum=831830; mdEntryType=Bid; mdAction=Change; level=1; entrySize=128; orderNum=2; priceMantissa=8500000000
-        msgSeqNum=59343896; secId=575632; rptSeqNum=831831; mdEntryType=Bid; mdAction=Change; level=2; entrySize=159; orderNum=6; priceMantissa=8250000000
-        msgSeqNum=59343896; secId=127203; rptSeqNum=815942; mdEntryType=Offer; mdAction=Change; level=1; entrySize=73; orderNum=3; priceMantissa=15750000000
-        msgSeqNum=59343896; secId=127203; rptSeqNum=815943; mdEntryType=Offer; mdAction=Change; level=2; entrySize=61; orderNum=4; priceMantissa=16000000000
-        msgSeqNum=59343896; secId=248452; rptSeqNum=953666; mdEntryType=Bid; mdAction=Change; level=1; entrySize=132; orderNum=7; priceMantissa=16250000000
-        msgSeqNum=59343896; secId=248452; rptSeqNum=953667; mdEntryType=Bid; mdAction=Change; level=2; entrySize=12; orderNum=4; priceMantissa=16000000000
-Generating test MDP packets...Done
-Creating Data Handler instance...
-Creating Data Handler instance...Done
+MDP Packet sample:
+	msgSeqNum=1; secId=998350; rptSeqNum=1254; mdEntryType=Bid; mdAction=New; level=1; entrySize=4; orderNum=0; priceMantissa=98745000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1255; mdEntryType=Offer; mdAction=New; level=1; entrySize=1; orderNum=0; priceMantissa=987075000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1256; mdEntryType=Bid; mdAction=New; level=2; entrySize=45; orderNum=0; priceMantissa=987125000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1257; mdEntryType=Offer; mdAction=New; level=2; entrySize=22; orderNum=0; priceMantissa=98745000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1258; mdEntryType=Bid; mdAction=New; level=3; entrySize=98; orderNum=0; priceMantissa=98720000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1259; mdEntryType=Offer; mdAction=New; level=3; entrySize=43; orderNum=0; priceMantissa=98725000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1260; mdEntryType=Bid; mdAction=New; level=4; entrySize=12; orderNum=0; priceMantissa=98715000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1261; mdEntryType=Offer; mdAction=New; level=4; entrySize=83; orderNum=0; priceMantissa=98670000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1262; mdEntryType=Bid; mdAction=New; level=5; entrySize=38; orderNum=0; priceMantissa=98695000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1263; mdEntryType=Offer; mdAction=New; level=5; entrySize=99; orderNum=0; priceMantissa=98690000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1264; mdEntryType=Bid; mdAction=Delete; level=3; entrySize=1; orderNum=0; priceMantissa=987025000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1265; mdEntryType=Offer; mdAction=Delete; level=3; entrySize=99; orderNum=0; priceMantissa=98677500000
 ...
-  Percentiles, us/op:
-      p(0.0000) =      0.729 us/op
-     p(50.0000) =      1.094 us/op
-     p(90.0000) =      1.094 us/op
-     p(95.0000) =      1.458 us/op
-     p(99.0000) =      1.824 us/op
-     p(99.9000) =     14.944 us/op
-     p(99.9900) =     33.152 us/op
+Percentiles, us/op:
+      p(0.0000) =      0.641 us/op
+     p(50.0000) =      0.642 us/op
+     p(90.0000) =      0.962 us/op
+     p(95.0000) =      0.963 us/op
+     p(99.0000) =      0.963 us/op
+     p(99.9000) =     10.896 us/op
+     p(99.9900) =     17.952 us/op
      ...
+Benchmark                                Mode     Cnt  Score   Error  Units
+IncrementalRefreshPerfTest.MBPOnly     sample  496246  0.809 ▒ 0.004  us/op
 ```
 
-Market By Order(MBO only template):
+### Market By Price and Market By Order mode (MBO only template):
 
 ```
 ...
-  Percentiles, us/op:
+MDP Packet sample:
+	securityId: 998350-testSymbol, orderId - '9926951995', mdOrderPriority - '414', priceMantissa - '98682500000', mdDisplayQty - '23',  mdEntryType - 'Bid', mdUpdateAction - 'Delete'
+	securityId: 998350-testSymbol, orderId - '9926951993', mdOrderPriority - '412', priceMantissa - '98685000000', mdDisplayQty - '59',  mdEntryType - 'Offer', mdUpdateAction - 'Delete'
+	securityId: 998350-testSymbol, orderId - '9926951992', mdOrderPriority - '411', priceMantissa - '98692500000', mdDisplayQty - '12',  mdEntryType - 'Bid', mdUpdateAction - 'Delete'
+	securityId: 998350-testSymbol, orderId - '9926951997', mdOrderPriority - '416', priceMantissa - '98677500000', mdDisplayQty - '49',  mdEntryType - 'Offer', mdUpdateAction - 'Change'
+	securityId: 998350-testSymbol, orderId - '9926951996', mdOrderPriority - '415', priceMantissa - '98687500000', mdDisplayQty - '92',  mdEntryType - 'Offer', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9926952003', mdOrderPriority - '422', priceMantissa - '98672500000', mdDisplayQty - '88',  mdEntryType - 'Offer', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9926952002', mdOrderPriority - '421', priceMantissa - '98677500000', mdDisplayQty - '32',  mdEntryType - 'Bid', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9926952001', mdOrderPriority - '420', priceMantissa - '98702500000', mdDisplayQty - '99',  mdEntryType - 'Bid', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9926952000', mdOrderPriority - '419', priceMantissa - '98680000000', mdDisplayQty - '94',  mdEntryType - 'Bid', mdUpdateAction - 'Delete'
+	securityId: 998350-testSymbol, orderId - '9926952005', mdOrderPriority - '424', priceMantissa - '98675000000', mdDisplayQty - '49',  mdEntryType - 'Bid', mdUpdateAction - 'Change'
+	securityId: 998350-testSymbol, orderId - '9926952004', mdOrderPriority - '423', priceMantissa - '98702500000', mdDisplayQty - '54',  mdEntryType - 'Offer', mdUpdateAction - 'Change'
+	securityId: 998350-testSymbol, orderId - '9926951983', mdOrderPriority - '402', priceMantissa - '98670000000', mdDisplayQty - '16',  mdEntryType - 'Offer', mdUpdateAction - 'Delete'
+... 
+Percentiles, us/op:
+      p(0.0000) =      0.320 us/op
+     p(50.0000) =      0.641 us/op
+     p(90.0000) =      0.642 us/op
+     p(95.0000) =      0.642 us/op
+     p(99.0000) =      0.642 us/op
+     p(99.9000) =     10.576 us/op
+     p(99.9900) =     16.032 us/op
+     ...
+Benchmark                                Mode     Cnt  Score   Error  Units
+IncrementalRefreshPerfTest.MBOOnly     sample  333551  0.615 ▒ 0.003  us/op
+```
+
+### Market By Price and Market By Order mode (MBO included in MBP template):
+
+```
+...
+MDP Packet sample:
+	msgSeqNum=1; secId=998350; rptSeqNum=1254; mdEntryType=Bid; mdAction=New; level=1; entrySize=4; orderNum=0; priceMantissa=98745000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1255; mdEntryType=Offer; mdAction=New; level=1; entrySize=1; orderNum=0; priceMantissa=987075000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1256; mdEntryType=Bid; mdAction=New; level=2; entrySize=45; orderNum=0; priceMantissa=987125000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1257; mdEntryType=Offer; mdAction=New; level=2; entrySize=22; orderNum=0; priceMantissa=98745000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1258; mdEntryType=Bid; mdAction=New; level=3; entrySize=98; orderNum=0; priceMantissa=98720000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1259; mdEntryType=Offer; mdAction=New; level=3; entrySize=43; orderNum=0; priceMantissa=98725000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1260; mdEntryType=Bid; mdAction=New; level=4; entrySize=12; orderNum=0; priceMantissa=98715000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1261; mdEntryType=Offer; mdAction=New; level=4; entrySize=83; orderNum=0; priceMantissa=98670000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1262; mdEntryType=Bid; mdAction=New; level=5; entrySize=38; orderNum=0; priceMantissa=98695000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1263; mdEntryType=Offer; mdAction=New; level=5; entrySize=99; orderNum=0; priceMantissa=98690000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1264; mdEntryType=Bid; mdAction=Delete; level=3; entrySize=1; orderNum=0; priceMantissa=987025000000
+	msgSeqNum=1; secId=998350; rptSeqNum=1265; mdEntryType=Offer; mdAction=Delete; level=3; entrySize=99; orderNum=0; priceMantissa=98677500000
+	securityId: 998350-testSymbol, orderId - '9927057956', mdOrderPriority - '5394', priceMantissa - '98745000000', mdDisplayQty - '61',  mdEntryType - 'Bid', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9927057957', mdOrderPriority - '5395', priceMantissa - '987075000000', mdDisplayQty - '3',  mdEntryType - 'Offer', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9927057958', mdOrderPriority - '5396', priceMantissa - '987125000000', mdDisplayQty - '7',  mdEntryType - 'Bid', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9927057959', mdOrderPriority - '5397', priceMantissa - '98745000000', mdDisplayQty - '44',  mdEntryType - 'Offer', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9927057960', mdOrderPriority - '5398', priceMantissa - '98720000000', mdDisplayQty - '55',  mdEntryType - 'Bid', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9927057961', mdOrderPriority - '5399', priceMantissa - '98725000000', mdDisplayQty - '68',  mdEntryType - 'Offer', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9927057962', mdOrderPriority - '5400', priceMantissa - '98715000000', mdDisplayQty - '70',  mdEntryType - 'Bid', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9927057963', mdOrderPriority - '5401', priceMantissa - '98670000000', mdDisplayQty - '56',  mdEntryType - 'Offer', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9927057964', mdOrderPriority - '5402', priceMantissa - '98695000000', mdDisplayQty - '6',  mdEntryType - 'Bid', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9927057965', mdOrderPriority - '5403', priceMantissa - '98690000000', mdDisplayQty - '20',  mdEntryType - 'Offer', mdUpdateAction - 'New'
+	securityId: 998350-testSymbol, orderId - '9927057966', mdOrderPriority - '5404', priceMantissa - '987025000000', mdDisplayQty - '9',  mdEntryType - 'Bid', mdUpdateAction - 'Delete'
+	securityId: 998350-testSymbol, orderId - '9927057967', mdOrderPriority - '5405', priceMantissa - '98677500000', mdDisplayQty - '29',  mdEntryType - 'Offer', mdUpdateAction - 'Delete'
+...
+Percentiles, us/op:
       p(0.0000) =      1.282 us/op
-     p(50.0000) =      1.602 us/op
+     p(50.0000) =      1.604 us/op
      p(90.0000) =      1.604 us/op
      p(95.0000) =      1.604 us/op
-     p(99.0000) =      1.604 us/op
-     p(99.9000) =     14.112 us/op
-     p(99.9900) =     18.592 us/op
-     ...
-```
-
-Market By Order(MBO included in MBP template):
-
-```
-...
-  Percentiles, us/op:
-      p(0.0000) =      1.602 us/op
-     p(50.0000) =      1.604 us/op
-     p(90.0000) =      1.924 us/op
-     p(95.0000) =      1.924 us/op
      p(99.0000) =      1.924 us/op
-     p(99.9000) =     14.112 us/op
-     p(99.9900) =     18.912 us/op
+     p(99.9000) =     14.752 us/op
+     p(99.9900) =     25.632 us/op
      ...
+Benchmark                                Mode     Cnt  Score   Error  Units
+IncrementalRefreshPerfTest.mboWithMBP  sample  480387  1.645 ▒ 0.004  us/op     
 ```
 
 ## Contributors
