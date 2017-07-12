@@ -268,38 +268,38 @@ This is java library which include just one jar file: b2bits-jmdp3-N.N.jar.
 
 ## API Reference
 
-Builder parameters list
+Builder parameters list (`com.epam.cme.mdp3.channel.MdpChannelBuilder`)
 
-| Method name | Description | Default value |
-| --- | --- | --- |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#setConfiguration(URI cfgURI)` | Path to the CME Market Data Feed Channel configuration file  | null |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#setSchema(URI schemaURI)` | Path to the CME SBE templates file | null |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#setNetworkInterface(FeedType feedType, Feed feed, String networkInterface)` | Local network interface that is used for receiving UDP packets. If it is set to null then default local network interface is used. | null |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#usingListener(ChannelListener channelListener)` | User's implementation of ChannelListener, whose methods will be called for received messages  | null |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#usingScheduler(ScheduledExecutorService scheduler)` | Instance of scheduled executor service, which will be used for running TCP recovery tasks and updating state from snapshot in case of there are no messages from incremental channels for 100 seconds | null(disabled) |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#usingIncrQueueSize(int incrQueueSize)` | Size of the queue that is used for buffering the messages from increment channel during recovery procedure | 15000 |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#usingGapThreshold(int gapThreshold)` | Amount of lost messages after which recovery procedure starts | 5 |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#usingRcvBufSize(int rcvBufSize)` | UDP socket buffer size | 4*1024*1024 |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#setTcpUsername(String tcpUsername)` | Username to be used in the Logon (35=A) message to CME TCP replay feed | CME |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#setTcpPassword(String tcpPassword)` | Password to be used in the Logon (35=A) message to CME TCP replay feed | CME |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#setMBOEnable(boolean enabled)` | Enabling MBO mode in which order entries in the messages are processed and MBO snapshot feed is used | false(disabled) |
-| `com.epam.cme.mdp3.channel.MdpChannelBuilder#build()` | Build the channel with the specified parameters | - |
+| Method name                                                                                     | Description                                                                                                                                                                                              | Default value     |
+| ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| `MdpChannelBuilder#setConfiguration(URI cfgURI)`                                                | Path to the CME Market Data Feed Channel configuration file                                                                                                                                              | null              |
+| `MdpChannelBuilder#setSchema(URI schemaURI)`                                                    | Path to the CME SBE templates file                                                                                                                                                                       | null              |
+| `MdpChannelBuilder#setNetworkInterface(FeedType feedType, Feed feed, String networkInterface)`  | Local network interface that is used for receiving UDP packets. If it is set to null then default local network interface is used.                                                                       | null              |
+| `MdpChannelBuilder#usingListener(ChannelListener channelListener)`                              | User's implementation of ChannelListener, whose methods will be called for received messages                                                                                                             | null              |
+| `MdpChannelBuilder#usingScheduler(ScheduledExecutorService scheduler)`                          | Instance of scheduled executor service, which will be used for running TCP recovery tasks and updating state from snapshot in case of there are no messages from incremental channels for 100 seconds    | null(disabled)    |
+| `MdpChannelBuilder#usingIncrQueueSize(int incrQueueSize)`                                       | Size of the queue that is used for buffering the messages from increment channel during recovery procedure                                                                                               | 15000             |
+| `MdpChannelBuilder#usingGapThreshold(int gapThreshold)`                                         | Amount of lost messages after which recovery procedure starts                                                                                                                                            | 5                 |
+| `MdpChannelBuilder#usingRcvBufSize(int rcvBufSize)`                                             | UDP socket buffer size                                                                                                                                                                                   | 4*1024*1024       |
+| `MdpChannelBuilder#setTcpUsername(String tcpUsername)`                                          | Username to be used in the Logon (35=A) message to CME TCP replay feed                                                                                                                                   | CME               |
+| `MdpChannelBuilder#setTcpPassword(String tcpPassword)`                                          | Password to be used in the Logon (35=A) message to CME TCP replay feed                                                                                                                                   | CME               |
+| `MdpChannelBuilder#setMBOEnable(boolean enabled)`                                               | Enabling MBO mode in which order entries in the messages are processed and MBO snapshot feed is used                                                                                                     | false(disabled)   |
+| `MdpChannelBuilder#build()`                                                                     | Build the channel with the specified parameters                                                                                                                                                          | -                 |
 
-Channel parameter list
+Channel parameter list (`com.epam.cme.mdp3.MdpChannel`)
 
-| Method name                                               | Description                                       |
-| --------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `com.epam.cme.mdp3.MdpChannel#getId()`                                            | Gets ID of MDP Channel                            |
-| `com.epam.cme.mdp3.MdpChannel#close()`                                            | Closes MDP Channel and releases all resources     |
-| `com.epam.cme.mdp3.MdpChannel#getState()`                                         | Gets current State of the channel                 |
-| `com.epam.cme.mdp3.MdpChannel#registerListener(ChannelListener channelListene)`   | Registers Channel Listener                        |
-| `com.epam.cme.mdp3.MdpChannel#removeListener(ChannelListener channelListene)`     | Removes Channel Listener                          |
-| `com.epam.cme.mdp3.MdpChannel#getListeners()`                                     | Gets all registered Channel Listeners             |
-| `com.epam.cme.mdp3.MdpChannel#startFeed(FeedType feedType, Feed feed)`            | Starts defined feed                               |
-| `com.epam.cme.mdp3.MdpChannel#stopFeed(FeedType feedType, Feed feed)`             | Stops defined feed                                |
-| `com.epam.cme.mdp3.MdpChannel#stopAllFeeds()`                                     | Stops all Feeds                                   |
-| `com.epam.cme.mdp3.MdpChannel#subscribe(int securityId, final String secDesc)`    | Subscribes to the given security                  |
-| `com.epam.cme.mdp3.MdpChannel#discontinueSecurity(int securityId)`                | Removes subscription to the given security        |
+| Method name                                                     | Description                                       |
+| --------------------------------------------------------------- | ------------------------------------------------- |
+| `MdpChannel#getId()`                                            | Gets ID of MDP Channel                            |
+| `MdpChannel#close()`                                            | Closes MDP Channel and releases all resources     |
+| `MdpChannel#getState()`                                         | Gets current State of the channel                 |
+| `MdpChannel#registerListener(ChannelListener channelListene)`   | Registers Channel Listener                        |
+| `MdpChannel#removeListener(ChannelListener channelListene)`     | Removes Channel Listener                          |
+| `MdpChannel#getListeners()`                                     | Gets all registered Channel Listeners             |
+| `MdpChannel#startFeed(FeedType feedType, Feed feed)`            | Starts defined feed                               |
+| `MdpChannel#stopFeed(FeedType feedType, Feed feed)`             | Stops defined feed                                |
+| `MdpChannel#stopAllFeeds()`                                     | Stops all Feeds                                   |
+| `MdpChannel#subscribe(int securityId, final String secDesc)`    | Subscribes to the given security                  |
+| `MdpChannel#discontinueSecurity(int securityId)`                | Removes subscription to the given security        |
 
 ## Performance tests
 
