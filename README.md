@@ -270,7 +270,7 @@ This is java library which include just one jar file: b2bits-jmdp3-N.N.jar.
 
 Builder parameters list
 
-| Method name                                                                                                               | Description                                                                                                                                                                                              | Default value     |
+| Method name                                               | Description                                                                       | Default value     |
 | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
 | `com.epam.cme.mdp3.channel.MdpChannelBuilder#setConfiguration(URI cfgURI)`                                                | Path to the CME Market Data Feed Channel configuration file                                                                                                                                              | null              |
 | `com.epam.cme.mdp3.channel.MdpChannelBuilder#setSchema(URI schemaURI)`                                                    | Path to the CME SBE templates file                                                                                                                                                                       | null              |
@@ -287,7 +287,7 @@ Builder parameters list
 
 Channel parameter list
 
-| Method name                                                                       | Description                                       |
+| Method name                                               | Description                                       |
 | --------------------------------------------------------------------------------- | ------------------------------------------------- |
 | `com.epam.cme.mdp3.MdpChannel#getId()`                                            | Gets ID of MDP Channel                            |
 | `com.epam.cme.mdp3.MdpChannel#close()`                                            | Closes MDP Channel and releases all resources     |
@@ -301,7 +301,7 @@ Channel parameter list
 | `com.epam.cme.mdp3.MdpChannel#subscribe(int securityId, final String secDesc)`    | Subscribes to the given security                  |
 | `com.epam.cme.mdp3.MdpChannel#discontinueSecurity(int securityId)`                | Removes subscription to the given security        |
 
-## Tests
+## Performance tests
 
 There are performance test of incremental refresh handling in the project, the tests is based on JMH and use test data, which is similar to the data received via CME Certification Environment.
 Performance tests have the following scenario:
