@@ -62,7 +62,9 @@ public class LowLevelMdpChannel implements MdpChannel {
     private volatile long lastIncrPcktReceived = 0;
     private final InstrumentManager instrumentManager;
     private final MdpMessageTypes mdpMessageTypes;
+    private final boolean mboEnabled;
     private final InstrumentObserver instrumentObserver = new InstrumentObserverImpl();
+    private final GapChannelController.SnapshotRecoveryManager recoveryManager;
 
     LowLevelMdpChannel(final ScheduledExecutorService scheduledExecutorService,
                        final ChannelCfg channelCfg,
@@ -73,27 +75,38 @@ public class LowLevelMdpChannel implements MdpChannel {
                        final String tcpUsername,
                        final String tcpPassword,
                        final Map<FeedType, String> feedANetworkInterfaces,
-                       final Map<FeedType, String> feedBNetworkInterfaces) {
+                       final Map<FeedType, String> feedBNetworkInterfaces,
+                       boolean mboEnabled) {
         this.scheduledExecutorService = scheduledExecutorService;
         this.channelCfg = channelCfg;
         this.rcvBufSize = rcvBufSize;
         this.feedANetworkInterfaces = feedANetworkInterfaces;
         this.feedBNetworkInterfaces = feedBNetworkInterfaces;
         this.mdpMessageTypes = mdpMessageTypes;
+        this.mboEnabled = mboEnabled;
         String channelId = channelCfg.getId();
         instrumentManager = new MdpInstrumentManager(channelId, listeners);
         Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(incrQueueSize);
         List<Consumer<MdpMessage>> emptyBookConsumers = new ArrayList<>();
         ChannelController target = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes, listeners,
                 instrumentObserver, emptyBookConsumers);
-        SnapshotCycleHandler mboCycleHandler = new OffHeapSnapshotCycleHandler();
         SnapshotCycleHandler mbpCycleHandler = new OffHeapSnapshotCycleHandler();
+        SnapshotCycleHandler mboCycleHandler;
+        FeedType recoveryFeedType;
+        if(mboEnabled) {
+            recoveryFeedType = FeedType.SMBO;
+            mboCycleHandler = new OffHeapSnapshotCycleHandler();
+        } else {
+            recoveryFeedType = FeedType.S;
+            mboCycleHandler = mbpCycleHandler;
+        }
+        recoveryManager = getRecoveryManager(recoveryFeedType);
         ChannelController targetForBuffered = new BufferedMessageRouter(channelId, instrumentManager, mdpMessageTypes,
                 listeners, mboCycleHandler, instrumentObserver, emptyBookConsumers);
         ConnectionCfg connectionCfg = channelCfg.getConnectionCfg(FeedType.H, Feed.A);
         TCPChannel tcpChannel = new MdpTCPChannel(connectionCfg);
         TCPMessageRequester tcpMessageRequester = new MdpTCPMessageRequester<>(channelId, listeners, mdpMessageTypes, tcpChannel, tcpUsername, tcpPassword);
-        this.channelController = new GapChannelController(listeners, target, targetForBuffered, getRecoveryManager(), buffer, gapThreshold,
+        this.channelController = new GapChannelController(listeners, target, targetForBuffered, recoveryManager, buffer, gapThreshold,
                 channelId, mdpMessageTypes, mboCycleHandler, mbpCycleHandler, scheduledExecutorService, tcpMessageRequester);
         emptyBookConsumers.add(channelController);
         if (scheduledExecutorService != null) initChannelStateThread();
@@ -153,8 +166,8 @@ public class LowLevelMdpChannel implements MdpChannel {
     public void stopAllFeeds() {
         stopFeed(FeedType.I, Feed.A);
         stopFeed(FeedType.I, Feed.B);
-        stopFeed(FeedType.SMBO, Feed.A);
-        stopFeed(FeedType.SMBO, Feed.B);
+        stopFeed(mboEnabled ? FeedType.SMBO : FeedType.S, Feed.A);
+        stopFeed(mboEnabled ? FeedType.SMBO : FeedType.S, Feed.B);
         stopFeed(FeedType.H, Feed.A);
         stopFeed(FeedType.H, Feed.B);
     }
@@ -168,6 +181,10 @@ public class LowLevelMdpChannel implements MdpChannel {
     @Override
     public void discontinueSecurity(final int securityId) {
         instrumentManager.discontinueSecurity(securityId);
+    }
+
+    public MdpFeedListener getFeedListener() {
+        return feedListener;
     }
 
     private final class FeedListenerImpl implements MdpFeedListener {
@@ -196,7 +213,7 @@ public class LowLevelMdpChannel implements MdpChannel {
             } else if (feedType == FeedType.I) {
                 lastIncrPcktReceived = System.currentTimeMillis();
                 channelController.handleIncrementalPacket(feedContext, mdpPacket);
-            } else if (feedType == FeedType.SMBO) {
+            } else if (feedType == FeedType.SMBO || feedType == FeedType.S) {
                 channelController.handleSnapshotPacket(feedContext, mdpPacket);
             }
         }
@@ -206,6 +223,10 @@ public class LowLevelMdpChannel implements MdpChannel {
     public void startFeed(FeedType feedType, Feed feed) throws MdpFeedException {
         Map<FeedType, Pair<MdpFeedWorker, Thread>> currentFeed;
         Map<FeedType, String> networkInterfaces;
+
+        if(mboEnabled && FeedType.S.equals(feedType)) {
+            throw new MdpFeedException("It is not allowed to use MBP snapshot feed when MBO is enabled");
+        }
 
         if(Feed.A.equals(feed)){
             currentFeed = feedsA;
@@ -245,7 +266,7 @@ public class LowLevelMdpChannel implements MdpChannel {
                 final long allowedInactiveEndTime = lastIncrPcktReceived + idleWindowInMillis;
                 if (allowedInactiveEndTime < System.currentTimeMillis() &&
                         (incrementalFeedA.isActiveAndNotShutdown() || incrementalFeedB.isActiveAndNotShutdown())) {
-                    startFeed(FeedType.SMBO, snptFeedToUse);
+                    recoveryManager.startRecovery();
                 }
             }
         } catch (Exception e){
@@ -285,12 +306,12 @@ public class LowLevelMdpChannel implements MdpChannel {
         }
     }
 
-    private GapChannelController.SnapshotRecoveryManager getRecoveryManager(){
+    private GapChannelController.SnapshotRecoveryManager getRecoveryManager(FeedType feedType){
         return new GapChannelController.SnapshotRecoveryManager() {
             @Override
             public void startRecovery() {
                 try {
-                    startFeed(FeedType.SMBO, snptFeedToUse);
+                    startFeed(feedType, snptFeedToUse);
                 } catch (MdpFeedException e) {
                     logger.error(e.getMessage(), e);
                 }
@@ -298,7 +319,7 @@ public class LowLevelMdpChannel implements MdpChannel {
 
             @Override
             public void stopRecovery() {
-                stopFeed(FeedType.SMBO, snptFeedToUse);
+                stopFeed(feedType, snptFeedToUse);
             }
         };
     }

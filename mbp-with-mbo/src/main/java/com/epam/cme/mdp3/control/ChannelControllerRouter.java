@@ -102,10 +102,17 @@ public class ChannelControllerRouter implements MdpChannelController {
 
     }
 
-    protected void routeEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
+    protected void routeMBOEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
         InstrumentController instrumentController = instrumentManager.getInstrumentController(securityId);
         if (instrumentController != null) {
-            instrumentController.handleIncrementMDEntry(mdpMessage, orderIDEntry, mdEntry, msgSeqNum);
+            instrumentController.handleMBOIncrementMDEntry(mdpMessage, orderIDEntry, mdEntry, msgSeqNum);
+        }
+    }
+
+    protected void routeMBPEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry mdEntry, long msgSeqNum){
+        InstrumentController instrumentController = instrumentManager.getInstrumentController(securityId);
+        if (instrumentController != null) {
+            instrumentController.handleMBPIncrementMDEntry(mdpMessage, mdEntry, msgSeqNum);
         }
     }
 
@@ -117,38 +124,31 @@ public class ChannelControllerRouter implements MdpChannelController {
                     mdpGroup.next();
                     mdpGroup.getEntry(mdpGroupEntry);
                     int securityId = getSecurityId(mdpGroupEntry);
-                    routeEntry(securityId, mdpMessage, mdpGroupEntry, null, msgSeqNum);
+                    routeMBOEntry(securityId, mdpMessage, mdpGroupEntry, null, msgSeqNum);
                 }
             } else {
                 if (mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, noMdEntriesGroup)) {
-                    boolean hasOrderEntries = mdpMessage.getGroup(MdConstants.NO_ORDER_ID_ENTRIES, mdpGroup)
-                            && isOrderEntityContainsReference(mdpGroup, mdpGroupEntry);
-                    short mdEntryPosition = 0;
-                    short orderIDEntryPosition = 1;
-                    MdpGroupEntry orderEntry;
                     while (noMdEntriesGroup.hashNext()) {
                         noMdEntriesGroup.next();
                         noMdEntriesGroup.getEntry(mdEntry);
-                        if(hasOrderEntries && orderIDEntryPosition <= mdpGroup.getNumInGroup()) {
-                            mdEntryPosition++;
-                            mdpGroup.getEntry(orderIDEntryPosition, mdpGroupEntry);
-                            short entryNum = mdpGroupEntry.getUInt8(MdConstants.REFERENCE_ID);
-                            if(mdEntryPosition == entryNum) {
-                                orderEntry = mdpGroupEntry;
-                                orderIDEntryPosition++;
-                            } else {
-                                orderEntry = null;
-                            }
-                        } else {
-                            orderEntry = null;
-                        }
                         final MDEntryType mdEntryType = MDEntryType.fromFIX(mdEntry.getChar(INCR_RFRSH_MD_ENTRY_TYPE));
                         if (mdEntryType == MDEntryType.EmptyBook) {
                             emptyBookConsumers.forEach(mdpMessageConsumer -> mdpMessageConsumer.accept(mdpMessage));
                         } else {
                             int securityId = mdEntry.getInt32(MdConstants.SECURITY_ID);
-                            routeEntry(securityId, mdpMessage, orderEntry, mdEntry, msgSeqNum);
+                            routeMBPEntry(securityId, mdpMessage, mdEntry, msgSeqNum);
                         }
+                    }
+                }
+                if (mdpMessage.getGroup(MdConstants.NO_ORDER_ID_ENTRIES, mdpGroup) && isOrderEntityContainsReference(mdpGroup, mdpGroupEntry)) {
+                    while (mdpGroup.hashNext()) {
+                        mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, noMdEntriesGroup);
+                        mdpGroup.next();
+                        mdpGroup.getEntry(mdpGroupEntry);
+                        short entryNum = mdpGroupEntry.getUInt8(MdConstants.REFERENCE_ID);
+                        noMdEntriesGroup.getEntry(entryNum, mdEntry);
+                        int securityId = mdEntry.getInt32(MdConstants.SECURITY_ID);
+                        routeMBOEntry(securityId, mdpMessage, mdpGroupEntry, mdEntry, msgSeqNum);
                     }
                 }
             }

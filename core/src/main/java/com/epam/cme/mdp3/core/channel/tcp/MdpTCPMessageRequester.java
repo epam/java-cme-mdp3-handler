@@ -171,7 +171,7 @@ public class MdpTCPMessageRequester<T extends CoreChannelListener> implements TC
                 "\u00011182=" + beginSeqNo + "\u00011183=" + endSeqNo + "\u0001";
         logonMessage = "9=" + logonMessage.length() + "\u0001" + logonMessage;
         String logonChecksum = calculateChecksum(logonMessage);
-        return ByteBuffer.wrap((logonMessage + "10=" + logonChecksum + "\u0001").getBytes());//todo optimize it
+        return ByteBuffer.wrap((logonMessage + "10=" + logonChecksum + "\u0001").getBytes());
     }
 
     private String calculateChecksum(String message) {

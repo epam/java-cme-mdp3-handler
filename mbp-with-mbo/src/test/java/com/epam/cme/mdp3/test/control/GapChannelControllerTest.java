@@ -77,7 +77,8 @@ public class GapChannelControllerTest {
         assertNotNull(pair);
         assertEquals(incrementSequence, pair.getRight().getMsgSeqNum());
 
-        assertNull(testChannelListener.nextIncrementMessage());
+        assertNull(testChannelListener.nextMBOIncrementMessage());
+        assertNull(testChannelListener.nextMBPIncrementMessage());
         assertNull(testChannelController.nextIncrementalMessage());
     }
 
@@ -94,12 +95,17 @@ public class GapChannelControllerTest {
         sendSnapshotMessage(2, 2, 2, 1, 1, 2);
         sendSnapshotMessage(1, instrument, instrumentLastMsgSeqNumProcessed, 1, 1, 1);//next cycle
 
-        TestChannelListener.IncrementalRefreshEntity incrementMessage = testChannelListener.nextIncrementMessage();
+        TestChannelListener.IncrementalRefreshEntity incrementMessage = testChannelListener.nextMBOIncrementMessage();
+        assertNotNull(incrementMessage);
+        assertEquals(instrument, incrementMessage.getSecurityId());
+        assertEquals(incrementSequence, incrementMessage.getMsgSeqNum());
+        incrementMessage = testChannelListener.nextMBPIncrementMessage();
         assertNotNull(incrementMessage);
         assertEquals(instrument, incrementMessage.getSecurityId());
         assertEquals(incrementSequence, incrementMessage.getMsgSeqNum());
 
-        assertNull(testChannelListener.nextIncrementMessage());
+        assertNull(testChannelListener.nextMBOIncrementMessage());
+        assertNull(testChannelListener.nextMBPIncrementMessage());
 
         assertNull(testChannelController.nextIncrementalMessage());
     }
@@ -121,7 +127,7 @@ public class GapChannelControllerTest {
         sendSnapshotMessage(3, instrument2, instrument2lastMsgSeqNumProcessed, 1, 1, 3);
         sendSnapshotMessage(1, instrument1, instrument1lastMsgSeqNumProcessed, 1, 1, 3);//next cycle
 
-        TestChannelListener.IncrementalRefreshEntity incrementMessage = testChannelListener.nextIncrementMessage();
+        TestChannelListener.IncrementalRefreshEntity incrementMessage = testChannelListener.nextMBOIncrementMessage();
         assertNotNull(incrementMessage);
         assertEquals(instrument1, incrementMessage.getSecurityId());
         assertEquals(instrument1Sequence, incrementMessage.getMsgSeqNum());

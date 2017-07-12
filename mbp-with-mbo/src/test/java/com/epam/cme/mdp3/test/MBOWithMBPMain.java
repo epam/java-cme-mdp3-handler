@@ -16,18 +16,27 @@ import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.channel.MdpChannelBuilder;
 import com.epam.cme.mdp3.sbe.message.SbeDouble;
 import com.epam.cme.mdp3.sbe.message.SbeGroup;
+import com.epam.cme.mdp3.sbe.message.SbeGroupEntry;
+import com.epam.cme.mdp3.sbe.message.SbeString;
+import com.epam.cme.mdp3.test.mbpbook.MultipleDepthBookHandler;
+import com.epam.cme.mdp3.test.mbpbook.OrderBookPriceLevel;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static com.epam.cme.mdp3.FeedType.S;
+import static com.epam.cme.mdp3.FeedType.SMBO;
 import static com.epam.cme.mdp3.MdConstants.SECURITY_ID;
 
-public class MBOMain {
-    private static final Logger logger = LoggerFactory.getLogger(MBOMain.class);
+public class MBOWithMBPMain {
+    private static final Logger logger = LoggerFactory.getLogger(MBOWithMBPMain.class);
     private static Map<String, MBOBook> mboBook = new HashMap<>();
+    private static Map<Integer, MultipleDepthBookHandler> multipleDepthBookHandlers = new ConcurrentHashMap<>();
 
     private static class ChannelListenerImpl implements ChannelListener {
         private final MdpGroup mdpGroup = SbeGroup.instance();
@@ -37,11 +46,7 @@ public class MBOMain {
         @Override
         public void onFeedStarted(String channelId, FeedType feedType, Feed feed) {
             logger.info("Channel '{}': {} feed {} is started", channelId, feedType, feed);
-//            if(feedType.equals(SMBO)){
-//                mboBook.forEach((s, book) -> {
-//                    book.clear();
-//                });
-//            }
+            clearBooks();
         }
 
         @Override
@@ -71,12 +76,14 @@ public class MBOMain {
 
         @Override
         public void onBeforeChannelReset(String channelId, MdpMessage resetMessage) {
-            //logger.info("Channel '{}' is broken, all books should be restored", channelId);
+            clearBooks();
+            logger.info("Channel '{}' is broken, all books should be restored", channelId);
         }
 
         @Override
         public void onFinishedChannelReset(String channelId, MdpMessage resetMessage) {
-            //logger.info("Channel '{}' has been reset and restored", channelId);
+            clearBooks();
+            logger.info("Channel '{}' has been reset and restored", channelId);
         }
 
         @Override
@@ -86,49 +93,91 @@ public class MBOMain {
 
         @Override
         public int onSecurityDefinition(final String channelId, final MdpMessage mdpMessage) {
-//            logger.info("Received SecurityDefinition(d). ChannelId: {}, Schema Id: {}", channelId, mdpMessage.getSchemaId());
-            return MdEventFlags.NOTHING;
+            SbeString secGroup = SbeString.allocate(10);
+            mdpMessage.getString(1151, secGroup);
+            int securityID = mdpMessage.getInt32(48);
+            short marketSegmentID = mdpMessage.getUInt8(1300);
+            double strikePrice = 0;
+            if(mdpMessage.hasField(202)) {
+                strikePrice = mdpMessage.getInt64(202) * Math.pow(10, -7);
+            }
+            String securityGroup = secGroup.getString();
+            MdpGroup mdpGroup = SbeGroup.instance();
+            mdpMessage.getGroup(864, mdpGroup);
+            MdpGroupEntry mdpGroupEntry = SbeGroupEntry.instance();
+
+            logger.info("Received SecurityDefinition(d). securityID '{}', ChannelId: {}, Schema Id: {}, securityGroup '{}', marketSegmentID '{}', strikePrice '{}'", securityID, channelId, mdpMessage.getSchemaId(), securityGroup, marketSegmentID, strikePrice);
+            while (mdpGroup.hashNext()){
+                mdpGroup.next();
+                mdpGroup.getEntry(mdpGroupEntry);
+                long eventTime = mdpGroupEntry.getUInt64(1145);
+                short eventType = mdpGroupEntry.getUInt8(865);
+                logger.info("eventTime - '{}'({}), eventType - '{}'", DateFormatUtils.format(eventTime/1000000, "yyyyMMdd HHmm", TimeZone.getTimeZone("UTC")), eventTime, eventType);
+            }
+            return MdEventFlags.MESSAGE;
+        }
+
+        @Override
+        public void onIncrementalMBPRefresh(final String channelId, final short matchEventIndicator, final int securityId,
+                                            final String secDesc, final long msgSeqNum, final FieldSet mdEntry){
+            MultipleDepthBookHandler multipleDepthBookHandler = multipleDepthBookHandlers.computeIfAbsent(securityId, integer -> new MultipleDepthBookHandler(integer, MdEventFlags.BOOK, (byte) 20));
+            char mdEntryType = mdEntry.getChar(269);
+            if (mdEntry.getSchemaId() == 32) {
+                if (mdEntryType == '0') {
+                    multipleDepthBookHandler.handleIncrementBidEntry(mdEntry);
+                } else {
+                    multipleDepthBookHandler.handleIncrementOfferEntry(mdEntry);
+                }
+            }
         }
 
         @Override
         public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
                                      final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
-            long orderId;
-            long mdOrderPriority;
-            double mdEntryPx;
-            long mdDisplayQty;
-            int mdUpdateAction;
-            char mdEntryType;
-            if(mdEntry == null){//MBO only
-                orderId = orderIDEntry.getUInt64(37);
-                mdOrderPriority = orderIDEntry.getUInt64(37707);
-                orderIDEntry.getDouble(270, sbeDouble);
-                mdEntryPx = sbeDouble.asDouble();
-                mdDisplayQty = orderIDEntry.getInt32(37706);
-                mdUpdateAction = orderIDEntry.getUInt8(279);
-                mdEntryType = orderIDEntry.getChar(269);
-                if(traceEnabled){
-                    String result = String.format("MBO only     onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
-                            channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty,  mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
-                    logger.trace(result);
-                }
-            } else {
-                orderId = orderIDEntry.getUInt64(37);
-                mdOrderPriority = orderIDEntry.getUInt64(37707);
-                mdDisplayQty = orderIDEntry.getInt32(37706);
-                mdUpdateAction = orderIDEntry.getUInt8(37708);
+            try {
+                long orderId;
+                long mdOrderPriority;
+                double mdEntryPx;
+                long mdDisplayQty;
+                int mdUpdateAction;
+                char mdEntryType;
+                if (mdEntry == null) {//MBO only
+                    orderId = orderIDEntry.getUInt64(37);
+                    mdOrderPriority = orderIDEntry.getUInt64(37707);
+                    orderIDEntry.getDouble(270, sbeDouble);
+                    mdEntryPx = sbeDouble.asDouble();
+                    mdDisplayQty = orderIDEntry.getInt32(37706);
+                    mdUpdateAction = orderIDEntry.getUInt8(279);
+                    mdEntryType = orderIDEntry.getChar(269);
+                    if (traceEnabled) {
+                        String result = String.format("MBO only     onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
+                                channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
+                        logger.trace(result);
+                    }
+                } else {
+                    orderId = orderIDEntry.getUInt64(37);
+                    mdOrderPriority = orderIDEntry.getUInt64(37707);
+                    mdDisplayQty = orderIDEntry.getInt32(37706);
+                    mdUpdateAction = orderIDEntry.getUInt8(37708);
 
-                mdEntry.getDouble(270, sbeDouble);
-                mdEntryPx = sbeDouble.asDouble();
-                mdEntryType = mdEntry.getChar(269);
-                if(traceEnabled) {
-                    String result = String.format("MBO with MBP onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
-                            channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
-                    logger.trace(result);
+                    mdEntry.getDouble(270, sbeDouble);
+                    mdEntryPx = sbeDouble.asDouble();
+                    mdEntryType = mdEntry.getChar(269);
+                    if (traceEnabled) {
+                        String result = String.format("MBO with MBP onIncrementalMBORefresh : ChannelId: %s, SecurityId: %s-%s, orderId - '%s', mdOrderPriority - '%s', mdEntryPx - '%s', mdDisplayQty - '%s',  mdEntryType - '%s', mdUpdateAction - '%s', MatchEventIndicator: %s (byte representation: '%s')",
+                                channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdEntryType, mdUpdateAction, matchEventIndicator, String.format("%08d", Integer.parseInt(Integer.toBinaryString(0xFFFF & matchEventIndicator))));
+                        logger.trace(result);
+                    }
+
+                }
+                updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdUpdateAction, mdEntryType);
+            } catch (Exception e) {
+                if(mdEntry != null) {
+                    logger.error("mdEntry, SchemaId - {}", mdEntry.getSchemaId(), e);
+                } else {
+                    logger.error(e.getMessage(), e);
                 }
             }
-////            updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdUpdateAction, mdEntryType);
-
         }
 
         @Override
@@ -150,18 +199,23 @@ public class MBOMain {
                             channelId, securityId, secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, mdEntryType);
                     logger.trace(result);
                 }
-//                updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, 0, mdEntryType);
+                updateBook(securityId + "-" + secDesc, orderId, mdOrderPriority, mdEntryPx, mdDisplayQty, 0, mdEntryType);
             }
         }
 
         @Override
-        public void onIncrementalRefresh(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet incrRefreshEntry) {
-
-        }
-
-        @Override
-        public void onSnapshotFullRefresh(String channelId, String secDesc, MdpMessage snptMessage) {
-
+        public void onSnapshotMBPFullRefresh(String channelId, String secDesc, MdpMessage snptMessage) {
+            int securityId = snptMessage.getInt32(SECURITY_ID);
+            MultipleDepthBookHandler multipleDepthBookHandler = multipleDepthBookHandlers.computeIfAbsent(securityId, integer -> new MultipleDepthBookHandler(integer, MdEventFlags.BOOK, (byte) 20));
+            snptMessage.getGroup(268, mdpGroup);
+            while (mdpGroup.hashNext()) {
+                mdpGroup.next();
+                if(mdpGroup.getChar(269) == '0'){
+                    multipleDepthBookHandler.handleSnapshotBidEntry(mdpGroup);
+                } else {
+                    multipleDepthBookHandler.handleSnapshotOfferEntry(mdpGroup);
+                }
+            }
         }
 
         private void updateBook(String instrumentId, long orderId, long mdOrderPriority, double mdEntryPx, long mdDisplayQty, int mdUpdateAction, char mdEntryType){
@@ -197,7 +251,15 @@ public class MBOMain {
 
         @Override
         public void onRequestForQuote(String channelId, MdpMessage rfqMessage) {
-            //logger.info("onRequestForQuote");
+            MdpGroup mdpGroup = SbeGroup.instance();
+            rfqMessage.getGroup(146, mdpGroup);
+            MdpGroupEntry mdpGroupEntry = SbeGroupEntry.instance();
+            while (mdpGroup.hashNext()) {
+                mdpGroup.next();
+                mdpGroup.getEntry(mdpGroupEntry);
+                int orderQty = mdpGroupEntry.getInt32(38);
+                logger.info("onRequestForQuote orderQty - '{}'", orderQty);
+            }
         }
 
         @Override
@@ -210,23 +272,33 @@ public class MBOMain {
         channelInfos.put(channelId, Arrays.asList(groups));
     }
 
+    private static void clearBooks(){
+        mboBook.forEach((s, book) -> book.clear());
+        multipleDepthBookHandlers.forEach((integer, multipleDepthBookHandler) -> multipleDepthBookHandler.clear());
+    }
+
     private static MdpChannel openChannel(final String channelId, final Set<InstrumentInfo> instruments,
-                                          String networkInterface, ScheduledExecutorService executorService) throws Exception {
+                                          String networkInterface, ScheduledExecutorService executorService, boolean mboEnabled) throws Exception {
         final MdpChannel mdpChannel = new MdpChannelBuilder(channelId,
-                MBOMain.class.getResource("/config.xml").toURI(),
-                MBOMain.class.getResource("/templates_FixBinary.xml").toURI())
+                MBOWithMBPMain.class.getResource("/config.xml").toURI(),
+                MBOWithMBPMain.class.getResource("/templates_FixBinary.xml").toURI())
                 .usingListener(new ChannelListenerImpl())
-                .setNetworkInterface(FeedType.SMBO, Feed.A, networkInterface).setNetworkInterface(FeedType.SMBO, Feed.B, networkInterface)
-                .setNetworkInterface(FeedType.S, Feed.A, networkInterface).setNetworkInterface(FeedType.S, Feed.B, networkInterface)
+                .setNetworkInterface(SMBO, Feed.A, networkInterface).setNetworkInterface(SMBO, Feed.B, networkInterface)
+                .setNetworkInterface(S, Feed.A, networkInterface).setNetworkInterface(S, Feed.B, networkInterface)
                 .setNetworkInterface(FeedType.I, Feed.A, networkInterface).setNetworkInterface(FeedType.I, Feed.B, networkInterface)
                 .setNetworkInterface(FeedType.N, Feed.A, networkInterface).setNetworkInterface(FeedType.N, Feed.B, networkInterface)
                 .usingIncrQueueSize(MdpChannelBuilder.DEF_INCR_QUEUE_SIZE)
                 .usingScheduler(executorService)
+                .setMBOEnable(mboEnabled)
                 .build();
         instruments.forEach(instrumentInfo -> mdpChannel.subscribe(instrumentInfo.instrumentId, instrumentInfo.desc));
         mdpChannel.startFeed(FeedType.I, Feed.A);
         mdpChannel.startFeed(FeedType.I, Feed.B);
-        mdpChannel.startFeed(FeedType.SMBO, Feed.A);
+        if(mboEnabled) {
+            mdpChannel.startFeed(SMBO, Feed.A);
+        } else {
+            mdpChannel.startFeed(S, Feed.A);
+        }
         return mdpChannel;
     }
 
@@ -240,22 +312,25 @@ public class MBOMain {
 //        # 342 for YM
 //        # 344 for ZB, ZN, ZF
         final String networkInterface;
-        if(args.length > 0) {
-            networkInterface =args[0];
-        } else {
+//        if(args.length > 0) {
+//            networkInterface =args[0];
+//        } else {
             networkInterface = null;
-        }
+//        }
+
 
 
         final Map<String, List<String>> channelInfos = new HashMap<>();
+        defineChannel(channelInfos, args[0]);
+        boolean mboEnabled = Boolean.valueOf(args[1]);
 //        defineChannel(channelInfos, "310", "ES");
-        defineChannel(channelInfos, "314", "6A", "6B", "6J", "6S");
+//        defineChannel(channelInfos, "314", "6A", "6B", "6J", "6S");
 //        defineChannel(channelInfos, "318", "NQ");
-        defineChannel(channelInfos, "382", "CL");
-        defineChannel(channelInfos, "360", "HG", "GC", "SI");
+//        defineChannel(channelInfos, "382", "CL");
+//        defineChannel(channelInfos, "360", "HG", "GC", "SI");
 //        defineChannel(channelInfos, "320", "6C", "6E", "6M", "6N");
 //        defineChannel(channelInfos, "342", "YM");
-        defineChannel(channelInfos, "344", "ZB", "ZN", "ZF");
+//        defineChannel(channelInfos, "344", "ZB", "ZN", "ZF");
 
         final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(channelInfos.size());
 
@@ -267,7 +342,7 @@ public class MBOMain {
             resolvedInstruments.forEach((s, instrumentInfos) -> {
                 if (!resolvedInstruments.isEmpty()) {
                     try {
-                        openChannels.add(openChannel(s, instrumentInfos, networkInterface, executorService));
+                        openChannels.add(openChannel(s, instrumentInfos, networkInterface, executorService, mboEnabled));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -280,9 +355,22 @@ public class MBOMain {
                     mboBook.forEach((s, book) -> {
                         logger.info("MBO MBOBook for '{}'\n{}", s, book.toString());
                     });
+                    multipleDepthBookHandlers.forEach((security, multipleDepthBookHandler) -> {
+                        logger.info("MBP Book for '{}'", security);
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 1; i <= multipleDepthBookHandler.getDepth(); i++) {
+                            OrderBookPriceLevel bid = multipleDepthBookHandler.getBid((byte)i);
+                            OrderBookPriceLevel ask = multipleDepthBookHandler.getOffer((byte)i);
+                            sb.append(String.format("%s - bid['%s' - '%s' == '%s'] ask['%s' - '%s' == '%s']", i,
+                                    bid.getPrice().asDouble(), bid.getQuantity(), bid.getOrderCount(),
+                                    ask.getPrice().asDouble(), ask.getQuantity(), ask.getOrderCount())).append("\n");
+
+                        }
+                        logger.info(sb.toString());
+                    });
 
                 } else if(((char)read) == '0') {
-                    mboBook.forEach((s, book) -> book.clear());
+                    clearBooks();
                 } else if(((char)read) == '3') {
                     openChannels.forEach(MdpChannel::close);
                     executorService.shutdownNow();

@@ -50,8 +50,6 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     private TCPRecoveryProcessor tcpRecoveryProcessor;
     private int numberOfTCPAttempts;
 
-
-
     public GapChannelController(List<ChannelListener> channelListeners, ChannelController target,
                                 ChannelController targetForBuffered, SnapshotRecoveryManager snapshotRecoveryManager,
                                 Buffer<MdpPacket> buffer, int gapThreshold, String channelId, MdpMessageTypes mdpMessageTypes,

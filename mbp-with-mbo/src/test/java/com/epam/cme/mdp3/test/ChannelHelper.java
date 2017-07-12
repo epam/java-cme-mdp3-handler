@@ -66,9 +66,9 @@ public class ChannelHelper {
                             secDefMessage.getString(1151, tag1151value);
 
                             final String secGroup = tag1151value.getString();
-                            if (symbolGroups.contains(secGroup)) {
+//                            if (symbolGroups.contains(secGroup)) {
                                 instruments.add(new InstrumentInfo(securityId, tag55value.getString()));
-                            }
+//                            }
 
                             return MdEventFlags.NOTHING;
                         }

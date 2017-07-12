@@ -10,7 +10,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package test;
+package com.epam.cme.mdp3.test;
 
 import com.epam.cme.mdp3.MdpGroup;
 import com.epam.cme.mdp3.MdpMessage;

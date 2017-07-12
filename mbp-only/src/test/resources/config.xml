@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+  ~ Copyright 2004-2016 EPAM Systems
+  ~ This file is part of Java Market Data Handler for CME Market Data (MDP 3.0).
+  ~ Java Market Data Handler for CME Market Data (MDP 3.0) is free software: you can redistribute it and/or modify it under the terms of the
+  ~ GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+  ~ Java Market Data Handler for CME Market Data (MDP 3.0) is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~ You should have received a copy of the GNU General Public License along with Java Market Data Handler for CME Market Data (MDP 3.0).
+  ~ If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <configuration environment="PROD" updated="2017/06/18-23:01:01">
   <channel id="310" label="CME Globex Equity Futures">
     <products>
@@ -10062,213 +10074,6 @@
         <ip>224.0.25.254</ip>
         <host-ip>69.50.112.77</host-ip>
         <port>20648</port>
-        <feed>A</feed>
-      </connection>
-      <connection id="521H2A">
-        <type feed-type="H">Historical Replay</type>
-        <protocol>TCP/IP</protocol>
-        <host-ip>205.209.222.72</host-ip>
-        <host-ip>205.209.220.72</host-ip>
-        <port>10000</port>
-        <feed>A</feed>
-      </connection>
-    </connections>
-  </channel>
-  <channel id="601" label="AutoCert Interest Rate Options">
-    <products>
-      <product code="1GE">
-        <group code="92"/>
-      </product>
-      <product code="1GE5">
-        <group code="4$"/>
-      </product>
-      <product code="2GE">
-        <group code="92"/>
-      </product>
-      <product code="2GE5">
-        <group code="4$"/>
-      </product>
-      <product code="3GE">
-        <group code="92"/>
-      </product>
-      <product code="3GE5">
-        <group code="4$"/>
-      </product>
-      <product code="4GE">
-        <group code="92"/>
-      </product>
-      <product code="4GE5">
-        <group code="4$"/>
-      </product>
-      <product code="5GE">
-        <group code="92"/>
-      </product>
-      <product code="5GE5">
-        <group code="4$"/>
-      </product>
-      <product code="6GE">
-        <group code="92"/>
-      </product>
-      <product code="6GE5">
-        <group code="4$"/>
-      </product>
-      <product code="7GE">
-        <group code="92"/>
-      </product>
-      <product code="7GE5">
-        <group code="4$"/>
-      </product>
-      <product code="8GE">
-        <group code="92"/>
-      </product>
-      <product code="8GE5">
-        <group code="4$"/>
-      </product>
-      <product code="9GE">
-        <group code="92"/>
-      </product>
-      <product code="9GE5">
-        <group code="4$"/>
-      </product>
-      <product code="BGE">
-        <group code="92"/>
-      </product>
-      <product code="BGE5">
-        <group code="4$"/>
-      </product>
-    </products>
-    <connections>
-      <connection id="601IA">
-        <type feed-type="I">Incremental</type>
-        <protocol>UDP/IP</protocol>
-        <ip>224.0.25.101</ip>
-        <host-ip>69.50.112.67</host-ip>
-        <port>11601</port>
-        <feed>A</feed>
-      </connection>
-      <connection id="601IB">
-        <type feed-type="I">Incremental</type>
-        <protocol>UDP/IP</protocol>
-        <ip>224.0.25.101</ip>
-        <host-ip>69.50.112.67</host-ip>
-        <port>11701</port>
-        <feed>B</feed>
-      </connection>
-      <connection id="601NA">
-        <type feed-type="N">Instrument Replay</type>
-        <protocol>UDP/IP</protocol>
-        <ip>224.0.25.127</ip>
-        <host-ip>69.50.112.74</host-ip>
-        <port>16601</port>
-        <feed>A</feed>
-      </connection>
-      <connection id="601SA">
-        <type feed-type="S">Snapshot</type>
-        <protocol>UDP/IP</protocol>
-        <ip>224.0.25.127</ip>
-        <host-ip>69.50.112.74</host-ip>
-        <port>19601</port>
-        <feed>A</feed>
-      </connection>
-      <connection id="601SAMBO">
-        <type feed-type="SMBO">Snapshot-MBO</type>
-        <protocol>UDP/IP</protocol>
-        <ip>224.0.25.254</ip>
-        <host-ip>69.50.112.67</host-ip>
-        <port>20601</port>
-        <feed>A</feed>
-      </connection>
-      <connection id="521H2A">
-        <type feed-type="H">Historical Replay</type>
-        <protocol>TCP/IP</protocol>
-        <host-ip>205.209.222.72</host-ip>
-        <host-ip>205.209.220.72</host-ip>
-        <port>10000</port>
-        <feed>A</feed>
-      </connection>
-    </connections>
-  </channel>
-  <channel id="666" label="AutoCert Interest Rate Futures">
-    <products>
-      <product code="0EB">
-        <group code="N$"/>
-      </product>
-      <product code="1GE">
-        <group code="90"/>
-      </product>
-      <product code="1GLB">
-        <group code="N$"/>
-      </product>
-      <product code="1ZQ">
-        <group code="90"/>
-      </product>
-      <product code="2EB">
-        <group code="N$"/>
-      </product>
-      <product code="4GE">
-        <group code="90"/>
-      </product>
-      <product code="5EB">
-        <group code="N$"/>
-      </product>
-      <product code="7EB">
-        <group code="N$"/>
-      </product>
-      <product code="7GE">
-        <group code="90"/>
-      </product>
-      <product code="8EB">
-        <group code="N$"/>
-      </product>
-      <product code="8GE">
-        <group code="90"/>
-      </product>
-      <product code="8GLB">
-        <group code="N$"/>
-      </product>
-      <product code="BGE">
-        <group code="90"/>
-      </product>
-    </products>
-    <connections>
-      <connection id="666IA">
-        <type feed-type="I">Incremental</type>
-        <protocol>UDP/IP</protocol>
-        <ip>224.0.28.125</ip>
-        <host-ip>69.50.112.67</host-ip>
-        <port>11666</port>
-        <feed>A</feed>
-      </connection>
-      <connection id="666IB">
-        <type feed-type="I">Incremental</type>
-        <protocol>UDP/IP</protocol>
-        <ip>224.0.25.101</ip>
-        <host-ip>69.50.112.67</host-ip>
-        <port>11766</port>
-        <feed>B</feed>
-      </connection>
-      <connection id="666NA">
-        <type feed-type="N">Instrument Replay</type>
-        <protocol>UDP/IP</protocol>
-        <ip>224.0.28.125</ip>
-        <host-ip>69.50.112.74</host-ip>
-        <port>16666</port>
-        <feed>A</feed>
-      </connection>
-      <connection id="666SA">
-        <type feed-type="S">Snapshot</type>
-        <protocol>UDP/IP</protocol>
-        <ip>224.0.28.125</ip>
-        <host-ip>69.50.112.74</host-ip>
-        <port>19666</port>
-        <feed>A</feed>
-      </connection>
-      <connection id="666SAMBO">
-        <type feed-type="SMBO">Snapshot-MBO</type>
-        <protocol>UDP/IP</protocol>
-        <ip>224.0.25.254</ip>
-        <host-ip>69.50.112.67</host-ip>
-        <port>20666</port>
         <feed>A</feed>
       </connection>
       <connection id="521H2A">

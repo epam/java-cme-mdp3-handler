@@ -13,7 +13,7 @@
 package com.epam.cme.mdp3.test.perf;
 
 import com.epam.cme.mdp3.MdpPacket;
-import com.epam.cme.mdp3.core.control.MDPOffHeapBuffer;
+import com.epam.cme.mdp3.control.MDPOffHeapBuffer;
 import com.epam.cme.mdp3.test.ModelUtils;
 import org.openjdk.jmh.annotations.*;
 

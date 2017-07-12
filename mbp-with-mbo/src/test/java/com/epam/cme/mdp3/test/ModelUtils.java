@@ -97,6 +97,37 @@ public class ModelUtils {
         return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
     }
 
+    public static ByteBuffer getMBPOnlyIncrementWith12TestEntries(int sequence, int securityId) {
+        short bufferOffset = 0;
+        final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();
+        MessageHeaderEncoder messageHeaderEncoder = new MessageHeaderEncoder();
+        MDIncrementalRefreshBook32Encoder mdIncrementalRefreshBook32Encoder = new MDIncrementalRefreshBook32Encoder();
+        messageHeaderEncoder.wrap(mutableDirectBuffer, bufferOffset)
+                .blockLength(mdIncrementalRefreshBook32Encoder.sbeBlockLength())
+                .templateId(mdIncrementalRefreshBook32Encoder.sbeTemplateId())
+                .schemaId(mdIncrementalRefreshBook32Encoder.sbeSchemaId())
+                .version(mdIncrementalRefreshBook32Encoder.sbeSchemaVersion());
+        bufferOffset += messageHeaderEncoder.encodedLength();
+        MDIncrementalRefreshBook32Encoder.NoMDEntriesEncoder noMDEntriesEncoder = mdIncrementalRefreshBook32Encoder.wrap(mutableDirectBuffer, bufferOffset)
+                .transactTime(System.currentTimeMillis()).noMDEntriesCount(12);
+        MatchEventIndicatorEncoder matchEventIndicatorEncoder = mdIncrementalRefreshBook32Encoder.matchEventIndicator();
+        matchEventIndicatorEncoder.lastTradeMsg(true);
+        noMDEntriesEncoder.next().mDEntrySize(4 ).mDEntryType(MDEntryTypeBook.Bid  ).mDPriceLevel((short) 1).rptSeq(1254).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryPx().mantissa(98745000000L);
+        noMDEntriesEncoder.next().mDEntrySize(1 ).mDEntryType(MDEntryTypeBook.Offer).mDPriceLevel((short) 1).rptSeq(1255).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryPx().mantissa(987075000000L);
+        noMDEntriesEncoder.next().mDEntrySize(45).mDEntryType(MDEntryTypeBook.Bid  ).mDPriceLevel((short) 2).rptSeq(1256).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryPx().mantissa(987125000000L);
+        noMDEntriesEncoder.next().mDEntrySize(22).mDEntryType(MDEntryTypeBook.Offer).mDPriceLevel((short) 2).rptSeq(1257).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryPx().mantissa(98745000000L);
+        noMDEntriesEncoder.next().mDEntrySize(98).mDEntryType(MDEntryTypeBook.Bid  ).mDPriceLevel((short) 3).rptSeq(1258).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryPx().mantissa(98720000000L);
+        noMDEntriesEncoder.next().mDEntrySize(43).mDEntryType(MDEntryTypeBook.Offer).mDPriceLevel((short) 3).rptSeq(1259).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryPx().mantissa(98725000000L);
+        noMDEntriesEncoder.next().mDEntrySize(12).mDEntryType(MDEntryTypeBook.Bid  ).mDPriceLevel((short) 4).rptSeq(1260).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryPx().mantissa(98715000000L);
+        noMDEntriesEncoder.next().mDEntrySize(83).mDEntryType(MDEntryTypeBook.Offer).mDPriceLevel((short) 4).rptSeq(1261).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryPx().mantissa(98670000000L);
+        noMDEntriesEncoder.next().mDEntrySize(38).mDEntryType(MDEntryTypeBook.Bid  ).mDPriceLevel((short) 5).rptSeq(1262).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryPx().mantissa(98695000000L);
+        noMDEntriesEncoder.next().mDEntrySize(99).mDEntryType(MDEntryTypeBook.Offer).mDPriceLevel((short) 5).rptSeq(1263).securityID(securityId).mDUpdateAction(MDUpdateAction.New).mDEntryPx().mantissa(98690000000L);
+        noMDEntriesEncoder.next().mDEntrySize(1 ).mDEntryType(MDEntryTypeBook.Bid  ).mDPriceLevel((short) 3).rptSeq(1264).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryPx().mantissa(987025000000L);
+        noMDEntriesEncoder.next().mDEntrySize(99).mDEntryType(MDEntryTypeBook.Offer).mDPriceLevel((short) 3).rptSeq(1265).securityID(securityId).mDUpdateAction(MDUpdateAction.Delete).mDEntryPx().mantissa(98677500000L);
+        bufferOffset += mdIncrementalRefreshBook32Encoder.encodedLength();
+        return packMessage(sequence, mutableDirectBuffer.byteArray(), bufferOffset);
+    }
+
     public static ByteBuffer getMBPWithMBOIncrementTestMessage(long sequence, int[] securityIds, short[] referenceIDs){
         short bufferOffset = 0;
         final MutableDirectBuffer mutableDirectBuffer = new ExpandableArrayBuffer();

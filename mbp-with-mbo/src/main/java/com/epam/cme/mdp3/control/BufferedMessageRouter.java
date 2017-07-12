@@ -30,10 +30,19 @@ public class BufferedMessageRouter extends ChannelControllerRouter {
         this.cycleHandler = cycleHandler;
     }
 
-    protected void routeEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
+    @Override
+    protected void routeMBOEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
         long snapshotSequence = cycleHandler.getSnapshotSequence(securityId);
         if(snapshotSequence < msgSeqNum) {
-            super.routeEntry(securityId, mdpMessage, orderIDEntry, mdEntry, msgSeqNum);
+            super.routeMBOEntry(securityId, mdpMessage, orderIDEntry, mdEntry, msgSeqNum);
+        }
+    }
+
+    @Override
+    protected void routeMBPEntry(int securityId, MdpMessage mdpMessage, MdpGroupEntry mdEntry, long msgSeqNum){
+        long snapshotSequence = cycleHandler.getSnapshotSequence(securityId);
+        if(snapshotSequence < msgSeqNum) {
+            super.routeMBPEntry(securityId, mdpMessage, mdEntry, msgSeqNum);
         }
     }
 }

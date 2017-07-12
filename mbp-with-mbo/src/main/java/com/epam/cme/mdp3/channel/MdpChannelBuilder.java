@@ -21,7 +21,6 @@ import com.epam.cme.mdp3.core.channel.MdpFeedWorker;
 import com.epam.cme.mdp3.core.channel.tcp.MdpTCPMessageRequester;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypeBuildException;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
-import com.epam.cme.mdp3.service.DefaultScheduledServiceHolder;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -38,13 +37,13 @@ public class MdpChannelBuilder {
     private Map<FeedType, String> feedANetworkInterfaces = new HashMap<>();
     private Map<FeedType, String> feedBNetworkInterfaces = new HashMap<>();
     private ChannelListener channelListener;
-    private boolean noScheduler = false;
     private ScheduledExecutorService scheduler;
     private int incrQueueSize = DEF_INCR_QUEUE_SIZE;
     private int gapThreshold = DEF_GAP_THRESHOLD;
     private int rcvBufSize = MdpFeedWorker.RCV_BUFFER_SIZE;
     private String tcpUsername = MdpTCPMessageRequester.DEFAULT_USERNAME;
     private String tcpPassword = MdpTCPMessageRequester.DEFAULT_PASSWORD;
+    private boolean mboEnabled;
 
     public MdpChannelBuilder(final String channelId) {
         this.channelId = channelId;
@@ -101,11 +100,6 @@ public class MdpChannelBuilder {
         return this;
     }
 
-    public MdpChannelBuilder noFeedIdleControl() {
-        this.noScheduler = true;
-        return this;
-    }
-
     public MdpChannelBuilder setTcpUsername(String tcpUsername) {
         this.tcpUsername = tcpUsername;
         return this;
@@ -116,27 +110,21 @@ public class MdpChannelBuilder {
         return this;
     }
 
+    public MdpChannelBuilder setMBOEnable(boolean enabled) {
+        mboEnabled = enabled;
+        return this;
+    }
+
     public MdpChannel build() {
         try {
             final Configuration cfg = new Configuration(this.cfgURI);
             final MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(this.schemaURI);
-
-            if (!noScheduler && scheduler == null) {
-                scheduler = DefaultScheduledServiceHolder.getScheduler();
-            }
-
             MdpChannel mdpChannel = new LowLevelMdpChannel(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes,
-                     incrQueueSize, rcvBufSize, gapThreshold, tcpUsername, tcpPassword, feedANetworkInterfaces, feedBNetworkInterfaces);
-
+                     incrQueueSize, rcvBufSize, gapThreshold, tcpUsername, tcpPassword, feedANetworkInterfaces, feedBNetworkInterfaces, mboEnabled);
             if (channelListener != null) mdpChannel.registerListener(channelListener);
-
             return mdpChannel;
         } catch (Exception e) {
             throw new IllegalStateException("Failed to build MDP Channel", e);
         }
-    }
-
-    public MdpMessageTypes getMdpMessageTypes() {
-        return mdpMessageTypes;
     }
 }

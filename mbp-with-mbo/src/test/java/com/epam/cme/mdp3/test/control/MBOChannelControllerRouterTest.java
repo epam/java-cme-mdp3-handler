@@ -74,7 +74,7 @@ public class MBOChannelControllerRouterTest {
         ByteBuffer mboIncrementTestMessage = ModelUtils.getMBOIncrementTestMessage(1, testSecurityId, orderID, mDOrderPriority, mDUpdateAction, mDEntryType, mDDisplayQty, mDEntryPx);
         mdpPacketWithIncrement.wrapFromBuffer(mboIncrementTestMessage);
         channelController.handleIncrementalPacket(incrementContext, mdpPacketWithIncrement);
-        TestChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
+        TestChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextMBOIncrementMessage();
         assertNotNull(incrementalRefreshEntity);
         Assert.assertEquals(channelId, incrementalRefreshEntity.getChannelId());
         Assert.assertEquals(secDesc, incrementalRefreshEntity.getSecDesc());
@@ -117,34 +117,16 @@ public class MBOChannelControllerRouterTest {
 
         channelController.handleIncrementalPacket(incrementContext, mdpPacketWithIncrement);
 
-        TestChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNotNull(incrementalRefreshEntity);
-        FieldSet orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        FieldSet mdEntry = incrementalRefreshEntity.getMdEntry();
-        assertNull(orderIDEntry);
-        assertNotNull(mdEntry);
-        assertEquals(secId1, mdEntry.getInt32(SECURITY_ID));
+        checkMBPIncrementalRefreshEntity(testListener.nextMBPIncrementMessage(), secId1);
 
-        incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNotNull(incrementalRefreshEntity);
-        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        mdEntry = incrementalRefreshEntity.getMdEntry();
-        assertNotNull(orderIDEntry);
-        assertNotNull(mdEntry);
-        assertEquals(secId2, mdEntry.getInt32(SECURITY_ID));
-        assertEquals(ref1, orderIDEntry.getUInt8(REFERENCE_ID));
+        checkMBOIncrementalRefreshEntity(testListener.nextMBOIncrementMessage(), ref1);
+        checkMBPIncrementalRefreshEntity(testListener.nextMBPIncrementMessage(), secId2);
 
-        incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNotNull(incrementalRefreshEntity);
-        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        mdEntry = incrementalRefreshEntity.getMdEntry();
-        assertNotNull(orderIDEntry);
-        assertNotNull(mdEntry);
-        assertEquals(secId3, mdEntry.getInt32(SECURITY_ID));
-        assertEquals(ref2, orderIDEntry.getUInt8(REFERENCE_ID));
+        checkMBOIncrementalRefreshEntity(testListener.nextMBOIncrementMessage(), ref2);
+        checkMBPIncrementalRefreshEntity(testListener.nextMBPIncrementMessage(), secId3);
 
-        incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNull(incrementalRefreshEntity);
+        assertNull(testListener.nextMBOIncrementMessage());
+        assertNull(testListener.nextMBPIncrementMessage());
     }
 
     @Test
@@ -161,34 +143,16 @@ public class MBOChannelControllerRouterTest {
 
         channelController.handleIncrementalPacket(incrementContext, mdpPacketWithIncrement);
 
-        TestChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNotNull(incrementalRefreshEntity);
-        FieldSet orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        FieldSet mdEntry = incrementalRefreshEntity.getMdEntry();
-        assertNotNull(orderIDEntry);
-        assertNotNull(mdEntry);
-        assertEquals(secId1, mdEntry.getInt32(SECURITY_ID));
-        assertEquals(ref1, orderIDEntry.getUInt8(REFERENCE_ID));
+        checkMBOIncrementalRefreshEntity(testListener.nextMBOIncrementMessage(), ref1);
+        checkMBPIncrementalRefreshEntity(testListener.nextMBPIncrementMessage(), secId1);
 
-        incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNotNull(incrementalRefreshEntity);
-        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        mdEntry = incrementalRefreshEntity.getMdEntry();
-        assertNull(orderIDEntry);
-        assertNotNull(mdEntry);
-        assertEquals(secId2, mdEntry.getInt32(SECURITY_ID));
+        checkMBPIncrementalRefreshEntity(testListener.nextMBPIncrementMessage(), secId2);
 
-        incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNotNull(incrementalRefreshEntity);
-        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        mdEntry = incrementalRefreshEntity.getMdEntry();
-        assertNotNull(orderIDEntry);
-        assertNotNull(mdEntry);
-        assertEquals(secId3, mdEntry.getInt32(SECURITY_ID));
-        assertEquals(ref2, orderIDEntry.getUInt8(REFERENCE_ID));
+        checkMBOIncrementalRefreshEntity(testListener.nextMBOIncrementMessage(), ref2);
+        checkMBPIncrementalRefreshEntity(testListener.nextMBPIncrementMessage(), secId3);
 
-        incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNull(incrementalRefreshEntity);
+        assertNull(testListener.nextMBOIncrementMessage());
+        assertNull(testListener.nextMBPIncrementMessage());
     }
 
     @Test
@@ -205,34 +169,28 @@ public class MBOChannelControllerRouterTest {
 
         channelController.handleIncrementalPacket(incrementContext, mdpPacketWithIncrement);
 
-        TestChannelListener.IncrementalRefreshEntity incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNotNull(incrementalRefreshEntity);
-        FieldSet orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        FieldSet mdEntry = incrementalRefreshEntity.getMdEntry();
-        assertNotNull(orderIDEntry);
-        assertNotNull(mdEntry);
-        assertEquals(secId1, mdEntry.getInt32(SECURITY_ID));
-        assertEquals(ref1, orderIDEntry.getUInt8(REFERENCE_ID));
+        checkMBOIncrementalRefreshEntity(testListener.nextMBOIncrementMessage(), ref1);
+        checkMBPIncrementalRefreshEntity(testListener.nextMBPIncrementMessage(), secId1);
 
-        incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNotNull(incrementalRefreshEntity);
-        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        mdEntry = incrementalRefreshEntity.getMdEntry();
-        assertNull(orderIDEntry);
-        assertNotNull(mdEntry);
-        assertEquals(secId2, mdEntry.getInt32(SECURITY_ID));
+        checkMBPIncrementalRefreshEntity(testListener.nextMBPIncrementMessage(), secId2);
 
-        incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNotNull(incrementalRefreshEntity);
-        orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
-        mdEntry = incrementalRefreshEntity.getMdEntry();
-        assertNull(orderIDEntry);
-        assertNotNull(mdEntry);
-        assertEquals(secId3, mdEntry.getInt32(SECURITY_ID));
+        checkMBPIncrementalRefreshEntity(testListener.nextMBPIncrementMessage(), secId3);
 
-        incrementalRefreshEntity = testListener.nextIncrementMessage();
-        assertNull(incrementalRefreshEntity);
+        assertNull(testListener.nextMBOIncrementMessage());
+        assertNull(testListener.nextMBPIncrementMessage());
     }
 
+    private void checkMBOIncrementalRefreshEntity(TestChannelListener.IncrementalRefreshEntity incrementalMBORefreshEntity, short ref){
+        assertNotNull(incrementalMBORefreshEntity);
+        FieldSet orderIDEntry = incrementalMBORefreshEntity.getOrderIDEntry();
+        assertNotNull(orderIDEntry);
+        assertEquals(ref, orderIDEntry.getUInt8(REFERENCE_ID));
+    }
 
+    private void checkMBPIncrementalRefreshEntity(TestChannelListener.IncrementalRefreshEntity incrementalMBPRefreshEntity, int secId){
+        assertNotNull(incrementalMBPRefreshEntity);
+        FieldSet mdEntry = incrementalMBPRefreshEntity.getMdEntry();
+        assertNotNull(mdEntry);
+        assertEquals(secId, mdEntry.getInt32(SECURITY_ID));
+    }
 }

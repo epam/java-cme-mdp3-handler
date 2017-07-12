@@ -12,15 +12,15 @@
 
 package com.epam.cme.mdp3.test.perf;
 
-import com.epam.cme.mdp3.core.control.MBOSnapshotCycleHandler;
-import com.epam.cme.mdp3.core.control.OffHeapMBOSnapshotCycleHandler;
+import com.epam.cme.mdp3.control.OffHeapSnapshotCycleHandler;
+import com.epam.cme.mdp3.control.SnapshotCycleHandler;
 import org.openjdk.jmh.annotations.*;
 
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
 public class MBOSnapshotCycleHandlerTest {
-    private MBOSnapshotCycleHandler cycleHandler = new OffHeapMBOSnapshotCycleHandler();
+    private SnapshotCycleHandler cycleHandler = new OffHeapSnapshotCycleHandler();
     private long totNumReports = 2;
     private int securityId1 = 10;
     private int securityId2 = 20;
@@ -42,7 +42,7 @@ public class MBOSnapshotCycleHandlerTest {
         cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId1, securityId1NoChunks, 2);
         cycleHandler.getSnapshotSequence(securityId2);
         cycleHandler.update(totNumReports, lastMsgSeqNumProcessed, securityId2, securityId2NoChunks, 1);
-        if(cycleHandler.getSnapshotSequence(securityId1) == MBOSnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED){
+        if(cycleHandler.getSnapshotSequence(securityId1) == SnapshotCycleHandler.SNAPSHOT_SEQUENCE_UNDEFINED){
             throw new RuntimeException();
         }
         cycleHandler.reset();

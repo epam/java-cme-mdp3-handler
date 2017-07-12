@@ -8,12 +8,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static com.epam.cme.mdp3.test.Constants.WAITING_TIME_IN_MILLIS;
-
 public class TestChannelListener implements ChannelListener {
     private ChannelState prevSate;
     private ChannelState currentSate;
-    private BlockingQueue<IncrementalRefreshEntity> incrementQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<IncrementalRefreshEntity> incrementMBOQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<IncrementalRefreshEntity> incrementMBPQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<String,MdpMessage>> mboSnapshotQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<String,MdpMessage>> mbpSnapshotQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Pair<String,MdpMessage>> securitiesQueue = new LinkedBlockingQueue<>();
@@ -56,9 +55,15 @@ public class TestChannelListener implements ChannelListener {
     }
 
     @Override
-    public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, final int securityId,
+    public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
                                  final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
-        incrementQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry != null ? orderIDEntry.copy() : null, mdEntry != null ? mdEntry.copy() : null));
+        incrementMBOQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry != null ? orderIDEntry.copy() : null, mdEntry != null ? mdEntry.copy() : null));
+    }
+
+    @Override
+    public void onIncrementalMBPRefresh(final String channelId, final short matchEventIndicator, final int securityId,
+                                 final String secDesc, final long msgSeqNum, final FieldSet mdEntry){
+        incrementMBPQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, (mdEntry != null) ? mdEntry.copy() : null));
     }
 
     @Override
@@ -93,8 +98,12 @@ public class TestChannelListener implements ChannelListener {
         return securitiesQueue.poll(Constants.WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
     }
 
-    public IncrementalRefreshEntity nextIncrementMessage() throws InterruptedException {
-        return incrementQueue.poll(Constants.WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
+    public IncrementalRefreshEntity nextMBOIncrementMessage() throws InterruptedException {
+        return incrementMBOQueue.poll(Constants.WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
+    }
+
+    public IncrementalRefreshEntity nextMBPIncrementMessage() throws InterruptedException {
+        return incrementMBPQueue.poll(Constants.WAITING_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     public ChannelState getCurrentSate() {
@@ -113,6 +122,10 @@ public class TestChannelListener implements ChannelListener {
         private long msgSeqNum;
         private FieldSet orderIDEntry;
         private FieldSet mdEntry;
+
+        public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet mdEntry) {
+            this(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, null, mdEntry);
+        }
 
         public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet orderIDEntry, FieldSet mdEntry) {
             this.channelId = channelId;
