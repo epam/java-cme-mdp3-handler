@@ -1,6 +1,38 @@
 ## Synopsis
 
-Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take advantage of the new low-latency data feed. It fully supports features of the CME Globex MDP3.0 market data platform, helps feeding CME market data directly into the client application. The handler delivers market data updates from socket to your application in a few microseconds.
+Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take advantage of the new low-latency data feed. It fully supports features of the CME Globex MDP3.0 market data platform(https://www.cmegroup.com/confluence/display/EPICSANDBOX/CME+MDP+3.0+Market+Data), helps feeding CME market data directly into the client application. The handler delivers market data updates from socket to your application in a few microseconds.
+
+## Motivation
+
+With the third generation of its market data platform CME made several key improvements in the
+application protocol and message encoding to allow more efficient market data processing on the
+client side.
+
+Matching engine event boundaries are now clearly indicated with the MatchEventIndicator (5799) tag to
+allow a client application apply market data updates transactionally. The client application has explicit
+knowledge of the moment when market data is consistent for analysis in the case of complex order
+book updates or multiple instruments affected by a matching event. Matching events are now
+independent of the UDP packet boundaries ??? a matching event may spread over several sequential UDP
+packets and a UDP packet may contain several matching events. Market data updates of a matching
+event are segregated by update type to allow the client application skip handling of messages not
+relevant to specific algorithm to reduce processing time. New trade summary messages aggregate
+trades by price level resulting in fewer trade updates disseminated in the case of large fill events.
+(http://www.cmegroup.com/confluence/display/EPICSANDBOX/MDP+3.0+Packet+Structure+Examples)
+
+The new Simple Binary Encoding (SBE) format which replaced the FAST encoding allows more efficient and
+faster message decoding on the client side thanks to the fixed-length fields, native little-endian byte
+order and proper field alignment. The client application can efficiently access message fields directly
+in the buffer filled with data received from the network socket. The client application does not have to
+perform complex sequential state-based decoding process to access required fields. Overall the
+increased message encoding and decoding speed overcomes slight increase of disseminated data size
+and bandwidth requirements compared to the FAST compression.
+
+With the introduction of CME MDP 3.0 platform B2BITS EPAM Systems designed new open source market data handler
+to take advantage of the new low-latency data feed and to provide developers with the required functionality.
+The new handler is optimized for both single- and multi-channel usage scenarios,
+the new SBE parser provides fast access to messages and message fields by tag number.
+With this project developers have flexibility to include this library into own applications (with/without
+required changes) instead of own implementation of all aspects of CME connectivity and market data handling.
 
 ## Features
 * Connects and maintains connections to the CME Globex MDP 3.0 Platform;
@@ -17,6 +49,28 @@ Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take adva
 * Simple options to subscribe to Market Data events of application interest;
 * Loading of CME SBE templates;
 * Loading of CME XML channel configuration files;
+
+## Installation
+
+This is java library which include just one jar file: b2bits-jmdp3-N.N.jar.
+
+**Dependencies (July 10, 2017)**
+- annotations-12.0.jar
+- chronicle-bytes-1.2.4.jar
+- chronicle-core-1.3.6.jar
+- commons-collections-3.2.2.jar
+- commons-configuration-1.10.jar
+- commons-lang-2.6.jar
+- commons-logging-1.1.1.jar
+- koloboke-api-jdk8-0.6.8.jar
+- koloboke-impl-jdk8-0.6.8.jar
+- log4j-api-2.5.jar
+- log4j-core-2.5.jar
+- log4j-slf4j-impl-2.5.jar
+- slf4j-api-1.7.14.jar
+- snappy-java-1.1.2.1.jar
+- agrona-0.9.5.jar
+- commons-lang3-3.0.jar
 
 ## Code Examples
 
@@ -212,61 +266,7 @@ public class PrintAllSecuritiesTest {
 }
 ```
 
-## Motivation
-
-With the third generation of its market data platform CME made several key improvements in the
-application protocol and message encoding to allow more efficient market data processing on the
-client side.
-
-Matching engine event boundaries are now clearly indicated with the MatchEventIndicator (5799) tag to
-allow a client application apply market data updates transactionally. The client application has explicit
-knowledge of the moment when market data is consistent for analysis in the case of complex order
-book updates or multiple instruments affected by a matching event. Matching events are now
-independent of the UDP packet boundaries – a matching event may spread over several sequential UDP
-packets and a UDP packet may contain several matching events. Market data updates of a matching
-event are segregated by update type to allow the client application skip handling of messages not
-relevant to specific algorithm to reduce processing time. New trade summary messages aggregate
-trades by price level resulting in fewer trade updates disseminated in the case of large fill events.
-(http://www.cmegroup.com/confluence/display/EPICSANDBOX/MDP+3.0+Packet+Structure+Examples)
-
-The new Simple Binary Encoding (SBE) format which replaced the FAST encoding allows more efficient and
-faster message decoding on the client side thanks to the fixed-length fields, native little-endian byte
-order and proper field alignment. The client application can efficiently access message fields directly
-in the buffer filled with data received from the network socket. The client application does not have to
-perform complex sequential state-based decoding process to access required fields. Overall the
-increased message encoding and decoding speed overcomes slight increase of disseminated data size
-and bandwidth requirements compared to the FAST compression.
-
-With the introduction of CME MDP 3.0 platform B2BITS EPAM Systems designed new open source market data handler
-to take advantage of the new low-latency data feed and to provide developers with the required functionality.
-The new handler is optimized for both single- and multi-channel usage scenarios,
-the new SBE parser provides fast access to messages and message fields by tag number.
-With this project developers have flexibility to include this library into own applications (with/without
-required changes) instead of own implementation of all aspects of CME connectivity and market data handling.
-
-## Installation
-
-This is java library which include just one jar file: b2bits-jmdp3-N.N.jar.
-
-**Dependencies (July 10, 2017)**
-- annotations-12.0.jar
-- chronicle-bytes-1.2.4.jar
-- chronicle-core-1.3.6.jar
-- commons-collections-3.2.2.jar
-- commons-configuration-1.10.jar
-- commons-lang-2.6.jar
-- commons-logging-1.1.1.jar
-- koloboke-api-jdk8-0.6.8.jar
-- koloboke-impl-jdk8-0.6.8.jar
-- log4j-api-2.5.jar
-- log4j-core-2.5.jar
-- log4j-slf4j-impl-2.5.jar
-- slf4j-api-1.7.14.jar
-- snappy-java-1.1.2.1.jar
-- agrona-0.9.5.jar
-- commons-lang3-3.0.jar
-
-## API Reference
+## API References
 
 Builder parameters list (`com.epam.cme.mdp3.channel.MdpChannelBuilder`)
 
@@ -303,14 +303,15 @@ Channel parameter list (`com.epam.cme.mdp3.MdpChannel`)
 
 ## Performance tests
 
-There are performance test of incremental refresh handling in the project, the tests is based on JMH and use test data, which is similar to the data received via CME Certification Environment.
+The project contains performance tests of incremental refresh handling. These tests are based on JMH and use test data similar to the data received on CME Certification Environment.
 Performance tests have the following scenario:
 
-1. Generate incremental refresh MDP packet.
+In the test the following steps are performed in the loop:
 
-2. Adjust a sequence of test packets from the sample packet (e.g. change sequence numbers of packet and securities)
-
-3. Perform test. Each iteration fills buffers with next test packet and calls MDP Handler to process it
+1. MDP packet, which contains incremental refresh message (msgType = "X"), is generated.
+2. Sequence number of the generated packet is adjusted to make it similar to the real feed.
+3. It is called MDP Handler to process the next packet.
+4. After processing the next packet, the entries are processed in user listener (getting the data from entries to make it similar to regular user applications).
 
 In order to run tests from Gradle:
 
@@ -356,7 +357,7 @@ Percentiles, us/op:
      p(99.9900) =     17.952 us/op
      ...
 Benchmark                                Mode     Cnt  Score   Error  Units
-IncrementalRefreshPerfTest.MBPOnly     sample  496246  0.809 ▒ 0.004  us/op
+IncrementalRefreshPerfTest.MBPOnly     sample  496246  0.809 ??? 0.004  us/op
 ```
 
 ### Market By Price and Market By Order mode (MBO only template):
@@ -387,7 +388,7 @@ Percentiles, us/op:
      p(99.9900) =     16.032 us/op
      ...
 Benchmark                                Mode     Cnt  Score   Error  Units
-IncrementalRefreshPerfTest.MBOOnly     sample  333551  0.615 ▒ 0.003  us/op
+IncrementalRefreshPerfTest.MBOOnly     sample  333551  0.615 ??? 0.003  us/op
 ```
 
 ### Market By Price and Market By Order mode (MBO included in MBP template):
@@ -430,8 +431,24 @@ Percentiles, us/op:
      p(99.9900) =     25.632 us/op
      ...
 Benchmark                                Mode     Cnt  Score   Error  Units
-IncrementalRefreshPerfTest.mboWithMBP  sample  480387  1.645 ▒ 0.004  us/op     
+IncrementalRefreshPerfTest.mboWithMBP  sample  480387  1.645 ??? 0.004  us/op     
 ```
+
+## High level MBP book API
+
+There is the API that provides high level information about changes in the book for particular instrument. The interface `com.epam.cme.mdp3.MarketDataListener` has to be implemented and the instance set in `com.epam.cme.mdp3.MdpChannel.registerMarketDataListener` method from mbp-only module.
+
+## Distribution
+
+In order to build a package from Gradle:
+
+```
+> gradlew
+```
+
+## License
+
+[GNU Lesser General Public License, version 3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html).
 
 ## Contributors
 
@@ -447,6 +464,7 @@ Senior Software Engineer in EPAM's Capital Markets Competency Center
 
 Email: viacheslav_kolybelkin@epam.com
 
-## License
+## Support
 
-[GNU Lesser General Public License, version 3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html).
+Should you have any questions or inquiries, please direct them to SupportFIXAntenna@epam.com
+
