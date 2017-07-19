@@ -1,6 +1,11 @@
 ## Synopsis
 
-Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take advantage of the new low-latency data feed. It fully supports features of the CME Globex MDP3.0 market data platform(https://www.cmegroup.com/confluence/display/EPICSANDBOX/CME+MDP+3.0+Market+Data), helps feeding CME market data directly into the client application. The handler delivers market data updates from socket to your application in a few microseconds.
+Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take advantage of the new low-latency data feed.
+It fully supports features of the CME Globex MDP3.0 market data platform(https://www.cmegroup.com/confluence/display/EPICSANDBOX/CME+MDP+3.0+Market+Data),
+helps feeding CME market data directly into the client application. The handler delivers market data updates from socket to your application in a few microseconds.
+
+The Market Data Handler has two modules mbp-only and mbp-with-mbo. Mbp-only module provides high level book API for Market By Price functionality.
+Mbp-with-mbo module provides low level API for both Market by Order and Market By Price functionality.
 
 ## Motivation
 
@@ -12,7 +17,7 @@ Matching engine event boundaries are now clearly indicated with the MatchEventIn
 allow a client application apply market data updates transactionally. The client application has explicit
 knowledge of the moment when market data is consistent for analysis in the case of complex order
 book updates or multiple instruments affected by a matching event. Matching events are now
-independent of the UDP packet boundaries ??? a matching event may spread over several sequential UDP
+independent of the UDP packet boundaries and a matching event may spread over several sequential UDP
 packets and a UDP packet may contain several matching events. Market data updates of a matching
 event are segregated by update type to allow the client application skip handling of messages not
 relevant to specific algorithm to reduce processing time. New trade summary messages aggregate
@@ -281,7 +286,7 @@ Builder parameters list (`com.epam.cme.mdp3.channel.MdpChannelBuilder`)
 | Method name                                                                                     | Description                                                                                                                                                                                              | Default value     |
 | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
 | `MdpChannelBuilder#setConfiguration(URI cfgURI)`                                                | Path to the CME Market Data Feed Channel configuration file                                                                                                                                              | null              |
-| `MdpChannelBuilder#setSchema(URI schemaURI)`                                                    | Path to the CME SBE templates file                                                                                                                                                                       | null              |
+| `MdpChannelBuilder#setSchema(URI schemaURI)`                                                    | Path to the CME SBE template file                                                                                                                                                                       | null              |
 | `MdpChannelBuilder#setNetworkInterface(FeedType feedType, Feed feed, String networkInterface)`  | Local network interface that is used for receiving UDP packets. If it is set to null then default local network interface is used.                                                                       | null              |
 | `MdpChannelBuilder#usingListener(ChannelListener channelListener)`                              | User's implementation of ChannelListener, whose methods will be called for received messages                                                                                                             | null              |
 | `MdpChannelBuilder#usingScheduler(ScheduledExecutorService scheduler)`                          | Instance of scheduled executor service, which will be used for running TCP recovery tasks and updating state from snapshot in case of there are no messages from incremental channels for 100 seconds    | null(disabled)    |
@@ -309,17 +314,19 @@ Channel parameter list (`com.epam.cme.mdp3.MdpChannel`)
 | `MdpChannel#subscribe(int securityId, final String secDesc)`    | Subscribes to the given security                  |
 | `MdpChannel#discontinueSecurity(int securityId)`                | Removes subscription to the given security        |
 
+The interface `com.epam.cme.mdp3.MarketDataListener` has to be implemented and
+its instance should be set in `com.epam.cme.mdp3.MdpChannel.registerMarketDataListener` method from mbp-only module in order to work with
+high level book API for Market By Price functionality.
+
 ## Performance tests
 
 The project contains performance tests of incremental refresh handling. These tests are based on JMH and use test data similar to the data received on CME Certification Environment.
 Performance tests have the following scenario:
 
-In the test the following steps are performed in the loop:
-
-1. MDP packet, which contains incremental refresh message (msgType = "X"), is generated.
-2. Sequence number of the generated packet is adjusted to make it similar to the real feed.
-3. It is called MDP Handler to process the next packet.
-4. After processing the next packet, the entries are processed in user listener (getting the data from entries to make it similar to regular user applications).
+1. MDP packet, which contains incremental refresh message (msgType = "X"), is generated;
+2. Real feed is emulating based on the generated MDP packet (by adjusting the sequence number on each iteration);
+3. MDP Handler is called to process the next MDP packet;
+4. Market Data entries from the MDP packet are processed in user listener (retrieving the data from entries to make it similar to regular user applications).
 
 In order to run tests from Gradle:
 
@@ -365,7 +372,7 @@ Percentiles, us/op:
      p(99.9900) =     17.952 us/op
      ...
 Benchmark                                Mode     Cnt  Score   Error  Units
-IncrementalRefreshPerfTest.MBPOnly     sample  496246  0.809 ??? 0.004  us/op
+IncrementalRefreshPerfTest.MBPOnly     sample  496246  0.809   0.004  us/op
 ```
 
 ### Market By Price and Market By Order mode (MBO only template):
@@ -396,7 +403,7 @@ Percentiles, us/op:
      p(99.9900) =     16.032 us/op
      ...
 Benchmark                                Mode     Cnt  Score   Error  Units
-IncrementalRefreshPerfTest.MBOOnly     sample  333551  0.615 ??? 0.003  us/op
+IncrementalRefreshPerfTest.MBOOnly     sample  333551  0.615   0.003  us/op
 ```
 
 ### Market By Price and Market By Order mode (MBO included in MBP template):
@@ -439,12 +446,8 @@ Percentiles, us/op:
      p(99.9900) =     25.632 us/op
      ...
 Benchmark                                Mode     Cnt  Score   Error  Units
-IncrementalRefreshPerfTest.mboWithMBP  sample  480387  1.645 ??? 0.004  us/op     
+IncrementalRefreshPerfTest.mboWithMBP  sample  480387  1.645   0.004  us/op
 ```
-
-## High level MBP book API
-
-There is the API that provides high level information about changes in the book for particular instrument. The interface `com.epam.cme.mdp3.MarketDataListener` has to be implemented and the instance set in `com.epam.cme.mdp3.MdpChannel.registerMarketDataListener` method from mbp-only module.
 
 ## License
 
