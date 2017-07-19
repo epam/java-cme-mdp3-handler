@@ -3,6 +3,7 @@
 Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take advantage of the new low-latency data feed.
 It fully supports features of the CME Globex MDP3.0 market data platform(https://www.cmegroup.com/confluence/display/EPICSANDBOX/CME+MDP+3.0+Market+Data),
 helps feeding CME market data directly into the client application. The handler delivers market data updates from socket to your application in a few microseconds.
+
 The Market Data Handler has two modules mbp-only and mbp-with-mbo. Mbp-only module provides high level book API for Market By Price functionality.
 Mbp-with-mbo module provides low level API for both Market by Order and Market By Price functionality.
 
@@ -16,7 +17,7 @@ Matching engine event boundaries are now clearly indicated with the MatchEventIn
 allow a client application apply market data updates transactionally. The client application has explicit
 knowledge of the moment when market data is consistent for analysis in the case of complex order
 book updates or multiple instruments affected by a matching event. Matching events are now
-independent of the UDP packet boundaries ??? a matching event may spread over several sequential UDP
+independent of the UDP packet boundaries and a matching event may spread over several sequential UDP
 packets and a UDP packet may contain several matching events. Market data updates of a matching
 event are segregated by update type to allow the client application skip handling of messages not
 relevant to specific algorithm to reduce processing time. New trade summary messages aggregate
@@ -314,7 +315,7 @@ Channel parameter list (`com.epam.cme.mdp3.MdpChannel`)
 | `MdpChannel#discontinueSecurity(int securityId)`                | Removes subscription to the given security        |
 
 The interface `com.epam.cme.mdp3.MarketDataListener` has to be implemented and
-its instance set in `com.epam.cme.mdp3.MdpChannel.registerMarketDataListener` method from mbp-only module in order to work with
+its instance should be set in `com.epam.cme.mdp3.MdpChannel.registerMarketDataListener` method from mbp-only module in order to work with
 high level book API for Market By Price functionality.
 
 ## Performance tests
@@ -371,7 +372,7 @@ Percentiles, us/op:
      p(99.9900) =     17.952 us/op
      ...
 Benchmark                                Mode     Cnt  Score   Error  Units
-IncrementalRefreshPerfTest.MBPOnly     sample  496246  0.809 ??? 0.004  us/op
+IncrementalRefreshPerfTest.MBPOnly     sample  496246  0.809   0.004  us/op
 ```
 
 ### Market By Price and Market By Order mode (MBO only template):
@@ -402,7 +403,7 @@ Percentiles, us/op:
      p(99.9900) =     16.032 us/op
      ...
 Benchmark                                Mode     Cnt  Score   Error  Units
-IncrementalRefreshPerfTest.MBOOnly     sample  333551  0.615 ??? 0.003  us/op
+IncrementalRefreshPerfTest.MBOOnly     sample  333551  0.615   0.003  us/op
 ```
 
 ### Market By Price and Market By Order mode (MBO included in MBP template):
@@ -445,7 +446,7 @@ Percentiles, us/op:
      p(99.9900) =     25.632 us/op
      ...
 Benchmark                                Mode     Cnt  Score   Error  Units
-IncrementalRefreshPerfTest.mboWithMBP  sample  480387  1.645 ??? 0.004  us/op     
+IncrementalRefreshPerfTest.mboWithMBP  sample  480387  1.645   0.004  us/op
 ```
 
 ## License
