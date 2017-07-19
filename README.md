@@ -50,6 +50,14 @@ required changes) instead of own implementation of all aspects of CME connectivi
 * Loading of CME SBE templates;
 * Loading of CME XML channel configuration files;
 
+## Distribution
+
+In order to build a package from Gradle:
+
+```
+> gradlew
+```
+
 ## Installation
 
 This is java library which include just one jar file: b2bits-jmdp3-N.N.jar.
@@ -437,14 +445,6 @@ IncrementalRefreshPerfTest.mboWithMBP  sample  480387  1.645 ??? 0.004  us/op
 ## High level MBP book API
 
 There is the API that provides high level information about changes in the book for particular instrument. The interface `com.epam.cme.mdp3.MarketDataListener` has to be implemented and the instance set in `com.epam.cme.mdp3.MdpChannel.registerMarketDataListener` method from mbp-only module.
-
-## Distribution
-
-In order to build a package from Gradle:
-
-```
-> gradlew
-```
 
 ## License
 
