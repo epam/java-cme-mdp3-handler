@@ -76,7 +76,9 @@ public class LowLevelMdpChannel implements MdpChannel {
                        final String tcpPassword,
                        final Map<FeedType, String> feedANetworkInterfaces,
                        final Map<FeedType, String> feedBNetworkInterfaces,
-                       boolean mboEnabled) {
+                       boolean mboEnabled,
+                       final List<Integer> incrementMessageTemplateIds, 
+                       final List<Integer> snapshotMessageTemplateIds) {
         this.scheduledExecutorService = scheduledExecutorService;
         this.channelCfg = channelCfg;
         this.rcvBufSize = rcvBufSize;
@@ -89,7 +91,7 @@ public class LowLevelMdpChannel implements MdpChannel {
         Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(incrQueueSize);
         List<Consumer<MdpMessage>> emptyBookConsumers = new ArrayList<>();
         ChannelController target = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes, listeners,
-                instrumentObserver, emptyBookConsumers);
+                instrumentObserver, emptyBookConsumers, incrementMessageTemplateIds, snapshotMessageTemplateIds);
         SnapshotCycleHandler mbpCycleHandler = new OffHeapSnapshotCycleHandler();
         SnapshotCycleHandler mboCycleHandler;
         FeedType recoveryFeedType;
@@ -102,12 +104,12 @@ public class LowLevelMdpChannel implements MdpChannel {
         }
         recoveryManager = getRecoveryManager(recoveryFeedType);
         ChannelController targetForBuffered = new BufferedMessageRouter(channelId, instrumentManager, mdpMessageTypes,
-                listeners, mboCycleHandler, instrumentObserver, emptyBookConsumers);
+                listeners, mboCycleHandler, instrumentObserver, emptyBookConsumers, incrementMessageTemplateIds, snapshotMessageTemplateIds);
         ConnectionCfg connectionCfg = channelCfg.getConnectionCfg(FeedType.H, Feed.A);
         TCPChannel tcpChannel = new MdpTCPChannel(connectionCfg);
         TCPMessageRequester tcpMessageRequester = new MdpTCPMessageRequester<>(channelId, listeners, mdpMessageTypes, tcpChannel, tcpUsername, tcpPassword);
         this.channelController = new GapChannelController(listeners, target, targetForBuffered, recoveryManager, buffer, gapThreshold,
-                channelId, mdpMessageTypes, mboCycleHandler, mbpCycleHandler, scheduledExecutorService, tcpMessageRequester);
+                channelId, mdpMessageTypes, mboCycleHandler, mbpCycleHandler, scheduledExecutorService, tcpMessageRequester, incrementMessageTemplateIds, snapshotMessageTemplateIds);
         emptyBookConsumers.add(channelController);
         if (scheduledExecutorService != null) initChannelStateThread();
     }
