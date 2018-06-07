@@ -46,6 +46,8 @@ public class MdpChannelBuilder {
     private int incrQueueSize = InstrumentController.DEF_INCR_QUEUE_SIZE;
     private int gapThreshold = InstrumentController.DEF_GAP_THRESHOLD;
     private int rcvBufSize = MdpFeedWorker.RCV_BUFFER_SIZE;
+    private List<Integer> incrementMessageTemplateIds;
+    private List<Integer> snapshotMessageTemplateIds;
 
     public MdpChannelBuilder(final String channelId) {
         this.channelId = channelId;
@@ -125,6 +127,16 @@ public class MdpChannelBuilder {
         this.noScheduler = true;
         return this;
     }
+    
+    public MdpChannelBuilder setIncrementMessageTemplateIds(final List<Integer> ids) {
+    	incrementMessageTemplateIds = ids;
+        return this;
+    }
+    
+    public MdpChannelBuilder setSnapshotMessageTemplateIds(final List<Integer> ids) {
+    	snapshotMessageTemplateIds = ids;
+        return this;
+    }
 
     public MdpChannel build() {
         try {
@@ -136,7 +148,7 @@ public class MdpChannelBuilder {
             if (!noScheduler && scheduler != null) {
                 scheduler = DefaultScheduledServiceHolder.getScheduler();
             }
-            mdpChannel = new MdpChannelImpl(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes, queueSlotInitBufferSize, incrQueueSize, gapThreshold);
+            mdpChannel = new MdpChannelImpl(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes, queueSlotInitBufferSize, incrQueueSize, gapThreshold, incrementMessageTemplateIds, snapshotMessageTemplateIds);
 
             mdpChannel.setIncrementalFeedAni(this.incrementalFeedAni);
             mdpChannel.setIncrementalFeedBni(this.incrementalFeedBni);

@@ -37,18 +37,33 @@ public class ChannelControllerRouter implements MdpChannelController {
     private final InstrumentObserver instrumentObserver;
     private final List<Consumer<MdpMessage>> emptyBookConsumers;
     private final String channelId;
-
+    private List<Integer> incrementMessageTemplateIds;
+    private List<Integer> snapshotMessageTemplateIds;
+    
     public ChannelControllerRouter(String channelId, InstrumentManager instrumentManager,
                                    MdpMessageTypes mdpMessageTypes, List<ChannelListener> channelListeners,
-                                   InstrumentObserver instrumentObserver, List<Consumer<MdpMessage>> emptyBookConsumers){
+                                   InstrumentObserver instrumentObserver, List<Consumer<MdpMessage>> emptyBookConsumers,     
+                                   List<Integer> incrementMessageTemplateIds, List<Integer> snapshotMessageTemplateIds){
         this.channelId = channelId;
         this.instrumentManager = instrumentManager;
         this.mdpMessageTypes = mdpMessageTypes;
         this.channelListeners = channelListeners;
         this.instrumentObserver = instrumentObserver;
         this.emptyBookConsumers = emptyBookConsumers;
+        this.incrementMessageTemplateIds = incrementMessageTemplateIds;
+        this.snapshotMessageTemplateIds = snapshotMessageTemplateIds;
     }
 
+    @Override
+	public List<Integer> getIncrementMessageTemplateIds() {
+    	return incrementMessageTemplateIds == null ? MdpChannelController.super.getIncrementMessageTemplateIds() : incrementMessageTemplateIds;
+    }
+    
+    @Override
+    public List<Integer> getSnapshotMessageTemplateIds() {
+    	return snapshotMessageTemplateIds == null ? MdpChannelController.super.getSnapshotMessageTemplateIds() : snapshotMessageTemplateIds;
+    }
+    
     @Override
     public void handleSnapshotPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {
         for (MdpMessage mdpMessage : mdpPacket) {

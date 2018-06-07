@@ -38,7 +38,7 @@ public class MBOChannelControllerRouterTest {
         instrumentManager = new MdpInstrumentManager(channelId, listeners);
         instrumentManager.registerSecurity(testSecurityId, secDesc);
         channelController = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes,
-                Collections.singletonList(testListener), instrumentObserver, Collections.emptyList());
+                Collections.singletonList(testListener), instrumentObserver, Collections.emptyList(), null, null);
     }
 
     @Test
