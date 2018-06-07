@@ -7,7 +7,7 @@ plugins {
     id "me.champeau.gradle.jmh" version "0.3.1"
 }
 group = 'com.epam.cme'
-version = '1.0'
+version = '2.0.1'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
