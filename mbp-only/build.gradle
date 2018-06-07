@@ -34,6 +34,16 @@ dependencies {
     cucumberCompile 'info.cukes:cucumber-picocontainer:1.2.4'
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    baseName 'b2bits-jmdp3'
+}
+
+artifacts {
+    archives sourcesJar    
+}
+
 distributions {
     main {
         baseName = 'b2bits-jmdp3'

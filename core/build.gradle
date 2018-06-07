@@ -13,6 +13,16 @@ jar {
     baseName 'b2bits-jmdp3-core'
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    baseName 'b2bits-jmdp3-core'
+}
+
+artifacts {
+    archives sourcesJar    
+}
+
 dependencies {
     compile group: 'net.openhft', name: 'chronicle-bytes', version: '1.7.17'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
