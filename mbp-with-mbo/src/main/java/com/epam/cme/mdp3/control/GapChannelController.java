@@ -20,7 +20,6 @@ import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
@@ -50,15 +49,15 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     private final ScheduledExecutorService executor;
     private TCPRecoveryProcessor tcpRecoveryProcessor;
     private int numberOfTCPAttempts;
-    private List<Integer> incrementMessageTemplateIds;
-    private List<Integer> snapshotMessageTemplateIds;
+    private List<Integer> mboIncrementMessageTemplateIds;
+    private List<Integer> mboSnapshotMessageTemplateIds;
     
     public GapChannelController(List<ChannelListener> channelListeners, ChannelController target,
                                 ChannelController targetForBuffered, SnapshotRecoveryManager snapshotRecoveryManager,
                                 Buffer<MdpPacket> buffer, int gapThreshold, String channelId, MdpMessageTypes mdpMessageTypes,
                                 SnapshotCycleHandler mboCycleHandler, SnapshotCycleHandler mbpCycleHandler,
                                 ScheduledExecutorService executor, TCPMessageRequester tcpMessageRequester,     
-                                List<Integer> incrementMessageTemplateIds, List<Integer> snapshotMessageTemplateIds) {
+                                List<Integer> mboIncrementMessageTemplateIds, List<Integer> mboSnapshotMessageTemplateIds) {
         this.channelListeners = channelListeners;
         this.buffer = buffer;
         this.snapshotRecoveryManager = snapshotRecoveryManager;
@@ -74,18 +73,18 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
             TCPPacketListener tcpPacketListener = new TCPPacketListenerImpl();
             this.tcpRecoveryProcessor = new TCPRecoveryProcessor(tcpMessageRequester, tcpPacketListener);
         }
-        this.incrementMessageTemplateIds = incrementMessageTemplateIds;
-        this.snapshotMessageTemplateIds = snapshotMessageTemplateIds;
+        this.mboIncrementMessageTemplateIds = mboIncrementMessageTemplateIds;
+        this.mboSnapshotMessageTemplateIds = mboSnapshotMessageTemplateIds;
     }
     
     @Override
-	public List<Integer> getIncrementMessageTemplateIds() {
-    	return incrementMessageTemplateIds == null ? MdpChannelController.super.getIncrementMessageTemplateIds() : incrementMessageTemplateIds;
+	public List<Integer> getMBOIncrementMessageTemplateIds() {
+    	return mboIncrementMessageTemplateIds == null ? MdpChannelController.super.getMBOIncrementMessageTemplateIds() : mboIncrementMessageTemplateIds;
     }
     
     @Override
-    public List<Integer> getSnapshotMessageTemplateIds() {
-    	return snapshotMessageTemplateIds == null ? MdpChannelController.super.getSnapshotMessageTemplateIds() : snapshotMessageTemplateIds;
+    public List<Integer> getMBOSnapshotMessageTemplateIds() {
+    	return mboSnapshotMessageTemplateIds == null ? MdpChannelController.super.getMBOSnapshotMessageTemplateIds() : mboSnapshotMessageTemplateIds;
     }
 
     @Override

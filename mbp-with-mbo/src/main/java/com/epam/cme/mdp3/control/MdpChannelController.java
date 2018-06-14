@@ -26,11 +26,11 @@ public interface MdpChannelController extends ChannelController {
     int MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID_44 = 44;
     int MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID_53 = 53;
     
-    default List<Integer> getIncrementMessageTemplateIds() {
+    default List<Integer> getMBOIncrementMessageTemplateIds() {
     	return Arrays.asList(new Integer[]  { MBO_INCREMENT_MESSAGE_TEMPLATE_ID_43, MBO_INCREMENT_MESSAGE_TEMPLATE_ID_47 });
     }
     
-    default List<Integer> getSnapshotMessageTemplateIds() {
+    default List<Integer> getMBOSnapshotMessageTemplateIds() {
     	return Arrays.asList(new Integer[]  { MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID_44, MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID_53 });
     }
 
@@ -48,11 +48,11 @@ public interface MdpChannelController extends ChannelController {
     default boolean isIncrementOnlyForMBO(MdpMessage mdpMessage){
         SemanticMsgType semanticMsgType = mdpMessage.getSemanticMsgType();
         int schemaId = mdpMessage.getSchemaId();
-        return SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType) && getIncrementMessageTemplateIds().contains(schemaId);
+        return SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType) && getMBOIncrementMessageTemplateIds().contains(schemaId);
     }
 
     default boolean isMBOSnapshot(MdpMessage mdpMessage){
         int schemaId = mdpMessage.getSchemaId();
-        return getSnapshotMessageTemplateIds().contains(schemaId);
+        return getMBOSnapshotMessageTemplateIds().contains(schemaId);
     }
 }

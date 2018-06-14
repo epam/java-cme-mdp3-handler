@@ -37,31 +37,31 @@ public class ChannelControllerRouter implements MdpChannelController {
     private final InstrumentObserver instrumentObserver;
     private final List<Consumer<MdpMessage>> emptyBookConsumers;
     private final String channelId;
-    private List<Integer> incrementMessageTemplateIds;
-    private List<Integer> snapshotMessageTemplateIds;
+    private List<Integer> mboIncrementMessageTemplateIds;
+    private List<Integer> mboSnapshotMessageTemplateIds;
     
     public ChannelControllerRouter(String channelId, InstrumentManager instrumentManager,
                                    MdpMessageTypes mdpMessageTypes, List<ChannelListener> channelListeners,
                                    InstrumentObserver instrumentObserver, List<Consumer<MdpMessage>> emptyBookConsumers,     
-                                   List<Integer> incrementMessageTemplateIds, List<Integer> snapshotMessageTemplateIds){
+                                   List<Integer> mboIncrementMessageTemplateIds, List<Integer> mboSnapshotMessageTemplateIds){
         this.channelId = channelId;
         this.instrumentManager = instrumentManager;
         this.mdpMessageTypes = mdpMessageTypes;
         this.channelListeners = channelListeners;
         this.instrumentObserver = instrumentObserver;
         this.emptyBookConsumers = emptyBookConsumers;
-        this.incrementMessageTemplateIds = incrementMessageTemplateIds;
-        this.snapshotMessageTemplateIds = snapshotMessageTemplateIds;
+        this.mboIncrementMessageTemplateIds = mboIncrementMessageTemplateIds;
+        this.mboSnapshotMessageTemplateIds = mboSnapshotMessageTemplateIds;
     }
 
     @Override
-	public List<Integer> getIncrementMessageTemplateIds() {
-    	return incrementMessageTemplateIds == null ? MdpChannelController.super.getIncrementMessageTemplateIds() : incrementMessageTemplateIds;
+	public List<Integer> getMBOIncrementMessageTemplateIds() {
+    	return mboIncrementMessageTemplateIds == null ? MdpChannelController.super.getMBOIncrementMessageTemplateIds() : mboIncrementMessageTemplateIds;
     }
     
     @Override
-    public List<Integer> getSnapshotMessageTemplateIds() {
-    	return snapshotMessageTemplateIds == null ? MdpChannelController.super.getSnapshotMessageTemplateIds() : snapshotMessageTemplateIds;
+    public List<Integer> getMBOSnapshotMessageTemplateIds() {
+    	return mboSnapshotMessageTemplateIds == null ? MdpChannelController.super.getMBOSnapshotMessageTemplateIds() : mboSnapshotMessageTemplateIds;
     }
     
     @Override
