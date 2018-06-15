@@ -12,14 +12,27 @@
 
 package com.epam.cme.mdp3.control;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.epam.cme.mdp3.MdpMessage;
 import com.epam.cme.mdp3.SemanticMsgType;
 import com.epam.cme.mdp3.sbe.message.meta.MdpMessageType;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 
 public interface MdpChannelController extends ChannelController {
-    int MBO_INCREMENT_MESSAGE_TEMPLATE_ID = 43;
-    int MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID = 44;
+    int MBO_INCREMENT_MESSAGE_TEMPLATE_ID_43 = 43;
+    int MBO_INCREMENT_MESSAGE_TEMPLATE_ID_47 = 47;
+    int MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID_44 = 44;
+    int MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID_53 = 53;
+    
+    default List<Integer> getMBOIncrementMessageTemplateIds() {
+    	return Arrays.asList(new Integer[]  { MBO_INCREMENT_MESSAGE_TEMPLATE_ID_43, MBO_INCREMENT_MESSAGE_TEMPLATE_ID_47 });
+    }
+    
+    default List<Integer> getMBOSnapshotMessageTemplateIds() {
+    	return Arrays.asList(new Integer[]  { MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID_44, MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID_53 });
+    }
 
     default void updateSemanticMsgType(MdpMessageTypes mdpMessageTypes, MdpMessage mdpMessage) {
         int schemaId = mdpMessage.getSchemaId();
@@ -35,12 +48,11 @@ public interface MdpChannelController extends ChannelController {
     default boolean isIncrementOnlyForMBO(MdpMessage mdpMessage){
         SemanticMsgType semanticMsgType = mdpMessage.getSemanticMsgType();
         int schemaId = mdpMessage.getSchemaId();
-        return SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType)
-                && MBO_INCREMENT_MESSAGE_TEMPLATE_ID == schemaId;
+        return SemanticMsgType.MarketDataIncrementalRefresh.equals(semanticMsgType) && getMBOIncrementMessageTemplateIds().contains(schemaId);
     }
 
     default boolean isMBOSnapshot(MdpMessage mdpMessage){
         int schemaId = mdpMessage.getSchemaId();
-        return MBO_SNAPSHOT_MESSAGE_TEMPLATE_ID == schemaId;
+        return getMBOSnapshotMessageTemplateIds().contains(schemaId);
     }
 }

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.epam.cme'
-version = '2.0'
+version = '2.0.1'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -39,6 +39,16 @@ distributions {
             from { '../dist' }
         }
     }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    baseName 'b2bits-jmdp3'
+}
+
+artifacts {
+    archives sourcesJar    
 }
 
 task testJar(type: Jar) {

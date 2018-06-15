@@ -7,7 +7,7 @@ plugins {
     id "me.champeau.gradle.jmh" version "0.3.1"
 }
 group = 'com.epam.cme'
-version = '1.0'
+version = '2.0.1'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -32,6 +32,16 @@ dependencies {
     testCompile group: 'uk.co.real-logic', name: 'sbe-tool', version: '1.6.0'
     cucumberCompile 'info.cukes:cucumber-java:1.2.4'
     cucumberCompile 'info.cukes:cucumber-picocontainer:1.2.4'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    baseName 'b2bits-jmdp3'
+}
+
+artifacts {
+    archives sourcesJar    
 }
 
 distributions {

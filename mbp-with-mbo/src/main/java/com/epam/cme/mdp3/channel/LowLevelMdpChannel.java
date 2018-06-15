@@ -58,7 +58,7 @@ public class LowLevelMdpChannel implements MdpChannel {
     private final List<ChannelListener> listeners = new ArrayList<>();
     private long idleWindowInMillis = FEED_IDLE_CHECK_DELAY_UNIT.toMillis(FEED_IDLE_CHECK_DELAY);
     private final GapChannelController channelController;
-    private volatile ScheduledFuture checkFeedIdleStateFuture;
+    private volatile ScheduledFuture<?> checkFeedIdleStateFuture;
     private volatile long lastIncrPcktReceived = 0;
     private final InstrumentManager instrumentManager;
     private final MdpMessageTypes mdpMessageTypes;
@@ -76,7 +76,9 @@ public class LowLevelMdpChannel implements MdpChannel {
                        final String tcpPassword,
                        final Map<FeedType, String> feedANetworkInterfaces,
                        final Map<FeedType, String> feedBNetworkInterfaces,
-                       boolean mboEnabled) {
+                       boolean mboEnabled,
+                       final List<Integer> mboIncrementMessageTemplateIds, 
+                       final List<Integer> mboSnapshotMessageTemplateIds) {
         this.scheduledExecutorService = scheduledExecutorService;
         this.channelCfg = channelCfg;
         this.rcvBufSize = rcvBufSize;
@@ -89,7 +91,7 @@ public class LowLevelMdpChannel implements MdpChannel {
         Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(incrQueueSize);
         List<Consumer<MdpMessage>> emptyBookConsumers = new ArrayList<>();
         ChannelController target = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes, listeners,
-                instrumentObserver, emptyBookConsumers);
+                instrumentObserver, emptyBookConsumers, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);
         SnapshotCycleHandler mbpCycleHandler = new OffHeapSnapshotCycleHandler();
         SnapshotCycleHandler mboCycleHandler;
         FeedType recoveryFeedType;
@@ -102,12 +104,12 @@ public class LowLevelMdpChannel implements MdpChannel {
         }
         recoveryManager = getRecoveryManager(recoveryFeedType);
         ChannelController targetForBuffered = new BufferedMessageRouter(channelId, instrumentManager, mdpMessageTypes,
-                listeners, mboCycleHandler, instrumentObserver, emptyBookConsumers);
+                listeners, mboCycleHandler, instrumentObserver, emptyBookConsumers, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);
         ConnectionCfg connectionCfg = channelCfg.getConnectionCfg(FeedType.H, Feed.A);
         TCPChannel tcpChannel = new MdpTCPChannel(connectionCfg);
         TCPMessageRequester tcpMessageRequester = new MdpTCPMessageRequester<>(channelId, listeners, mdpMessageTypes, tcpChannel, tcpUsername, tcpPassword);
         this.channelController = new GapChannelController(listeners, target, targetForBuffered, recoveryManager, buffer, gapThreshold,
-                channelId, mdpMessageTypes, mboCycleHandler, mbpCycleHandler, scheduledExecutorService, tcpMessageRequester);
+                channelId, mdpMessageTypes, mboCycleHandler, mbpCycleHandler, scheduledExecutorService, tcpMessageRequester, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);
         emptyBookConsumers.add(channelController);
         if (scheduledExecutorService != null) initChannelStateThread();
     }
@@ -135,8 +137,7 @@ public class LowLevelMdpChannel implements MdpChannel {
     }
 
     private void initChannelStateThread() {
-        checkFeedIdleStateFuture = scheduledExecutorService.scheduleWithFixedDelay(this::checkFeedIdleState,
-                FEED_IDLE_CHECK_DELAY, FEED_IDLE_CHECK_DELAY, FEED_IDLE_CHECK_DELAY_UNIT);
+        checkFeedIdleStateFuture = scheduledExecutorService.scheduleWithFixedDelay(this::checkFeedIdleState, FEED_IDLE_CHECK_DELAY, FEED_IDLE_CHECK_DELAY, FEED_IDLE_CHECK_DELAY_UNIT);
     }
 
     @Override

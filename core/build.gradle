@@ -1,5 +1,5 @@
 group 'com.epam.cme'
-version '2.0'
+version '2.0.1'
 
 apply plugin: 'java'
 
@@ -11,6 +11,16 @@ repositories {
 
 jar {
     baseName 'b2bits-jmdp3-core'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    baseName 'b2bits-jmdp3-core'
+}
+
+artifacts {
+    archives sourcesJar    
 }
 
 dependencies {

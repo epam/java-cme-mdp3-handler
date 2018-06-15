@@ -23,7 +23,9 @@ import com.epam.cme.mdp3.sbe.schema.MdpMessageTypeBuildException;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -44,7 +46,9 @@ public class MdpChannelBuilder {
     private String tcpUsername = MdpTCPMessageRequester.DEFAULT_USERNAME;
     private String tcpPassword = MdpTCPMessageRequester.DEFAULT_PASSWORD;
     private boolean mboEnabled;
-
+    private List<Integer> incrementMessageTemplateIds;
+    private List<Integer> snapshotMessageTemplateIds;
+    
     public MdpChannelBuilder(final String channelId) {
         this.channelId = channelId;
     }
@@ -114,13 +118,24 @@ public class MdpChannelBuilder {
         mboEnabled = enabled;
         return this;
     }
+    
+    public MdpChannelBuilder setIncrementMessageTemplateIds(final List<Integer> ids) {
+    	incrementMessageTemplateIds = ids;
+        return this;
+    }
+    
+    public MdpChannelBuilder setSnapshotMessageTemplateIds(final List<Integer> ids) {
+    	snapshotMessageTemplateIds = ids;
+        return this;
+    }
 
     public MdpChannel build() {
         try {
             final Configuration cfg = new Configuration(this.cfgURI);
             final MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(this.schemaURI);
             MdpChannel mdpChannel = new LowLevelMdpChannel(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes,
-                     incrQueueSize, rcvBufSize, gapThreshold, tcpUsername, tcpPassword, feedANetworkInterfaces, feedBNetworkInterfaces, mboEnabled);
+                     incrQueueSize, rcvBufSize, gapThreshold, tcpUsername, tcpPassword, feedANetworkInterfaces, feedBNetworkInterfaces, 
+                     mboEnabled, incrementMessageTemplateIds, snapshotMessageTemplateIds);
             if (channelListener != null) mdpChannel.registerListener(channelListener);
             return mdpChannel;
         } catch (Exception e) {

@@ -43,9 +43,9 @@ public class GapChannelControllerTest {
         List<ChannelListener> mboChannelListeners = Collections.singletonList(testChannelListener);
         instrumentManager = new MdpInstrumentManager("TEST", mboChannelListeners);
         ChannelController targetForBuffered = new BufferedMessageRouter(testChannelId, instrumentManager, mdpMessageTypes,
-                mboChannelListeners, mboSnapshotCycleHandler, new TestInstrumentObserver(testChannelId), Collections.emptyList());
+                mboChannelListeners, mboSnapshotCycleHandler, new TestInstrumentObserver(testChannelId), Collections.emptyList(), null, null);
         gapChannelController = new GapChannelController(mboChannelListeners, testChannelController, targetForBuffered,
-                testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes, mboSnapshotCycleHandler, mboSnapshotCycleHandler,null, null);
+                testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes, mboSnapshotCycleHandler, mboSnapshotCycleHandler,null, null, null, null);
 
     }
 
@@ -163,7 +163,7 @@ public class GapChannelControllerTest {
         testRecoveryManager = new TestSnapshotRecoveryManager();
         int gapThreshold = 3;
         OffHeapSnapshotCycleHandler cycleHandler = new OffHeapSnapshotCycleHandler();
-        gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener), testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes, cycleHandler, cycleHandler, null, null);
+        gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener), testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes, cycleHandler, cycleHandler, null, null, null, null);
 
 
         int lastMsgSeqNumProcessed = 0;
@@ -198,7 +198,7 @@ public class GapChannelControllerTest {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener),
                 testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId,
-                mdpMessageTypes, cycleHandler, cycleHandler, executorService, new TestTCPMessageRequester());
+                mdpMessageTypes, cycleHandler, cycleHandler, executorService, new TestTCPMessageRequester(), null, null);
 
 
         int lastMsgSeqNumProcessed = 0;

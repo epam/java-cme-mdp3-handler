@@ -49,12 +49,15 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     private final ScheduledExecutorService executor;
     private TCPRecoveryProcessor tcpRecoveryProcessor;
     private int numberOfTCPAttempts;
-
+    private List<Integer> mboIncrementMessageTemplateIds;
+    private List<Integer> mboSnapshotMessageTemplateIds;
+    
     public GapChannelController(List<ChannelListener> channelListeners, ChannelController target,
                                 ChannelController targetForBuffered, SnapshotRecoveryManager snapshotRecoveryManager,
                                 Buffer<MdpPacket> buffer, int gapThreshold, String channelId, MdpMessageTypes mdpMessageTypes,
                                 SnapshotCycleHandler mboCycleHandler, SnapshotCycleHandler mbpCycleHandler,
-                                ScheduledExecutorService executor, TCPMessageRequester tcpMessageRequester) {
+                                ScheduledExecutorService executor, TCPMessageRequester tcpMessageRequester,     
+                                List<Integer> mboIncrementMessageTemplateIds, List<Integer> mboSnapshotMessageTemplateIds) {
         this.channelListeners = channelListeners;
         this.buffer = buffer;
         this.snapshotRecoveryManager = snapshotRecoveryManager;
@@ -70,6 +73,18 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
             TCPPacketListener tcpPacketListener = new TCPPacketListenerImpl();
             this.tcpRecoveryProcessor = new TCPRecoveryProcessor(tcpMessageRequester, tcpPacketListener);
         }
+        this.mboIncrementMessageTemplateIds = mboIncrementMessageTemplateIds;
+        this.mboSnapshotMessageTemplateIds = mboSnapshotMessageTemplateIds;
+    }
+    
+    @Override
+	public List<Integer> getMBOIncrementMessageTemplateIds() {
+    	return mboIncrementMessageTemplateIds == null ? MdpChannelController.super.getMBOIncrementMessageTemplateIds() : mboIncrementMessageTemplateIds;
+    }
+    
+    @Override
+    public List<Integer> getMBOSnapshotMessageTemplateIds() {
+    	return mboSnapshotMessageTemplateIds == null ? MdpChannelController.super.getMBOSnapshotMessageTemplateIds() : mboSnapshotMessageTemplateIds;
     }
 
     @Override

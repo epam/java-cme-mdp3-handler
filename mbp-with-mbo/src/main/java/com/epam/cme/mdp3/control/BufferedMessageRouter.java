@@ -25,8 +25,9 @@ public class BufferedMessageRouter extends ChannelControllerRouter {
 
     public BufferedMessageRouter(String channelId, InstrumentManager instrumentManager, MdpMessageTypes mdpMessageTypes,
                                  List<ChannelListener> channelListeners, SnapshotCycleHandler cycleHandler,
-                                 InstrumentObserver instrumentObserver, List<Consumer<MdpMessage>> emptyBookConsumers) {
-        super(channelId, instrumentManager, mdpMessageTypes, channelListeners, instrumentObserver, emptyBookConsumers);
+                                 InstrumentObserver instrumentObserver, List<Consumer<MdpMessage>> emptyBookConsumers,     
+                                 List<Integer> mboIncrementMessageTemplateIds, List<Integer> mboSnapshotMessageTemplateIds) {
+        super(channelId, instrumentManager, mdpMessageTypes, channelListeners, instrumentObserver, emptyBookConsumers, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);
         this.cycleHandler = cycleHandler;
     }
 

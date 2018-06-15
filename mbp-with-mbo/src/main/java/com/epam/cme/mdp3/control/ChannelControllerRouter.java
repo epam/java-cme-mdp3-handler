@@ -37,18 +37,33 @@ public class ChannelControllerRouter implements MdpChannelController {
     private final InstrumentObserver instrumentObserver;
     private final List<Consumer<MdpMessage>> emptyBookConsumers;
     private final String channelId;
-
+    private List<Integer> mboIncrementMessageTemplateIds;
+    private List<Integer> mboSnapshotMessageTemplateIds;
+    
     public ChannelControllerRouter(String channelId, InstrumentManager instrumentManager,
                                    MdpMessageTypes mdpMessageTypes, List<ChannelListener> channelListeners,
-                                   InstrumentObserver instrumentObserver, List<Consumer<MdpMessage>> emptyBookConsumers){
+                                   InstrumentObserver instrumentObserver, List<Consumer<MdpMessage>> emptyBookConsumers,     
+                                   List<Integer> mboIncrementMessageTemplateIds, List<Integer> mboSnapshotMessageTemplateIds){
         this.channelId = channelId;
         this.instrumentManager = instrumentManager;
         this.mdpMessageTypes = mdpMessageTypes;
         this.channelListeners = channelListeners;
         this.instrumentObserver = instrumentObserver;
         this.emptyBookConsumers = emptyBookConsumers;
+        this.mboIncrementMessageTemplateIds = mboIncrementMessageTemplateIds;
+        this.mboSnapshotMessageTemplateIds = mboSnapshotMessageTemplateIds;
     }
 
+    @Override
+	public List<Integer> getMBOIncrementMessageTemplateIds() {
+    	return mboIncrementMessageTemplateIds == null ? MdpChannelController.super.getMBOIncrementMessageTemplateIds() : mboIncrementMessageTemplateIds;
+    }
+    
+    @Override
+    public List<Integer> getMBOSnapshotMessageTemplateIds() {
+    	return mboSnapshotMessageTemplateIds == null ? MdpChannelController.super.getMBOSnapshotMessageTemplateIds() : mboSnapshotMessageTemplateIds;
+    }
+    
     @Override
     public void handleSnapshotPacket(MdpFeedContext feedContext, MdpPacket mdpPacket) {
         for (MdpMessage mdpMessage : mdpPacket) {
