@@ -23,6 +23,12 @@ artifacts {
     archives sourcesJar    
 }
 
+task copyToLib(type: Copy) {
+    into "$buildDir/libs"
+    from configurations.runtime
+}
+build.dependsOn(copyToLib)
+
 dependencies {
     compile group: 'net.openhft', name: 'chronicle-bytes', version: '1.7.17'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
