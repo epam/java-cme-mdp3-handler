@@ -67,7 +67,15 @@ public class MdpFeedWorker implements Runnable {
     void init() throws MdpFeedException {
         try {
             this.feedContext = new MdpFeedContext(getCfg());
-            this.ni = this.networkInterface != null ? NetworkInterface.getByName(this.networkInterface) : NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+            this.ni = null;
+            if (this.networkInterface != null) {
+            	ni = NetworkInterface.getByName(this.networkInterface);
+            	if (ni == null) {
+            		ni = NetworkInterface.getByInetAddress(InetAddress.getByName(this.networkInterface));
+            	}
+            } else {
+            	ni = NetworkInterface.getByInetAddress(InetAddress.getLocalHost()); 
+            }
         } catch (IOException e) {
             logger.error("Failed open DatagramChannel", e);
             throw new MdpFeedException("Failed open DatagramChannel", e);
