@@ -19,7 +19,7 @@ import com.epam.cme.mdp3.sbe.message.meta.SbeFieldType;
 import com.epam.cme.mdp3.sbe.message.meta.SbePrimitiveType;
 
 public abstract class AbstractFieldSet implements FieldSet {
-    private final static String MATURITY_MONTH_YEAR = "MaturityMonthYear";
+    public final static String MATURITY_MONTH_YEAR = "MaturityMonthYear";
 
     protected SbeBuffer sbeBuffer;
 
@@ -33,7 +33,7 @@ public abstract class AbstractFieldSet implements FieldSet {
         return metadata().getSchemaId();
     }
 
-    protected abstract MetadataContainer metadata();
+    public abstract MetadataContainer metadata();
 
     protected abstract void seek(final int tagId);
 
