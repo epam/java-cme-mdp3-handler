@@ -80,6 +80,13 @@ public interface MetadataContainer {
     SbeGroupType[] allGroups();
 
     /**
+     * Gets all Fields in this MDP Message type.
+     *
+     * @return Array of Fields
+     */
+    SbeFieldType[] allFields();
+    
+    /**
      * Adds Field metadata to this Message type's metadata.
      *
      * @param fieldType Field metadata
