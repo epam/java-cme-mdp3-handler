@@ -34,7 +34,7 @@ abstract class SbeGroupFieldSet extends AbstractFieldSet {
     }
 
     @Override
-    protected MetadataContainer metadata() {
+    public MetadataContainer metadata() {
         return getSbeGroupType().getMetadataContainer();
     }
 

@@ -79,7 +79,7 @@ public class SbeMessage extends AbstractFieldSet implements FieldSet, MdpMessage
     }
 
     @Override
-    protected MetadataContainer metadata() {
+    public MetadataContainer metadata() {
         return getMessageType().getMetadataContainer();
     }
 

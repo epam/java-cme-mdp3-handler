@@ -151,6 +151,15 @@ public class ArrayMetadataContainer implements MetadataContainer {
         return this.groupTypes;
     }
 
+    
+    /**
+     * @see MetadataContainer
+     */
+    @Override
+    public SbeFieldType[] allFields() {
+        return this.fieldTypes;
+    }    
+    
     /**
      * @see MetadataContainer
      */
