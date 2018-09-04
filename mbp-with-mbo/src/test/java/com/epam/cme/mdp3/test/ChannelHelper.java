@@ -18,10 +18,7 @@ import com.epam.cme.mdp3.sbe.message.SbeString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class ChannelHelper {
@@ -32,7 +29,8 @@ public class ChannelHelper {
     private final SbeString tag1151value = SbeString.allocate(6);
 
     public Set<InstrumentInfo> resolveInstruments(final String channelId,
-                                                         final List<String> symbolGroups, String networkInterface) {
+                                                  final List<String> symbolGroups,
+                                                  final String networkInterface) {
         try {
             final Set<InstrumentInfo> instruments = new HashSet<>();
             final MdpChannel mdpChannel = new MdpChannelBuilder(channelId,
@@ -61,13 +59,14 @@ public class ChannelHelper {
 
                         @Override
                         public int onSecurityDefinition(final String channelId, final MdpMessage secDefMessage) {
+                            SecurityDefinitionUtil.printSecurityDefinition(channelId, secDefMessage);
                             final int securityId = secDefMessage.getInt32(48);
                             secDefMessage.getString(55, tag55value);
                             secDefMessage.getString(1151, tag1151value);
 
                             final String secGroup = tag1151value.getString();
 //                            if (symbolGroups.contains(secGroup)) {
-                                instruments.add(new InstrumentInfo(securityId, tag55value.getString()));
+                            instruments.add(new InstrumentInfo(securityId, tag55value.getString()));
 //                            }
 
                             return MdEventFlags.NOTHING;
@@ -89,7 +88,7 @@ public class ChannelHelper {
 
     public static void main(String args[]) {
         try {
-            final Set<InstrumentInfo> instruments = new ChannelHelper().resolveInstruments("320", Arrays.asList( "6C", "6E", "6M", "6N"), null);
+            final Set<InstrumentInfo> instruments = new ChannelHelper().resolveInstruments("320", Arrays.asList("6C", "6E", "6M", "6N"), null);
             System.out.println(instruments);
         } catch (Exception e) {
             e.printStackTrace();

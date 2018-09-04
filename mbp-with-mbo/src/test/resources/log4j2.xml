@@ -16,16 +16,25 @@
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"/>
         </Console>
-        <File name="jMdpFileLog" fileName="Java Market Data Handler for CME Market Data (MDP 3.0).log">
+        <File name="jMdpFileLog" fileName="jmdp-test.log">
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+        </File>
+        <File name="jMdpSecFileLog" fileName="jmdp-sec.log">
             <PatternLayout>
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
             </PatternLayout>
         </File>
     </Appenders>
     <Loggers>
-        <Root level="info" additivity="false">
+        <Root level="debug">
             <AppenderRef ref="console"/>
             <AppenderRef ref="jMdpFileLog"/>
         </Root>
+        <Logger level="info" name="com.epam.cme.mdp3.test.SecurityDefinitionUtil" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="jMdpSecFileLog"/>
+        </Logger>
     </Loggers>
 </Configuration>

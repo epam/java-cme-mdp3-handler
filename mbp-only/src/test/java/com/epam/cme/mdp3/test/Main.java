@@ -21,6 +21,9 @@ import org.slf4j.Logger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.epam.cme.mdp3.MdConstants.SECURITY_ID;
+import static com.epam.cme.mdp3.mktdata.MdConstants.RPT_SEQ_NUM;
+
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static AtomicLong prcdSeqNum = new AtomicLong(0);
@@ -83,14 +86,14 @@ public class Main {
 
         @Override
         public void onIncrementalRefresh(final String channelId, final short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, final FieldSet incrRefreshEntry) {
-            /*logger.info("[{}] onIncrementalRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}",
-                    msgSeqNum, channelId, securityId, secDesc, incrRefreshEntry.getUInt32(RPT_SEQ_NUM));*/
+            logger.info("[{}] onIncrementalRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}",
+                    msgSeqNum, channelId, securityId, secDesc, incrRefreshEntry.getUInt32(RPT_SEQ_NUM));
         }
 
         @Override
         public void onSnapshotFullRefresh(final String channelId, String secDesc, final MdpMessage snptMessage) {
-            /*logger.info("onFullRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}",
-                    channelId, snptMessage.getInt32(SECURITY_ID), secDesc, snptMessage.getUInt32(RPT_SEQ_NUM));*/
+            logger.info("onFullRefresh: ChannelId: {}, SecurityId: {}-{}. RptSeqNum(83): {}",
+                    channelId, snptMessage.getInt32(SECURITY_ID), secDesc, snptMessage.getUInt32(RPT_SEQ_NUM));
         }
 
         @Override
@@ -134,14 +137,16 @@ public class Main {
 //        # 342 for YM
 //        # 344 for ZB, ZN, ZF
         final Map<String, List<String>> channelInfos = new HashMap<>();
-        defineChannel(channelInfos, "310", "ES");
+        defineChannel(channelInfos, "901", "4$");
+
+        /*defineChannel(channelInfos, "310", "ES");
         defineChannel(channelInfos, "314", "6A", "6B", "6J", "6S");
         defineChannel(channelInfos, "318", "NQ");
         defineChannel(channelInfos, "382", "CL");
         defineChannel(channelInfos, "360", "HG", "GC", "SI");
         defineChannel(channelInfos, "320", "6C", "6E", "6M", "6N");
         defineChannel(channelInfos, "342", "YM");
-        defineChannel(channelInfos, "344", "ZB", "ZN", "ZF");
+        defineChannel(channelInfos, "344", "ZB", "ZN", "ZF");*/
 
         final Map<String, Set<InstrumentInfo>> resolvedInstruments = new HashMap<>();
         channelInfos.forEach((s, groups) -> resolvedInstruments.put(s, new ChannelHelper().resolveInstruments(s, groups, null)));

@@ -14,6 +14,7 @@ package com.epam.cme.mdp3.test;
 
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.channel.MdpChannelBuilder;
+import com.epam.cme.mdp3.mktdata.enums.SecurityTradingStatus;
 import com.epam.cme.mdp3.sbe.message.SbeDouble;
 import com.epam.cme.mdp3.sbe.message.SbeGroup;
 import com.epam.cme.mdp3.sbe.message.SbeGroupEntry;
@@ -56,6 +57,7 @@ public class MBOWithMBPMain {
 
         @Override
         public void onPacket(String channelId, FeedType feedType, Feed feed, MdpPacket mdpPacket) {
+            logger.debug("{} - {} {}: {}", channelId, feedType, feed, mdpPacket.getMsgSeqNum());
 //            if (feedType != FeedType.S) {
 //                logger.info("{} - {} {}: {}", channelId, feedType, feed, mdpPacket.getMsgSeqNum());
 //            }
@@ -120,6 +122,7 @@ public class MBOWithMBPMain {
         @Override
         public void onIncrementalMBPRefresh(final String channelId, final short matchEventIndicator, final int securityId,
                                             final String secDesc, final long msgSeqNum, final FieldSet mdEntry){
+            //logger.debug("IncrementalMBPRefresh of {}, {} = {}", channelId, secDesc, msgSeqNum);
             MultipleDepthBookHandler multipleDepthBookHandler = multipleDepthBookHandlers.computeIfAbsent(securityId, integer -> new MultipleDepthBookHandler(integer, MdEventFlags.BOOK, (byte) 20));
             char mdEntryType = mdEntry.getChar(269);
             if (mdEntry.getSchemaId() == 32) {
@@ -264,7 +267,7 @@ public class MBOWithMBPMain {
 
         @Override
         public void onSecurityStatus(String channelId, int securityId, MdpMessage secStatusMessage) {
-            //logger.info("onSecurityStatus. ChannelId: {}, SecurityId: {}, SecurityTradingStatus(326): {}", channelId, securityId, SecurityTradingStatus.fromFIX(secStatusMessage.getUInt8(326)));
+            logger.info("onSecurityStatus. ChannelId: {}, SecurityId: {}, SecurityTradingStatus(326): {}", channelId, securityId, SecurityTradingStatus.fromFIX(secStatusMessage.getUInt8(326)));
         }
     }
 
