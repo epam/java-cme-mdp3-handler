@@ -50,14 +50,14 @@ public class MdpTCPMessageRequester<T extends CoreChannelListener> implements TC
         this.coreChannelListeners = coreChannelListeners;
         this.mdpMessageTypes = mdpMessageTypes;
         this.tcpChannel = tcpChannel;
-        logon = prepareLogonMessages(username, password);
-        logout = prepareLogooutMessages();
+        logon = preparePacketWithLogon(username, password);
+        logout = preparePacketWithLogout();
         mdpPacket.wrapFromBuffer(workBuffer);
     }
 
     @Override
     public synchronized boolean askForLostMessages(long beginSeqNo, long endSeqNo, TCPPacketListener tcpPacketListener) {
-        ByteBuffer request = prepareRequestMessages(channelId, beginSeqNo, endSeqNo, ++requestCounter);
+        ByteBuffer request = preparePacketWithRequest(channelId, beginSeqNo, endSeqNo, ++requestCounter);
         boolean connected = tcpChannel.connect();
         if(connected) {
             try {
@@ -152,26 +152,26 @@ public class MdpTCPMessageRequester<T extends CoreChannelListener> implements TC
         return firstMessage.getSchemaId() == LOGOUT_TEMPLATE_ID;
     }
 
-    private ByteBuffer prepareLogonMessages(String username, String password) {
+    private ByteBuffer preparePacketWithLogon(String username, String password) {
         String logonMessage = "35=A\u0001553=" + username + "\u0001554=" + password + "\u0001";
         logonMessage = "9=" + logonMessage.length() + "\u0001" + logonMessage;
         String logonChecksum = calculateChecksum(logonMessage);
         return ByteBuffer.wrap((logonMessage + "10=" + logonChecksum + "\u0001").getBytes());
     }
 
-    private ByteBuffer prepareLogooutMessages() {
+    private ByteBuffer preparePacketWithLogout() {
         String logoutMessage = "35=5\u0001";
         logoutMessage = "9=" + logoutMessage.length() + "\u0001" + logoutMessage;
-        String logonChecksum = calculateChecksum(logoutMessage);
-        return ByteBuffer.wrap((logoutMessage + "10=" + logonChecksum + "\u0001").getBytes());
+        String logoutChecksum = calculateChecksum(logoutMessage);
+        return ByteBuffer.wrap((logoutMessage + "10=" + logoutChecksum + "\u0001").getBytes());
     }
 
-    private ByteBuffer prepareRequestMessages(String channelId, long beginSeqNo, long endSeqNo, int mdReqId) {
-        String logonMessage = "35=V\u0001" + "1180=" + channelId + "\u0001262=" + channelId + "-" + mdReqId +
+    private ByteBuffer preparePacketWithRequest(String channelId, long beginSeqNo, long endSeqNo, int mdReqId) {
+        String requestMessage = "35=V\u0001" + "1180=" + channelId + "\u0001262=" + channelId + "-" + mdReqId +
                 "\u00011182=" + beginSeqNo + "\u00011183=" + endSeqNo + "\u0001";
-        logonMessage = "9=" + logonMessage.length() + "\u0001" + logonMessage;
-        String logonChecksum = calculateChecksum(logonMessage);
-        return ByteBuffer.wrap((logonMessage + "10=" + logonChecksum + "\u0001").getBytes());
+        requestMessage = "9=" + requestMessage.length() + "\u0001" + requestMessage;
+        String requestChecksum = calculateChecksum(requestMessage);
+        return ByteBuffer.wrap((requestMessage + "10=" + requestChecksum + "\u0001").getBytes());
     }
 
     private String calculateChecksum(String message) {
