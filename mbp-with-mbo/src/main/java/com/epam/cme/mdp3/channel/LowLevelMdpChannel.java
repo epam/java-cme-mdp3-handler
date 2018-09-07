@@ -105,9 +105,12 @@ public class LowLevelMdpChannel implements MdpChannel {
         recoveryManager = getRecoveryManager(recoveryFeedType);
         ChannelController targetForBuffered = new BufferedMessageRouter(channelId, instrumentManager, mdpMessageTypes,
                 listeners, mboCycleHandler, instrumentObserver, emptyBookConsumers, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);
+        TCPMessageRequester tcpMessageRequester = null;
         ConnectionCfg connectionCfg = channelCfg.getConnectionCfg(FeedType.H, Feed.A);
-        TCPChannel tcpChannel = new MdpTCPChannel(connectionCfg);
-        TCPMessageRequester tcpMessageRequester = new MdpTCPMessageRequester<>(channelId, listeners, mdpMessageTypes, tcpChannel, tcpUsername, tcpPassword);
+        if (connectionCfg != null) {
+            TCPChannel tcpChannel = new MdpTCPChannel(connectionCfg);
+            tcpMessageRequester = new MdpTCPMessageRequester<>(channelId, listeners, mdpMessageTypes, tcpChannel, tcpUsername, tcpPassword);
+        }
         this.channelController = new GapChannelController(listeners, target, targetForBuffered, recoveryManager, buffer, gapThreshold,
                 channelId, mdpMessageTypes, mboCycleHandler, mbpCycleHandler, scheduledExecutorService, tcpMessageRequester, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);
         emptyBookConsumers.add(channelController);
