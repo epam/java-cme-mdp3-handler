@@ -56,14 +56,18 @@ public class TestChannelListener implements ChannelListener {
 
     @Override
     public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                 final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
-        incrementMBOQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry != null ? orderIDEntry.copy() : null, mdEntry != null ? mdEntry.copy() : null));
+                                 final String secDesc, final long msgSeqNum, long transactTime, final FieldSet orderIDEntry, final FieldSet mdEntry){
+        incrementMBOQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, transactTime, orderIDEntry != null ? orderIDEntry.copy() : null, mdEntry != null ? mdEntry.copy() : null));
     }
 
     @Override
     public void onIncrementalMBPRefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                 final String secDesc, final long msgSeqNum, final FieldSet mdEntry){
-        incrementMBPQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, (mdEntry != null) ? mdEntry.copy() : null));
+                                 final String secDesc, final long msgSeqNum, long transactTime, final FieldSet mdEntry){
+        incrementMBPQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, transactTime, (mdEntry != null) ? mdEntry.copy() : null));
+    }
+    
+    @Override
+    public void onIncrementalComplete(final String channelId, final int securityId, final long msgSeqNum){        
     }
 
     @Override
@@ -120,19 +124,21 @@ public class TestChannelListener implements ChannelListener {
         private int securityId;
         private String secDesc;
         private long msgSeqNum;
+        private long transactTime;
         private FieldSet orderIDEntry;
         private FieldSet mdEntry;
 
-        public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet mdEntry) {
-            this(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, null, mdEntry);
+        public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, long transactTime, FieldSet mdEntry) {
+            this(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, transactTime, null, mdEntry);
         }
 
-        public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet orderIDEntry, FieldSet mdEntry) {
+        public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, long transactTime, FieldSet orderIDEntry, FieldSet mdEntry) {
             this.channelId = channelId;
             this.matchEventIndicator = matchEventIndicator;
             this.securityId = securityId;
             this.secDesc = secDesc;
             this.msgSeqNum = msgSeqNum;
+            this.transactTime = transactTime;
             this.orderIDEntry = orderIDEntry;
             this.mdEntry = mdEntry;
         }
@@ -157,6 +163,10 @@ public class TestChannelListener implements ChannelListener {
             return msgSeqNum;
         }
 
+        public long getTransactTime() {
+            return transactTime;
+        }
+        
         public FieldSet getOrderIDEntry() {
             return orderIDEntry;
         }

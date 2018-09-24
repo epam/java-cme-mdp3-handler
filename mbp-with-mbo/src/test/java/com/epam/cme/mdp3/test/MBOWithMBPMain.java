@@ -121,7 +121,7 @@ public class MBOWithMBPMain {
 
         @Override
         public void onIncrementalMBPRefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                            final String secDesc, final long msgSeqNum, final FieldSet mdEntry){
+                                            final String secDesc, final long msgSeqNum, long transactTime, final FieldSet mdEntry){
             //logger.debug("IncrementalMBPRefresh of {}, {} = {}", channelId, secDesc, msgSeqNum);
             MultipleDepthBookHandler multipleDepthBookHandler = multipleDepthBookHandlers.computeIfAbsent(securityId, integer -> new MultipleDepthBookHandler(integer, MdEventFlags.BOOK, (byte) 20));
             char mdEntryType = mdEntry.getChar(269);
@@ -136,7 +136,7 @@ public class MBOWithMBPMain {
 
         @Override
         public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                     final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
+                                     final String secDesc, final long msgSeqNum, long transactTime, final FieldSet orderIDEntry, final FieldSet mdEntry){
             try {
                 long orderId;
                 long mdOrderPriority;
@@ -181,6 +181,11 @@ public class MBOWithMBPMain {
                     logger.error(e.getMessage(), e);
                 }
             }
+        }
+        
+        @Override
+        public void onIncrementalComplete(final String channelId, final int securityId, final long msgSeqNum){        
+            logger.trace(String.format("onIncrementalComplete : ChannelId: %s, SecurityId: %s, MsgSeqNum: %s", channelId, securityId, msgSeqNum));
         }
 
         @Override
