@@ -36,8 +36,9 @@ public class InstrumentController {
     public void handleMBOIncrementMDEntry(MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
         if(enable) {
             short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
+            long transactTime = mdpMessage.getUInt64(SbeConstants.TRANSACT_TIME_TAG);
             for (ChannelListener channelListener : listeners) {
-                channelListener.onIncrementalMBORefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry, mdEntry);
+                channelListener.onIncrementalMBORefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, transactTime, orderIDEntry, mdEntry);
             }
         }
     }
@@ -45,8 +46,17 @@ public class InstrumentController {
     public void handleMBPIncrementMDEntry(MdpMessage mdpMessage, MdpGroupEntry mdEntry, long msgSeqNum){
         if(enable) {
             short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
+            long transactTime = mdpMessage.getUInt64(SbeConstants.TRANSACT_TIME_TAG);
             for (ChannelListener channelListener : listeners) {
-                channelListener.onIncrementalMBPRefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, mdEntry);
+                channelListener.onIncrementalMBPRefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, transactTime, mdEntry);
+            }
+        }
+    }
+    
+    public void handleIncrementalComplete(long msgSeqNum) {
+        if(enable) {
+            for (ChannelListener channelListener : listeners) {
+                channelListener.onIncrementalComplete(channelId, securityId, msgSeqNum);
             }
         }
     }

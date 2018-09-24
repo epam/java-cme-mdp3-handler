@@ -29,4 +29,5 @@ public class SbeConstants {
     public final static int VERSION_OFFSET = 6;
     public final static int RESERVED_OFFSET = 7;
     public final static int MATCHEVENTINDICATOR_TAG = 5799;
+    public final static int TRANSACT_TIME_TAG = 60;
 }

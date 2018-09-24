@@ -30,7 +30,7 @@ public interface ChannelListener extends CoreChannelListener {
      * @param mdEntry             MBP Entry of Group from MDP Incremental Refresh Message. It can be null when MBO Incremental Refresh is received in separated template.
      */
     void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                         final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry);
+                                         final String secDesc, final long msgSeqNum, long transactTime, final FieldSet orderEntry, final FieldSet mdEntry);
 
     /**
      *
@@ -42,8 +42,18 @@ public interface ChannelListener extends CoreChannelListener {
      * @param mdEntry               MBP Entry of Group from MDP Incremental Refresh Message. It can not be null.
      */
     void onIncrementalMBPRefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                              final String secDesc, final long msgSeqNum, final FieldSet mdEntry);
+                              final String secDesc, final long msgSeqNum, long transactTime, final FieldSet mdEntry);
 
+    /**
+    * Called when a Incremental MsgSeqNum has been fully processed
+    * This callback will be called for each securityId found in the MsgSeqNum packet
+    *
+    * @param channelId             ID of MDP Channel
+    * @param securityId            Security ID
+    * @param msgSeqNum             Message sequence number of message.
+    */
+    void onIncrementalComplete(final String channelId, final int securityId, final long msgSeqNum);
+    
     /**
      * Called when MDP Snapshot Full Refresh Message for MBO is received and processed.
      *
