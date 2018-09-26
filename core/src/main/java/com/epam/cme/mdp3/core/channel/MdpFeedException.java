@@ -12,8 +12,10 @@
 
 package com.epam.cme.mdp3.core.channel;
 
-public class
-MdpFeedException extends Exception {
+public class MdpFeedException extends Exception {
+
+    private static final long serialVersionUID = -6425092985801210129L;
+
     public MdpFeedException() {
         super();
     }

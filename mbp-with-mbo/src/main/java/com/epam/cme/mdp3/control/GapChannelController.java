@@ -143,6 +143,12 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                         target.handleSnapshotPacket(feedContext, mdpPacket);
                     }
                     break;
+                case CLOSED:
+                case CLOSING:
+                case SYNC:
+                default:
+                    log.error("handleSnapshotPacket invalid current state: {}", currentState);
+                    break;
             }
         } finally {
             lock.unlock();
@@ -198,6 +204,11 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                         log.trace("Feed {}:{} | handleIncrementalPacket: current state is '{}', so the packet with sequence '{}' has been put into buffer",
                                 feedContext.getFeedType(), feedContext.getFeed(), currentState, pkgSequence);
                     }
+                    break;
+                case CLOSED:
+                case CLOSING:
+                default:
+                    log.error("handleIncrementalPacket invalid current state: {}", currentState);
                     break;
             }
         } finally {

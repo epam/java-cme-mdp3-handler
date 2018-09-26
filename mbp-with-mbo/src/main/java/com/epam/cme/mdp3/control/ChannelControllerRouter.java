@@ -22,7 +22,9 @@ import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.epam.cme.mdp3.MdConstants.INCR_RFRSH_MD_ENTRY_TYPE;
@@ -131,14 +133,25 @@ public class ChannelControllerRouter implements MdpChannelController {
         }
     }
 
+    protected void routeIncrementalComplete(Set<Integer> securityIds, MdpMessage mdpMessage, long msgSeqNum) {
+        for (Integer securityId : securityIds) {
+            InstrumentController instrumentController = instrumentManager.getInstrumentController(securityId);
+            if (instrumentController != null) {
+                instrumentController.handleIncrementalComplete(mdpMessage, msgSeqNum);
+            }
+        }
+    }
+    
     private void handleIncrementalMessage(MdpMessage mdpMessage, MdpGroup mdpGroup, MdpGroupEntry mdpGroupEntry, long msgSeqNum){
         if (isIncrementalMessageSupported(mdpMessage)) {
+            Set<Integer> securityIds = new HashSet<>();
             if (isIncrementOnlyForMBO(mdpMessage)) {
                 mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, mdpGroup);
                 while (mdpGroup.hashNext()) {
                     mdpGroup.next();
                     mdpGroup.getEntry(mdpGroupEntry);
                     int securityId = getSecurityId(mdpGroupEntry);
+                    securityIds.add(securityId);
                     routeMBOEntry(securityId, mdpMessage, mdpGroupEntry, null, msgSeqNum);
                 }
             } else {
@@ -151,6 +164,7 @@ public class ChannelControllerRouter implements MdpChannelController {
                             emptyBookConsumers.forEach(mdpMessageConsumer -> mdpMessageConsumer.accept(mdpMessage));
                         } else {
                             int securityId = mdEntry.getInt32(MdConstants.SECURITY_ID);
+                            securityIds.add(securityId);
                             routeMBPEntry(securityId, mdpMessage, mdEntry, msgSeqNum);
                         }
                     }
@@ -163,10 +177,12 @@ public class ChannelControllerRouter implements MdpChannelController {
                         short entryNum = mdpGroupEntry.getUInt8(MdConstants.REFERENCE_ID);
                         noMdEntriesGroup.getEntry(entryNum, mdEntry);
                         int securityId = mdEntry.getInt32(MdConstants.SECURITY_ID);
+                        securityIds.add(securityId);
                         routeMBOEntry(securityId, mdpMessage, mdpGroupEntry, mdEntry, msgSeqNum);
                     }
                 }
             }
+            routeIncrementalComplete(securityIds, mdpMessage, msgSeqNum);
         }
     }
 

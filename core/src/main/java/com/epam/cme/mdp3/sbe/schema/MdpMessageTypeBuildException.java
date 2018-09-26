@@ -13,6 +13,8 @@
 package com.epam.cme.mdp3.sbe.schema;
 
 public class MdpMessageTypeBuildException extends Exception {
+    private static final long serialVersionUID = -6385550323191516252L;
+
     public MdpMessageTypeBuildException() {
         super();
     }
