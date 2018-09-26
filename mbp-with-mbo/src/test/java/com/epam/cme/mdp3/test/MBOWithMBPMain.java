@@ -19,6 +19,7 @@ import com.epam.cme.mdp3.sbe.message.SbeDouble;
 import com.epam.cme.mdp3.sbe.message.SbeGroup;
 import com.epam.cme.mdp3.sbe.message.SbeGroupEntry;
 import com.epam.cme.mdp3.sbe.message.SbeString;
+import com.epam.cme.mdp3.sbe.message.SbeConstants;
 import com.epam.cme.mdp3.test.mbpbook.MultipleDepthBookHandler;
 import com.epam.cme.mdp3.test.mbpbook.OrderBookPriceLevel;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -120,8 +121,7 @@ public class MBOWithMBPMain {
         }
 
         @Override
-        public void onIncrementalMBPRefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                            final String secDesc, final long msgSeqNum, long transactTime, final FieldSet mdEntry){
+        public void onIncrementalMBPRefresh(final MdpMessage mdpMessage, final String channelId, final int securityId, final String secDesc, final long msgSeqNum, final FieldSet mdEntry){
             //logger.debug("IncrementalMBPRefresh of {}, {} = {}", channelId, secDesc, msgSeqNum);
             MultipleDepthBookHandler multipleDepthBookHandler = multipleDepthBookHandlers.computeIfAbsent(securityId, integer -> new MultipleDepthBookHandler(integer, MdEventFlags.BOOK, (byte) 20));
             char mdEntryType = mdEntry.getChar(269);
@@ -135,8 +135,7 @@ public class MBOWithMBPMain {
         }
 
         @Override
-        public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                     final String secDesc, final long msgSeqNum, long transactTime, final FieldSet orderIDEntry, final FieldSet mdEntry){
+        public void onIncrementalMBORefresh(final MdpMessage mdpMessage, final String channelId, final int securityId, final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
             try {
                 long orderId;
                 long mdOrderPriority;
@@ -144,6 +143,7 @@ public class MBOWithMBPMain {
                 long mdDisplayQty;
                 int mdUpdateAction;
                 char mdEntryType;
+                short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
                 if (mdEntry == null) {//MBO only
                     orderId = orderIDEntry.getUInt64(37);
                     mdOrderPriority = orderIDEntry.getUInt64(37707);
@@ -184,8 +184,8 @@ public class MBOWithMBPMain {
         }
         
         @Override
-        public void onIncrementalComplete(final String channelId, final int securityId, final long msgSeqNum){        
-            logger.trace(String.format("onIncrementalComplete : ChannelId: %s, SecurityId: %s, MsgSeqNum: %s", channelId, securityId, msgSeqNum));
+        public void onIncrementalComplete(final MdpMessage mdpMessage, final String channelId, final int securityId, final String secDesc, final long msgSeqNum){        
+            logger.trace(String.format("onIncrementalComplete : ChannelId: %s, SecurityId: %s, SecurityDesc: %s, MsgSeqNum: %s", channelId, securityId, secDesc, msgSeqNum));
         }
 
         @Override

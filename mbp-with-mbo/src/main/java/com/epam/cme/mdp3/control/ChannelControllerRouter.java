@@ -133,11 +133,11 @@ public class ChannelControllerRouter implements MdpChannelController {
         }
     }
 
-    protected void routeIncrementalComplete(Set<Integer> securityIds, long msgSeqNum) {
+    protected void routeIncrementalComplete(Set<Integer> securityIds, MdpMessage mdpMessage, long msgSeqNum) {
         for (Integer securityId : securityIds) {
             InstrumentController instrumentController = instrumentManager.getInstrumentController(securityId);
             if (instrumentController != null) {
-                instrumentController.handleIncrementalComplete(msgSeqNum);
+                instrumentController.handleIncrementalComplete(mdpMessage, msgSeqNum);
             }
         }
     }
@@ -182,7 +182,7 @@ public class ChannelControllerRouter implements MdpChannelController {
                     }
                 }
             }
-            routeIncrementalComplete(securityIds, msgSeqNum);
+            routeIncrementalComplete(securityIds, mdpMessage, msgSeqNum);
         }
     }
 

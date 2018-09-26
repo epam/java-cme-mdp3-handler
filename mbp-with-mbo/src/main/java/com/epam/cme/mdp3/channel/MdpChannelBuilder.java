@@ -23,7 +23,6 @@ import com.epam.cme.mdp3.sbe.schema.MdpMessageTypeBuildException;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,6 @@ public class MdpChannelBuilder {
     private final String channelId;
     private URI cfgURI;
     private URI schemaURI;
-    private MdpMessageTypes mdpMessageTypes;
     private Map<FeedType, String> feedANetworkInterfaces = new HashMap<>();
     private Map<FeedType, String> feedBNetworkInterfaces = new HashMap<>();
     private ChannelListener channelListener;
@@ -66,7 +64,6 @@ public class MdpChannelBuilder {
 
     public MdpChannelBuilder setSchema(final URI schemaURI) throws MdpMessageTypeBuildException {
         this.schemaURI = schemaURI;
-        this.mdpMessageTypes = new MdpMessageTypes(this.schemaURI);
         return this;
     }
 

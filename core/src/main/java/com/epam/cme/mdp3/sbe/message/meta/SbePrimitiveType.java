@@ -86,6 +86,10 @@ public enum SbePrimitiveType {
     public long getNullValue() {
         return nullValue;
     }
+    
+    public String getJavaType() {
+        return javaType;
+    }
 
     public boolean isNull(final long value) {
         return value == this.nullValue;

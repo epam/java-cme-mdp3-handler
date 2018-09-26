@@ -21,38 +21,38 @@ public interface ChannelListener extends CoreChannelListener {
      *
      * Only when MBO is enabled.
      *
+     * @param mdpMessage          The full MDP Message
      * @param channelId           ID of MDP Channel
-     * @param matchEventIndicator MDP Event indicator (bitset, @see <a href="http://www.cmegroup.com/confluence/display/EPICSANDBOX/MDP+3.0+-+Market+Data+Incremental+Refresh">MDP 3.0 - Market Data Incremental Refresh</a>)
      * @param secDesc             Security description
      * @param msgSeqNum           Message sequence number of message.
      * @param securityId          Security ID
      * @param orderEntry          MBO Entry of Group from MDP Incremental Refresh Message. It can not be null.
      * @param mdEntry             MBP Entry of Group from MDP Incremental Refresh Message. It can be null when MBO Incremental Refresh is received in separated template.
      */
-    void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                         final String secDesc, final long msgSeqNum, long transactTime, final FieldSet orderEntry, final FieldSet mdEntry);
+    void onIncrementalMBORefresh(final MdpMessage mdpMessage, final String channelId, final int securityId, final String secDesc, final long msgSeqNum, final FieldSet orderEntry, final FieldSet mdEntry);
 
     /**
      *
+     * @param mdpMessage            The full MDP Message
      * @param channelId             ID of MDP Channel
-     * @param matchEventIndicator   MDP Event indicator (bitset, @see <a href="http://www.cmegroup.com/confluence/display/EPICSANDBOX/MDP+3.0+-+Market+Data+Incremental+Refresh">MDP 3.0 - Market Data Incremental Refresh</a>)
      * @param securityId            Security ID
      * @param secDesc               Security description
      * @param msgSeqNum             Message sequence number of message.
      * @param mdEntry               MBP Entry of Group from MDP Incremental Refresh Message. It can not be null.
      */
-    void onIncrementalMBPRefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                              final String secDesc, final long msgSeqNum, long transactTime, final FieldSet mdEntry);
+    void onIncrementalMBPRefresh(final MdpMessage mdpMessage, final String channelId, final int securityId, final String secDesc, final long msgSeqNum, final FieldSet mdEntry);
 
     /**
     * Called when a Incremental MsgSeqNum has been fully processed
     * This callback will be called for each securityId found in the MsgSeqNum packet
     *
+    * @param mdpMessage            The full MDP Message
     * @param channelId             ID of MDP Channel
     * @param securityId            Security ID
+    * @param secDesc               Security description
     * @param msgSeqNum             Message sequence number of message.
     */
-    void onIncrementalComplete(final String channelId, final int securityId, final long msgSeqNum);
+    void onIncrementalComplete(final MdpMessage mdpMessage, final String channelId, final int securityId, final String secDesc, final long msgSeqNum);
     
     /**
      * Called when MDP Snapshot Full Refresh Message for MBO is received and processed.

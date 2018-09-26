@@ -37,8 +37,6 @@ import static com.epam.cme.mdp3.core.channel.MdpFeedRtmState.*;
 
 public class MdpFeedWorker implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(MdpFeedWorker.class);
-    private static final int ACTIVE_MARK = 1;
-    private static final int SHUTDOWN_MARK = 2;
     public static final int RCV_BUFFER_SIZE = 4*1024*1024;
 
     private final ConnectionCfg cfg;
@@ -167,7 +165,7 @@ public class MdpFeedWorker implements Runnable {
 
     private void select(final ByteBuffer byteBuffer, final MdpPacket mdpPacket) throws IOException {
         if (selector.select() > 0) {
-            Iterator selectedKeys = selector.selectedKeys().iterator();
+            Iterator<?> selectedKeys = selector.selectedKeys().iterator();
             while (selectedKeys.hasNext()) {
                 final SelectionKey key = (SelectionKey) selectedKeys.next();
                 selectedKeys.remove();

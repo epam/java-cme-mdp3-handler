@@ -15,8 +15,6 @@ package com.epam.cme.mdp3.control;
 import com.epam.cme.mdp3.ChannelListener;
 import com.epam.cme.mdp3.MdpGroupEntry;
 import com.epam.cme.mdp3.MdpMessage;
-import com.epam.cme.mdp3.sbe.message.SbeConstants;
-
 import java.util.List;
 
 public class InstrumentController {
@@ -35,28 +33,24 @@ public class InstrumentController {
 
     public void handleMBOIncrementMDEntry(MdpMessage mdpMessage, MdpGroupEntry orderIDEntry, MdpGroupEntry mdEntry, long msgSeqNum){
         if(enable) {
-            short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
-            long transactTime = mdpMessage.getUInt64(SbeConstants.TRANSACT_TIME_TAG);
             for (ChannelListener channelListener : listeners) {
-                channelListener.onIncrementalMBORefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, transactTime, orderIDEntry, mdEntry);
+                channelListener.onIncrementalMBORefresh(mdpMessage, channelId, securityId, secDesc, msgSeqNum, orderIDEntry, mdEntry);
             }
         }
     }
 
     public void handleMBPIncrementMDEntry(MdpMessage mdpMessage, MdpGroupEntry mdEntry, long msgSeqNum){
         if(enable) {
-            short matchEventIndicator = mdpMessage.getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG);
-            long transactTime = mdpMessage.getUInt64(SbeConstants.TRANSACT_TIME_TAG);
             for (ChannelListener channelListener : listeners) {
-                channelListener.onIncrementalMBPRefresh(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, transactTime, mdEntry);
+                channelListener.onIncrementalMBPRefresh(mdpMessage, channelId, securityId, secDesc, msgSeqNum, mdEntry);
             }
         }
     }
     
-    public void handleIncrementalComplete(long msgSeqNum) {
+    public void handleIncrementalComplete(MdpMessage mdpMessage, long msgSeqNum) {
         if(enable) {
             for (ChannelListener channelListener : listeners) {
-                channelListener.onIncrementalComplete(channelId, securityId, msgSeqNum);
+                channelListener.onIncrementalComplete(mdpMessage, channelId, securityId, secDesc, msgSeqNum);
             }
         }
     }
