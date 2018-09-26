@@ -78,13 +78,13 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     }
     
     @Override
-	public List<Integer> getMBOIncrementMessageTemplateIds() {
-    	return mboIncrementMessageTemplateIds == null ? MdpChannelController.super.getMBOIncrementMessageTemplateIds() : mboIncrementMessageTemplateIds;
+    public List<Integer> getMBOIncrementMessageTemplateIds() {
+        return mboIncrementMessageTemplateIds == null ? MdpChannelController.super.getMBOIncrementMessageTemplateIds() : mboIncrementMessageTemplateIds;
     }
     
     @Override
     public List<Integer> getMBOSnapshotMessageTemplateIds() {
-    	return mboSnapshotMessageTemplateIds == null ? MdpChannelController.super.getMBOSnapshotMessageTemplateIds() : mboSnapshotMessageTemplateIds;
+        return mboSnapshotMessageTemplateIds == null ? MdpChannelController.super.getMBOSnapshotMessageTemplateIds() : mboSnapshotMessageTemplateIds;
     }
 
     @Override
@@ -143,11 +143,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                         target.handleSnapshotPacket(feedContext, mdpPacket);
                     }
                     break;
-                case CLOSED:
-                case CLOSING:
-                case SYNC:
                 default:
-                    log.error("handleSnapshotPacket invalid current state: {}", currentState);
                     break;
             }
         } finally {
@@ -205,10 +201,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                                 feedContext.getFeedType(), feedContext.getFeed(), currentState, pkgSequence);
                     }
                     break;
-                case CLOSED:
-                case CLOSING:
                 default:
-                    log.error("handleIncrementalPacket invalid current state: {}", currentState);
                     break;
             }
         } finally {
