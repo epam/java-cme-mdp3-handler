@@ -41,6 +41,7 @@ public class ChannelControllerRouter implements MdpChannelController {
     private final String channelId;
     private List<Integer> mboIncrementMessageTemplateIds;
     private List<Integer> mboSnapshotMessageTemplateIds;
+    private Set<Integer> securityIds = new HashSet<>();
     
     public ChannelControllerRouter(String channelId, InstrumentManager instrumentManager,
                                    MdpMessageTypes mdpMessageTypes, List<ChannelListener> channelListeners,
@@ -144,7 +145,7 @@ public class ChannelControllerRouter implements MdpChannelController {
     
     private void handleIncrementalMessage(MdpMessage mdpMessage, MdpGroup mdpGroup, MdpGroupEntry mdpGroupEntry, long msgSeqNum){
         if (isIncrementalMessageSupported(mdpMessage)) {
-            Set<Integer> securityIds = new HashSet<>();
+            securityIds.clear();
             if (isIncrementOnlyForMBO(mdpMessage)) {
                 mdpMessage.getGroup(MdConstants.NO_MD_ENTRIES, mdpGroup);
                 while (mdpGroup.hashNext()) {
