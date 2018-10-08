@@ -21,10 +21,9 @@ import com.epam.cme.mdp3.sbe.message.SbeGroupEntry;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.agrona.collections.IntHashSet;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.epam.cme.mdp3.MdConstants.INCR_RFRSH_MD_ENTRY_TYPE;
@@ -41,7 +40,7 @@ public class ChannelControllerRouter implements MdpChannelController {
     private final String channelId;
     private List<Integer> mboIncrementMessageTemplateIds;
     private List<Integer> mboSnapshotMessageTemplateIds;
-    private Set<Integer> securityIds = new HashSet<>();
+    private IntHashSet securityIds = new IntHashSet();
     
     public ChannelControllerRouter(String channelId, InstrumentManager instrumentManager,
                                    MdpMessageTypes mdpMessageTypes, List<ChannelListener> channelListeners,
@@ -134,8 +133,8 @@ public class ChannelControllerRouter implements MdpChannelController {
         }
     }
 
-    protected void routeIncrementalComplete(Set<Integer> securityIds, MdpMessage mdpMessage, long msgSeqNum) {
-        for (Integer securityId : securityIds) {
+    protected void routeIncrementalComplete(IntHashSet securityIds, MdpMessage mdpMessage, long msgSeqNum) {
+        for (int securityId : securityIds) {
             InstrumentController instrumentController = instrumentManager.getInstrumentController(securityId);
             if (instrumentController != null) {
                 instrumentController.handleIncrementalComplete(mdpMessage, msgSeqNum);
