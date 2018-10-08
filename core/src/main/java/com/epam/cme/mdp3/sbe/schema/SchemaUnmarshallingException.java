@@ -13,6 +13,8 @@
 package com.epam.cme.mdp3.sbe.schema;
 
 public class SchemaUnmarshallingException extends Exception {
+    private static final long serialVersionUID = 1944148130312471541L;
+
     public SchemaUnmarshallingException() {
         super();
     }

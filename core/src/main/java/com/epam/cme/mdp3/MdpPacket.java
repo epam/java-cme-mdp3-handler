@@ -14,7 +14,6 @@ package com.epam.cme.mdp3;
 
 import com.epam.cme.mdp3.sbe.message.SbeBuffer;
 import com.epam.cme.mdp3.sbe.message.SbeBufferImpl;
-import com.epam.cme.mdp3.sbe.message.SbeConstants;
 import com.epam.cme.mdp3.sbe.message.SbeMessage;
 
 import java.nio.ByteBuffer;

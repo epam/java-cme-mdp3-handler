@@ -78,13 +78,13 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     }
     
     @Override
-	public List<Integer> getMBOIncrementMessageTemplateIds() {
-    	return mboIncrementMessageTemplateIds == null ? MdpChannelController.super.getMBOIncrementMessageTemplateIds() : mboIncrementMessageTemplateIds;
+    public List<Integer> getMBOIncrementMessageTemplateIds() {
+        return mboIncrementMessageTemplateIds == null ? MdpChannelController.super.getMBOIncrementMessageTemplateIds() : mboIncrementMessageTemplateIds;
     }
     
     @Override
     public List<Integer> getMBOSnapshotMessageTemplateIds() {
-    	return mboSnapshotMessageTemplateIds == null ? MdpChannelController.super.getMBOSnapshotMessageTemplateIds() : mboSnapshotMessageTemplateIds;
+        return mboSnapshotMessageTemplateIds == null ? MdpChannelController.super.getMBOSnapshotMessageTemplateIds() : mboSnapshotMessageTemplateIds;
     }
 
     @Override
@@ -143,6 +143,8 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                         target.handleSnapshotPacket(feedContext, mdpPacket);
                     }
                     break;
+                default:
+                    break;
             }
         } finally {
             lock.unlock();
@@ -198,6 +200,8 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                         log.trace("Feed {}:{} | handleIncrementalPacket: current state is '{}', so the packet with sequence '{}' has been put into buffer",
                                 feedContext.getFeedType(), feedContext.getFeed(), currentState, pkgSequence);
                     }
+                    break;
+                default:
                     break;
             }
         } finally {

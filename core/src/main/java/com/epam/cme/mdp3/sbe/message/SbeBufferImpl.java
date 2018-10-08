@@ -19,7 +19,7 @@ import java.nio.ByteOrder;
 
 public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
     public static final byte BYTE_MASK = (byte) 0xff;
-    protected BytesStore bytes;
+    protected BytesStore<?, ?> bytes;
 
     @Override
     public void wrap(final SbeBuffer sb) {
@@ -31,17 +31,17 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
     }
 
     @Override
-    public void copyTo(final BytesStore store) {
+    public void copyTo(final BytesStore<?, ?> store) {
         store.write(0, this.bytes, 0, this.length());
     }
 
     @Override
-    public void copyTo(final int offset, final BytesStore store, final int len) {
+    public void copyTo(final int offset, final BytesStore<?, ?> store, final int len) {
         store.write(0, this.bytes, offset, len);
     }
 
     @Override
-    public void copyFrom(BytesStore store) {
+    public void copyFrom(BytesStore<?, ?> store) {
         this.bytes.write(0, store, 0, store.length());
         this.length = store.length();
     }

@@ -3,6 +3,7 @@ package com.epam.cme.mdp3.test.control;
 import com.epam.cme.mdp3.*;
 import com.epam.cme.mdp3.control.*;
 import com.epam.cme.mdp3.core.channel.MdpFeedContext;
+import com.epam.cme.mdp3.sbe.message.SbeConstants;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypes;
 import com.epam.cme.mdp3.test.Constants;
 import com.epam.cme.mdp3.test.ModelUtils;
@@ -78,7 +79,7 @@ public class MBOChannelControllerRouterTest {
         assertNotNull(incrementalRefreshEntity);
         Assert.assertEquals(channelId, incrementalRefreshEntity.getChannelId());
         Assert.assertEquals(secDesc, incrementalRefreshEntity.getSecDesc());
-        Assert.assertEquals(1, incrementalRefreshEntity.getMatchEventIndicator());
+        Assert.assertEquals(1, incrementalRefreshEntity.getMDPMEssage().getUInt8(SbeConstants.MATCHEVENTINDICATOR_TAG));
         Assert.assertEquals(1, incrementalRefreshEntity.getMsgSeqNum());
         FieldSet orderIDEntry = incrementalRefreshEntity.getOrderIDEntry();
         assertNotNull(orderIDEntry);

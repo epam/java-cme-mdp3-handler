@@ -123,7 +123,7 @@ public class OffHeapSnapshotCycleHandler implements SnapshotCycleHandler {
     }
 
     private class LongArray {
-        private BytesStore bytes;
+        private BytesStore<?, ?> bytes;
         private long length;
 
         public LongArray(long length) {
@@ -147,14 +147,6 @@ public class OffHeapSnapshotCycleHandler implements SnapshotCycleHandler {
             } else {
                 logger.error("It tries to set value at '{}' index in array, but the array has '{}' length", index, length);
             }
-        }
-
-        public BytesStore getBytes() {
-            return bytes;
-        }
-
-        public void setBytes(BytesStore bytes) {
-            this.bytes = bytes;
         }
 
         public long getLength() {
@@ -181,10 +173,6 @@ public class OffHeapSnapshotCycleHandler implements SnapshotCycleHandler {
 
         public T getValue() {
             return value;
-        }
-
-        public void setValue(T value) {
-            this.value = value;
         }
 
         @Override

@@ -8,6 +8,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.epam.cme.mdp3.sbe.message.SbeConstants;
+
 public class TestChannelListener implements ChannelListener {
     private ChannelState prevSate;
     private ChannelState currentSate;
@@ -55,15 +57,17 @@ public class TestChannelListener implements ChannelListener {
     }
 
     @Override
-    public void onIncrementalMBORefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                 final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){
-        incrementMBOQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, orderIDEntry != null ? orderIDEntry.copy() : null, mdEntry != null ? mdEntry.copy() : null));
+    public void onIncrementalMBORefresh(final MdpMessage mdpMessage, final String channelId, final int securityId, final String secDesc, final long msgSeqNum, final FieldSet orderIDEntry, final FieldSet mdEntry){        
+        incrementMBOQueue.add(new IncrementalRefreshEntity(mdpMessage, channelId, securityId, secDesc, msgSeqNum, orderIDEntry != null ? orderIDEntry.copy() : null, mdEntry != null ? mdEntry.copy() : null));
     }
 
     @Override
-    public void onIncrementalMBPRefresh(final String channelId, final short matchEventIndicator, final int securityId,
-                                 final String secDesc, final long msgSeqNum, final FieldSet mdEntry){
-        incrementMBPQueue.add(new IncrementalRefreshEntity(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, (mdEntry != null) ? mdEntry.copy() : null));
+    public void onIncrementalMBPRefresh(final MdpMessage mdpMessage, final String channelId, final int securityId, final String secDesc, final long msgSeqNum, final FieldSet mdEntry){
+        incrementMBPQueue.add(new IncrementalRefreshEntity(mdpMessage, channelId, securityId, secDesc, msgSeqNum, (mdEntry != null) ? mdEntry.copy() : null));
+    }
+    
+    @Override
+    public void onIncrementalComplete(final MdpMessage mdpMessage, final String channelId, final int securityId, final String secDesc, final long msgSeqNum){        
     }
 
     @Override
@@ -115,21 +119,21 @@ public class TestChannelListener implements ChannelListener {
     }
 
     public class IncrementalRefreshEntity {
-        private String channelId;
-        private short matchEventIndicator;
+        private MdpMessage mdpMessage;
+        private String channelId;        
         private int securityId;
         private String secDesc;
         private long msgSeqNum;
         private FieldSet orderIDEntry;
         private FieldSet mdEntry;
 
-        public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet mdEntry) {
-            this(channelId, matchEventIndicator, securityId, secDesc, msgSeqNum, null, mdEntry);
+        public IncrementalRefreshEntity(MdpMessage mdpMessage, String channelId, int securityId, String secDesc, long msgSeqNum, FieldSet mdEntry) {
+            this(mdpMessage, channelId, securityId, secDesc, msgSeqNum, null, mdEntry);
         }
 
-        public IncrementalRefreshEntity(String channelId, short matchEventIndicator, int securityId, String secDesc, long msgSeqNum, FieldSet orderIDEntry, FieldSet mdEntry) {
+        public IncrementalRefreshEntity(MdpMessage mdpMessage, String channelId, int securityId, String secDesc, long msgSeqNum, FieldSet orderIDEntry, FieldSet mdEntry) {
+            this.mdpMessage = mdpMessage;
             this.channelId = channelId;
-            this.matchEventIndicator = matchEventIndicator;
             this.securityId = securityId;
             this.secDesc = secDesc;
             this.msgSeqNum = msgSeqNum;
@@ -137,12 +141,12 @@ public class TestChannelListener implements ChannelListener {
             this.mdEntry = mdEntry;
         }
 
+        public MdpMessage getMDPMEssage() {
+            return mdpMessage;
+        }
+        
         public String getChannelId() {
             return channelId;
-        }
-
-        public short getMatchEventIndicator() {
-            return matchEventIndicator;
         }
 
         public int getSecurityId() {
@@ -156,7 +160,7 @@ public class TestChannelListener implements ChannelListener {
         public long getMsgSeqNum() {
             return msgSeqNum;
         }
-
+        
         public FieldSet getOrderIDEntry() {
             return orderIDEntry;
         }
