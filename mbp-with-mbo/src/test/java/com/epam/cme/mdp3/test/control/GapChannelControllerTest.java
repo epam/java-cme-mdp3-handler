@@ -45,7 +45,7 @@ public class GapChannelControllerTest {
         ChannelController targetForBuffered = new BufferedMessageRouter(testChannelId, instrumentManager, mdpMessageTypes,
                 mboChannelListeners, mboSnapshotCycleHandler, new TestInstrumentObserver(testChannelId), Collections.emptyList(), null, null);
         gapChannelController = new GapChannelController(mboChannelListeners, testChannelController, targetForBuffered,
-                testRecoveryManager, buffer, 0, testChannelId, mdpMessageTypes, mboSnapshotCycleHandler, mboSnapshotCycleHandler,null, null, null, null);
+                testRecoveryManager, buffer, 0, GapChannelController.MAX_NUMBER_OF_TCP_ATTEMPTS, testChannelId, mdpMessageTypes, mboSnapshotCycleHandler, mboSnapshotCycleHandler,null, null, null, null);
 
     }
 
@@ -163,7 +163,7 @@ public class GapChannelControllerTest {
         testRecoveryManager = new TestSnapshotRecoveryManager();
         int gapThreshold = 3;
         OffHeapSnapshotCycleHandler cycleHandler = new OffHeapSnapshotCycleHandler();
-        gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener), testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId, mdpMessageTypes, cycleHandler, cycleHandler, null, null, null, null);
+        gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener), testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, GapChannelController.MAX_NUMBER_OF_TCP_ATTEMPTS, testChannelId, mdpMessageTypes, cycleHandler, cycleHandler, null, null, null, null);
 
 
         int lastMsgSeqNumProcessed = 0;
@@ -197,7 +197,7 @@ public class GapChannelControllerTest {
         OffHeapSnapshotCycleHandler cycleHandler = new OffHeapSnapshotCycleHandler();
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener),
-                testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, testChannelId,
+                testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, GapChannelController.MAX_NUMBER_OF_TCP_ATTEMPTS, testChannelId,
                 mdpMessageTypes, cycleHandler, cycleHandler, executorService, new TestTCPMessageRequester(), null, null);
 
 
