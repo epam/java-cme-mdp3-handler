@@ -18,6 +18,8 @@ import net.openhft.chronicle.bytes.NativeBytesStore;
 
 import java.util.Arrays;
 
+import org.agrona.collections.LongHashSet;
+
 import static com.epam.cme.mdp3.sbe.message.SbeConstants.MESSAGE_SEQ_NUM_OFFSET;
 
 public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
@@ -26,6 +28,7 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
     private MdpPacket resultPacket = MdpPacket.allocate();
     private final MdpPacket emptyPacket = MdpPacket.allocate();
     private boolean full;
+    private LongHashSet msgSeqNums = new LongHashSet();
 
     public MDPOffHeapBuffer(int capacity) {
         NativeBytesStore<Void> emptyStore = NativeBytesStore.nativeStoreWithFixedCapacity(SbeConstants.MDP_PACKET_MAX_SIZE);
@@ -41,8 +44,12 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
 
     @Override
     public synchronized void add(MdpPacket entity) {
+    	if (!isPacketEmpty(entity) && msgSeqNums.contains(entity.getMsgSeqNum())) {
+    		return;
+    	}
+    	msgSeqNums.add(entity.getMsgSeqNum());
         int firstEmptyPosition = calculateFirstEmptyPosition();
-        MdpPacket mdpPacket = data[firstEmptyPosition];
+        MdpPacket mdpPacket = data[firstEmptyPosition];        
         copy(entity, mdpPacket);
         sort();
     }
@@ -63,6 +70,7 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
         System.arraycopy(data, 1, data, 0, data.length - 1);
         data[data.length - 1] = nextPackage;
         full = false;
+        msgSeqNums.remove(resultPacket.getMsgSeqNum());
         return resultPacket;
     }
 
