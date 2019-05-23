@@ -16,6 +16,7 @@ import com.epam.cme.mdp3.ChannelListener;
 import com.epam.cme.mdp3.Feed;
 import com.epam.cme.mdp3.FeedType;
 import com.epam.cme.mdp3.MdpChannel;
+import com.epam.cme.mdp3.control.GapChannelController;
 import com.epam.cme.mdp3.core.cfg.Configuration;
 import com.epam.cme.mdp3.core.channel.MdpFeedWorker;
 import com.epam.cme.mdp3.core.channel.tcp.MdpTCPMessageRequester;
@@ -43,6 +44,7 @@ public class MdpChannelBuilder {
     private int rcvBufSize = MdpFeedWorker.RCV_BUFFER_SIZE;
     private String tcpUsername = MdpTCPMessageRequester.DEFAULT_USERNAME;
     private String tcpPassword = MdpTCPMessageRequester.DEFAULT_PASSWORD;
+    private int maxNumberOfTCPAttempts = GapChannelController.MAX_NUMBER_OF_TCP_ATTEMPTS;
     private boolean mboEnabled;
     private List<Integer> incrementMessageTemplateIds;
     private List<Integer> snapshotMessageTemplateIds;
@@ -101,6 +103,11 @@ public class MdpChannelBuilder {
         return this;
     }
 
+    public MdpChannelBuilder usingMaxNumberOfTCPAttempts(final int maxTcpAttempts) {
+    	this.maxNumberOfTCPAttempts = maxTcpAttempts;
+    	return this;
+    }
+    
     public MdpChannelBuilder setTcpUsername(final String tcpUsername) {
         this.tcpUsername = tcpUsername;
         return this;
@@ -131,7 +138,7 @@ public class MdpChannelBuilder {
             final Configuration cfg = new Configuration(this.cfgURI);
             final MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(this.schemaURI);
             MdpChannel mdpChannel = new LowLevelMdpChannel(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes,
-                     incrQueueSize, rcvBufSize, gapThreshold, tcpUsername, tcpPassword, feedANetworkInterfaces, feedBNetworkInterfaces, 
+                     incrQueueSize, rcvBufSize, gapThreshold, maxNumberOfTCPAttempts, tcpUsername, tcpPassword, feedANetworkInterfaces, feedBNetworkInterfaces, 
                      mboEnabled, incrementMessageTemplateIds, snapshotMessageTemplateIds);
             if (channelListener != null) mdpChannel.registerListener(channelListener);
             return mdpChannel;
