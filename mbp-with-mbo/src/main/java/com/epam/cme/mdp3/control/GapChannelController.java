@@ -180,7 +180,9 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                             long amountOfLostMessages = (pkgSequence - 1) - expectedSequence;
                             if(numberOfTCPAttempts < maxNumberOfTCPAttempts && amountOfLostMessages < TCPMessageRequester.MAX_AVAILABLE_MESSAGES
                                     && tcpRecoveryProcessor != null && executor != null) {
-                            	log.trace("TCP Replay request gap {}:{} TCP Attempts: {}", expectedSequence, (pkgSequence-1), numberOfTCPAttempts);
+                                if(log.isTraceEnabled()) {
+                                    log.trace("TCP Replay request gap {}:{} TCP Attempts: {}", expectedSequence, (pkgSequence-1), numberOfTCPAttempts);
+                                }
                                 tcpRecoveryProcessor.setBeginSeqNo(expectedSequence);
                                 tcpRecoveryProcessor.setEndSeqNo(pkgSequence - 1);
                                 executor.execute(tcpRecoveryProcessor);
