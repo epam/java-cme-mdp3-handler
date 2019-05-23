@@ -44,7 +44,7 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
 
     @Override
     public synchronized void add(MdpPacket entity) {
-    	if (!isPacketEmpty(entity) && msgSeqNums.contains(entity.getMsgSeqNum())) {
+    	if (msgSeqNums.contains(entity.getMsgSeqNum())) {
     		return;
     	}
     	msgSeqNums.add(entity.getMsgSeqNum());
