@@ -51,7 +51,7 @@ public class TCPMessageRequesterTest {
     @Test
     public void lostMessagesShouldBeReceivedFromListener() throws InterruptedException {
         long beginSeqNo = 1;
-        long endSeqNo = 3;
+        long endSeqNo = 4;
         new Thread(() -> messageRequester.askForLostMessages(beginSeqNo, endSeqNo, testTCPPacketListener)).start();
         tcpChannel.setNextMessageForReceiving(ModelUtils.getLogin(1));
         assertNotNull(nextPacket());
