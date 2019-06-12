@@ -72,6 +72,7 @@ public class LowLevelMdpChannel implements MdpChannel {
                        final int incrQueueSize,
                        final int rcvBufSize,
                        final int gapThreshold,
+                       final int maxNumberOfTCPAttempts,
                        final String tcpUsername,
                        final String tcpPassword,
                        final Map<FeedType, String> feedANetworkInterfaces,
@@ -111,7 +112,7 @@ public class LowLevelMdpChannel implements MdpChannel {
             TCPChannel tcpChannel = new MdpTCPChannel(connectionCfg);
             tcpMessageRequester = new MdpTCPMessageRequester<>(channelId, listeners, mdpMessageTypes, tcpChannel, tcpUsername, tcpPassword);
         }
-        this.channelController = new GapChannelController(listeners, target, targetForBuffered, recoveryManager, buffer, gapThreshold,
+        this.channelController = new GapChannelController(listeners, target, targetForBuffered, recoveryManager, buffer, gapThreshold, maxNumberOfTCPAttempts,
                 channelId, mdpMessageTypes, mboCycleHandler, mbpCycleHandler, scheduledExecutorService, tcpMessageRequester, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);
         emptyBookConsumers.add(channelController);
         if (scheduledExecutorService != null) initChannelStateThread();

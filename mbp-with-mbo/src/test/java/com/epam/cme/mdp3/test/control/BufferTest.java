@@ -31,6 +31,22 @@ public class BufferTest {
     }
 
     @Test
+    public void elementsMustNotDuplicateSequence(){
+        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(5);
+        MdpPacket n1 = MdpPacket.instance(); n1.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
+        MdpPacket n2 = MdpPacket.instance(); n2.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
+        MdpPacket n3 = MdpPacket.instance(); n3.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(2));
+        buffer.add(n1);
+        buffer.add(n2);
+        buffer.add(n3);
+        for (int i = 1; i <= 2; i++) {
+            MdpPacket nextPacket = buffer.remove();
+            assertEquals(i, nextPacket.getMsgSeqNum());
+        }
+        assertNull(buffer.remove());
+    }
+
+    @Test
     public void bufferMustCopyDataFromObject(){
         MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(3);
         MdpPacket packet = MdpPacket.instance();

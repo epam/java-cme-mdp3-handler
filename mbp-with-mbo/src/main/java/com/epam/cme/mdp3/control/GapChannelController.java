@@ -31,6 +31,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     public static final int MAX_NUMBER_OF_TCP_ATTEMPTS = 3;
     private final Lock lock = new ReentrantLock();
     private final int gapThreshold;
+    private final int maxNumberOfTCPAttempts;
     private final Buffer<MdpPacket> buffer;
     private final SnapshotRecoveryManager snapshotRecoveryManager;
     private final ChannelController target;
@@ -54,7 +55,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     
     public GapChannelController(List<ChannelListener> channelListeners, ChannelController target,
                                 ChannelController targetForBuffered, SnapshotRecoveryManager snapshotRecoveryManager,
-                                Buffer<MdpPacket> buffer, int gapThreshold, String channelId, MdpMessageTypes mdpMessageTypes,
+                                Buffer<MdpPacket> buffer, int gapThreshold, final int maxNumberOfTCPAttempts, String channelId, MdpMessageTypes mdpMessageTypes,
                                 SnapshotCycleHandler mboCycleHandler, SnapshotCycleHandler mbpCycleHandler,
                                 ScheduledExecutorService executor, TCPMessageRequester tcpMessageRequester,     
                                 List<Integer> mboIncrementMessageTemplateIds, List<Integer> mboSnapshotMessageTemplateIds) {
@@ -63,6 +64,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
         this.snapshotRecoveryManager = snapshotRecoveryManager;
         this.target = target;
         this.gapThreshold = gapThreshold;
+        this.maxNumberOfTCPAttempts = maxNumberOfTCPAttempts;
         this.channelId = channelId;
         this.mdpMessageTypes = mdpMessageTypes;
         this.mboCycleHandler = mboCycleHandler;
@@ -176,8 +178,11 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                         if(pkgSequence > (expectedSequence + gapThreshold)) {
                             switchState(ChannelState.OUTOFSYNC);
                             long amountOfLostMessages = (pkgSequence - 1) - expectedSequence;
-                            if(numberOfTCPAttempts < MAX_NUMBER_OF_TCP_ATTEMPTS && amountOfLostMessages < TCPMessageRequester.MAX_AVAILABLE_MESSAGES
+                            if(numberOfTCPAttempts < maxNumberOfTCPAttempts && amountOfLostMessages < TCPMessageRequester.MAX_AVAILABLE_MESSAGES
                                     && tcpRecoveryProcessor != null && executor != null) {
+                                if(log.isTraceEnabled()) {
+                                    log.trace("TCP Replay request gap {}:{} TCP Attempts: {}", expectedSequence, (pkgSequence-1), numberOfTCPAttempts);
+                                }
                                 tcpRecoveryProcessor.setBeginSeqNo(expectedSequence);
                                 tcpRecoveryProcessor.setEndSeqNo(pkgSequence - 1);
                                 executor.execute(tcpRecoveryProcessor);
@@ -294,6 +299,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                         lock.lock();
                         switchState(ChannelState.SYNC);
                         processMessagesFromBuffer(feedContext);
+                        numberOfTCPAttempts = 0;
                     } finally {
                         lock.unlock();
                     }
