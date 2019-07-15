@@ -51,7 +51,6 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
         final SbeBufferImpl bufferImpl = (SbeBufferImpl) buffer;
         final long fromLength = bufferImpl.bytes.length();
         if (this.bytes == null) {
-            //this.bytes = Bytes.wrapForRead(ByteBuffer.allocateDirect((int) bufferImpl.bytes.realCapacity()).order(ByteOrder.LITTLE_ENDIAN));
             this.bytes = BytesStore.wrap(ByteBuffer.allocateDirect((int) bufferImpl.bytes.realCapacity()).order(ByteOrder.LITTLE_ENDIAN));
         }
         final long toLength = bytes.length();
