@@ -2,9 +2,8 @@ plugins {
     id "java"
     id "maven"
     id "java-library-distribution"
-    id "com.github.samueltbrown.cucumber" version "0.9"
-    id "org.sonarqube" version "2.0.1"
-    id "me.champeau.gradle.jmh" version "0.3.1"
+    id "org.sonarqube" version "2.7.1"
+    id "me.champeau.gradle.jmh" version "0.5.0-rc-1"
 }
 group = 'com.epam.cme'
 version = '2.1.2'
@@ -19,6 +18,12 @@ jar {
     baseName 'b2bits-jmdp3'
 }
 
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
 dependencies {
     compile project(':core')
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.5'
@@ -30,14 +35,25 @@ dependencies {
     compile group: 'net.openhft', name: 'chronicle-core', version: '1.7.6'
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'uk.co.real-logic', name: 'sbe-tool', version: '1.6.0'
-    cucumberCompile 'info.cukes:cucumber-java:1.2.4'
-    cucumberCompile 'info.cukes:cucumber-picocontainer:1.2.4'
+    testImplementation 'io.cucumber:cucumber-java:4.3.1'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
     baseName 'b2bits-jmdp3'
+}
+
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "cucumber.api.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', 'gradle.cucumber', 'src/cucumber/resources']
+        }
+    }
 }
 
 artifacts {
