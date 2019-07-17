@@ -50,6 +50,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     private final ScheduledExecutorService executor;
     private TCPRecoveryProcessor tcpRecoveryProcessor;
     private int numberOfTCPAttempts;
+    private long packetsInBufferDuringInitialOrOutOfSync = 0;
     private List<Integer> mboIncrementMessageTemplateIds;
     private List<Integer> mboSnapshotMessageTemplateIds;
     
@@ -115,6 +116,10 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                         lastProcessedSeqNum = highestSnapshotSequence;
                         snapshotRecoveryManager.stopRecovery();
                         switchState(ChannelState.SYNC);
+                        if (log.isInfoEnabled()) {
+                            log.info("{} Packets added to buffer during initial or outofsync event", packetsInBufferDuringInitialOrOutOfSync);
+                        }
+                        packetsInBufferDuringInitialOrOutOfSync = 0;
                         processMessagesFromBuffer(feedContext);
                         receivingCycle = false;
                         numberOfTCPAttempts = 0;
@@ -176,6 +181,9 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                     } else if(pkgSequence > expectedSequence) {
                         buffer.add(mdpPacket);
                         if(pkgSequence > (expectedSequence + gapThreshold)) {
+                            if(log.isDebugEnabled()) {
+                                log.debug("Past gap of {} expected {} current {}, lost count {}", gapThreshold, expectedSequence, pkgSequence, (pkgSequence - 1) - expectedSequence);
+                            }
                             switchState(ChannelState.OUTOFSYNC);
                             long amountOfLostMessages = (pkgSequence - 1) - expectedSequence;
                             if(numberOfTCPAttempts < maxNumberOfTCPAttempts && amountOfLostMessages < TCPMessageRequester.MAX_AVAILABLE_MESSAGES
@@ -201,6 +209,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                 case INITIAL:
                 case OUTOFSYNC:
                     buffer.add(mdpPacket);
+                    packetsInBufferDuringInitialOrOutOfSync++;
                     if(log.isTraceEnabled()) {
                         log.trace("Feed {}:{} | handleIncrementalPacket: current state is '{}', so the packet with sequence '{}' has been put into buffer",
                                 feedContext.getFeedType(), feedContext.getFeed(), currentState, pkgSequence);
