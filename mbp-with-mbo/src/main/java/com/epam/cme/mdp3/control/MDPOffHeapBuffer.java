@@ -29,6 +29,7 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
     private final MdpPacket emptyPacket = MdpPacket.allocate();
     private boolean full;
     private LongHashSet msgSeqNums = new LongHashSet();
+    private int index = 0;
 
     public MDPOffHeapBuffer(int capacity) {
         NativeBytesStore<Void> emptyStore = NativeBytesStore.nativeStoreWithFixedCapacity(SbeConstants.MDP_PACKET_MAX_SIZE);
@@ -44,12 +45,17 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
 
     @Override
     public synchronized void add(MdpPacket entity) {
-    	if (msgSeqNums.contains(entity.getMsgSeqNum())) {
-    		return;
-    	}
-    	msgSeqNums.add(entity.getMsgSeqNum());
-        int firstEmptyPosition = calculateFirstEmptyPosition();
-        MdpPacket mdpPacket = data[firstEmptyPosition];        
+        if (msgSeqNums.contains(entity.getMsgSeqNum())) {
+            return;
+        }
+        msgSeqNums.add(entity.getMsgSeqNum());
+        MdpPacket mdpPacket = data[index++];
+        if (full) {
+            index = 0; // keep at 0 until no longer full because sorting will cause the older message (smallest seq num) to move to the first entry in the list
+        } else if (index >= data.length) {
+            index = 0;
+            full = true;
+        }
         copy(entity, mdpPacket);
         sort();
     }
@@ -69,7 +75,13 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
         copy(emptyPacket, nextPackage);
         System.arraycopy(data, 1, data, 0, data.length - 1);
         data[data.length - 1] = nextPackage;
-        full = false;
+        if (full) {
+            index = data.length - 1;
+            full = false;
+        } else {
+            index--;
+        }
+        
         msgSeqNums.remove(resultPacket.getMsgSeqNum());
         return resultPacket;
     }
@@ -79,23 +91,9 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
         return !full && isPacketEmpty(data[0]);
     }
 
-    private int calculateFirstEmptyPosition(){
-        if(full){
-            return 0;
-        }
-        for (int i = 0; i < data.length; i++) {
-            MdpPacket nextPackage = data[i];
-            if(isPacketEmpty(nextPackage)){
-                return i;
-            }
-        }
-        full = true;
-        return 0;
-    }
-
     private void sort(){
         //Arrays.sort is not the best variant here because it allocates TimSort class and array into it every time.
-        Arrays.sort(data, (o1, o2) -> {
+    	Arrays.sort(data, 0, full ? data.length : index, (o1, o2) -> {
             long sequence1 = o1.getMsgSeqNum();
             long sequence2 = o2.getMsgSeqNum();
             return Long.compare(sequence1, sequence2);
