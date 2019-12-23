@@ -66,7 +66,7 @@ public class LowLevelMdpChannel implements MdpChannel {
     private final boolean mboEnabled;
     private final InstrumentObserver instrumentObserver = new InstrumentObserverImpl();
     private final GapChannelController.SnapshotRecoveryManager recoveryManager;
-    private final IncrementalStatistics incrementalStatistics = new IncrementalStatistics();
+    private final IncrementalStatistics incrementalStatistics;
 
     LowLevelMdpChannel(final ScheduledExecutorService scheduledExecutorService,
                        final ChannelCfg channelCfg,
@@ -82,7 +82,8 @@ public class LowLevelMdpChannel implements MdpChannel {
                        boolean mboEnabled,
                        final List<Integer> mboIncrementMessageTemplateIds, 
                        final List<Integer> mboSnapshotMessageTemplateIds,
-                       final Feed snptFeedToUse) {
+                       final Feed snptFeedToUse,
+                       final int outputStatisticsEveryXseconds) {
         this.scheduledExecutorService = scheduledExecutorService;
         this.channelCfg = channelCfg;
         this.rcvBufSize = rcvBufSize;
@@ -91,6 +92,7 @@ public class LowLevelMdpChannel implements MdpChannel {
         this.mdpMessageTypes = mdpMessageTypes;
         this.mboEnabled = mboEnabled;
         this.snptFeedToUse = snptFeedToUse;
+        incrementalStatistics = outputStatisticsEveryXseconds > 0 ? new IncrementalStatistics(outputStatisticsEveryXseconds) : null;
         String channelId = channelCfg.getId();
         instrumentManager = new MdpInstrumentManager(channelId, listeners);
         Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(incrQueueSize);
@@ -220,7 +222,7 @@ public class LowLevelMdpChannel implements MdpChannel {
             if (feedType == FeedType.N) {
                 instrumentObserver.onPacket(feedContext, mdpPacket);
             } else if (feedType == FeedType.I) {
-                if(logger.isDebugEnabled()) {
+                if(incrementalStatistics != null && logger.isInfoEnabled()) {
                     incrementalStatistics.update(feed, mdpPacket.buffer().length());
                 }
                 lastIncrPcktReceived = System.currentTimeMillis();
@@ -394,6 +396,13 @@ public class LowLevelMdpChannel implements MdpChannel {
         private long[] dataCount = new long[] {0, 0};
         private long[] time = new long[] {System.currentTimeMillis(), System.currentTimeMillis()};        
         private DecimalFormat df = new DecimalFormat("#.000");
+        private final int outputEveryXSeconds;
+        private final int outputEveryXMilliseconds;
+        
+        public IncrementalStatistics(final int outputEveryXSeconds) {
+        	this.outputEveryXSeconds = outputEveryXSeconds;
+        	this.outputEveryXMilliseconds = outputEveryXSeconds * 1000;
+        }
         
         /***
          * Update the current read and data counts and check if the duration is past the marker and then output the statistics to the log and reset.
@@ -404,10 +413,10 @@ public class LowLevelMdpChannel implements MdpChannel {
         	int index = feed == Feed.A ? 0 : 1;
         	readCount[index]++;
         	dataCount[index] += dataLength;
-			if (System.currentTimeMillis() - time[index] > 1000) {
-				double dataMbps = (((double)dataCount[index])/1000/1000)*8;
-				if (logger.isDebugEnabled()) {
-					logger.debug("Read {} packets and {} Mbps in {} ms on Feed {}", readCount[index], df.format(dataMbps), (System.currentTimeMillis() - time[index]), feed.toString());
+			if (System.currentTimeMillis() - time[index] > outputEveryXMilliseconds) {
+				double dataMbps = ((((double)dataCount[index])/1000/1000)*8)/outputEveryXSeconds;
+				if (logger.isInfoEnabled()) {
+					logger.info("Read {} packets and {} Mbps in {} ms on Feed {}", readCount[index], df.format(dataMbps), (System.currentTimeMillis() - time[index]), feed.toString());
 				}
 				time[index] = System.currentTimeMillis();
 				readCount[index] = 0;
