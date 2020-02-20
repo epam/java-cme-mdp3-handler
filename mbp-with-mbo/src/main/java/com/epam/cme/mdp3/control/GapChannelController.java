@@ -181,8 +181,8 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                     } else if(pkgSequence > expectedSequence) {
                         buffer.add(mdpPacket);
                         if(pkgSequence > (expectedSequence + gapThreshold)) {
-                            if(log.isDebugEnabled()) {
-                                log.debug("Past gap of {} expected {} current {}, lost count {}", gapThreshold, expectedSequence, pkgSequence, (pkgSequence - 1) - expectedSequence);
+                            if(log.isInfoEnabled()) {
+                                log.info("Past gap of {} expected {} current {}, lost count {}", gapThreshold, expectedSequence, pkgSequence, (pkgSequence - 1) - expectedSequence);
                             }
                             switchState(ChannelState.OUTOFSYNC);
                             long amountOfLostMessages = (pkgSequence - 1) - expectedSequence;

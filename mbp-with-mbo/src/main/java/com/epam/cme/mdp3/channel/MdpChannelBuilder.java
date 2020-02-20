@@ -49,6 +49,7 @@ public class MdpChannelBuilder {
     private List<Integer> incrementMessageTemplateIds;
     private List<Integer> snapshotMessageTemplateIds;
     private Feed snptFeedToUse = Feed.A;
+    private int outputStatisticsEveryXseconds = 0;
     
     public MdpChannelBuilder(final String channelId) {
         this.channelId = channelId;
@@ -139,13 +140,19 @@ public class MdpChannelBuilder {
     	return this;
     }
     
+    public MdpChannelBuilder setOutputStatisticsEveryXseconds(final int outputStatisticsEveryXseconds) {
+    	this.outputStatisticsEveryXseconds = outputStatisticsEveryXseconds;
+    	return this;
+    }
+    
+    
     public MdpChannel build() {
         try {
             final Configuration cfg = new Configuration(this.cfgURI);
             final MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(this.schemaURI);
             MdpChannel mdpChannel = new LowLevelMdpChannel(scheduler, cfg.getChannel(this.channelId), mdpMessageTypes,
                      incrQueueSize, rcvBufSize, gapThreshold, maxNumberOfTCPAttempts, tcpUsername, tcpPassword, feedANetworkInterfaces, feedBNetworkInterfaces, 
-                     mboEnabled, incrementMessageTemplateIds, snapshotMessageTemplateIds, snptFeedToUse);
+                     mboEnabled, incrementMessageTemplateIds, snapshotMessageTemplateIds, snptFeedToUse, outputStatisticsEveryXseconds);
             if (channelListener != null) mdpChannel.registerListener(channelListener);
             return mdpChannel;
         } catch (Exception e) {
