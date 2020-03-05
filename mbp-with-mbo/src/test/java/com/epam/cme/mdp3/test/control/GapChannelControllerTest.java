@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 public class GapChannelControllerTest {
     private GapChannelController gapChannelController;
     private TestChannelController testChannelController;
-    private final int bufferCapacity = 10;
+    private final int bufferCapacity = 100;
     private final String testChannelId = "1";
     private TestSnapshotRecoveryManager testRecoveryManager;
     private boolean snapshotRecoveryStarted;
@@ -36,15 +36,13 @@ public class GapChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(Constants.TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
-        Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(bufferCapacity);
+        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestSnapshotRecoveryManager();
         SnapshotCycleHandler mboSnapshotCycleHandler = new OffHeapSnapshotCycleHandler();
         testChannelListener = new TestChannelListener();
         List<ChannelListener> mboChannelListeners = Collections.singletonList(testChannelListener);
         instrumentManager = new MdpInstrumentManager("TEST", mboChannelListeners);
-        ChannelController targetForBuffered = new BufferedMessageRouter(testChannelId, instrumentManager, mdpMessageTypes,
-                mboChannelListeners, mboSnapshotCycleHandler, new TestInstrumentObserver(testChannelId), Collections.emptyList(), null, null);
-        gapChannelController = new GapChannelController(mboChannelListeners, testChannelController, targetForBuffered,
+        gapChannelController = new GapChannelController(mboChannelListeners, testChannelController, 
                 testRecoveryManager, buffer, 0, GapChannelController.MAX_NUMBER_OF_TCP_ATTEMPTS, testChannelId, mdpMessageTypes, mboSnapshotCycleHandler, mboSnapshotCycleHandler,null, null, null, null);
 
     }
@@ -95,19 +93,14 @@ public class GapChannelControllerTest {
         sendSnapshotMessage(2, 2, 2, 1, 1, 2);
         sendSnapshotMessage(1, instrument, instrumentLastMsgSeqNumProcessed, 1, 1, 1);//next cycle
 
-        TestChannelListener.IncrementalRefreshEntity incrementMessage = testChannelListener.nextMBOIncrementMessage();
-        assertNotNull(incrementMessage);
-        assertEquals(instrument, incrementMessage.getSecurityId());
-        assertEquals(incrementSequence, incrementMessage.getMsgSeqNum());
-        incrementMessage = testChannelListener.nextMBPIncrementMessage();
-        assertNotNull(incrementMessage);
-        assertEquals(instrument, incrementMessage.getSecurityId());
-        assertEquals(incrementSequence, incrementMessage.getMsgSeqNum());
-
         assertNull(testChannelListener.nextMBOIncrementMessage());
         assertNull(testChannelListener.nextMBPIncrementMessage());
 
         assertNull(testChannelController.nextIncrementalMessage());
+        gapChannelController.handleIncrementalPacket(incrementContext, createPacketWithIncrement(++incrementSequence, new int[]{instrument}, new short[]{1}));//duplicate
+        Pair<MdpFeedContext, MdpPacket> incr = testChannelController.nextIncrementalMessage();
+        assertNotNull(incr);
+        assertEquals(incr.getValue().getMsgSeqNum(), incrementSequence);
     }
 
     @Test
@@ -115,7 +108,6 @@ public class GapChannelControllerTest {
         int instrument1 = 1, instrument1lastMsgSeqNumProcessed = 1, instrument1Sequence = 2;
         int instrument2 = 2, instrument2lastMsgSeqNumProcessed = 3, instrument2Sequence = 4;
 
-        byte ignored = 0;
         instrumentManager.registerSecurity(instrument1, "");
 
         final MdpFeedContext incrementContext = new MdpFeedContext(Feed.A, FeedType.I);
@@ -126,11 +118,6 @@ public class GapChannelControllerTest {
         sendSnapshotMessage(2, 3, 2, 1, 1, 3);
         sendSnapshotMessage(3, instrument2, instrument2lastMsgSeqNumProcessed, 1, 1, 3);
         sendSnapshotMessage(1, instrument1, instrument1lastMsgSeqNumProcessed, 1, 1, 3);//next cycle
-
-        TestChannelListener.IncrementalRefreshEntity incrementMessage = testChannelListener.nextMBOIncrementMessage();
-        assertNotNull(incrementMessage);
-        assertEquals(instrument1, incrementMessage.getSecurityId());
-        assertEquals(instrument1Sequence, incrementMessage.getMsgSeqNum());
 
         Pair<MdpFeedContext, MdpPacket> pair = testChannelController.nextIncrementalMessage();
         assertNotNull(pair);
@@ -159,11 +146,11 @@ public class GapChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(Constants.TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
-        Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(bufferCapacity);
+        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestSnapshotRecoveryManager();
         int gapThreshold = 3;
         OffHeapSnapshotCycleHandler cycleHandler = new OffHeapSnapshotCycleHandler();
-        gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener), testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, GapChannelController.MAX_NUMBER_OF_TCP_ATTEMPTS, testChannelId, mdpMessageTypes, cycleHandler, cycleHandler, null, null, null, null);
+        gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener), testChannelController, testRecoveryManager, buffer, gapThreshold, GapChannelController.MAX_NUMBER_OF_TCP_ATTEMPTS, testChannelId, mdpMessageTypes, cycleHandler, cycleHandler, null, null, null, null);
 
 
         int lastMsgSeqNumProcessed = 0;
@@ -191,14 +178,14 @@ public class GapChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(Constants.TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
-        Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(bufferCapacity);
+        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestSnapshotRecoveryManager();
         int gapThreshold = 3;
         int maxTCPAttempts = 1; // set to one to allow second attempt to test reset of number of TCP attempts after valid recovery
         OffHeapSnapshotCycleHandler cycleHandler = new OffHeapSnapshotCycleHandler();
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         gapChannelController = new GapChannelController(Collections.singletonList(testChannelListener),
-                testChannelController, testChannelController, testRecoveryManager, buffer, gapThreshold, maxTCPAttempts, testChannelId,
+                testChannelController, testRecoveryManager, buffer, gapThreshold, maxTCPAttempts, testChannelId,
                 mdpMessageTypes, cycleHandler, cycleHandler, executorService, new TestTCPMessageRequester(), null, null);
 
 

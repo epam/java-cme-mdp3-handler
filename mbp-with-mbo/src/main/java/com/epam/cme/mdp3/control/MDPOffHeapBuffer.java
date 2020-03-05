@@ -16,20 +16,14 @@ import com.epam.cme.mdp3.MdpPacket;
 import com.epam.cme.mdp3.sbe.message.SbeConstants;
 import net.openhft.chronicle.bytes.NativeBytesStore;
 
-import java.util.Arrays;
-
-import org.agrona.collections.LongHashSet;
-
 import static com.epam.cme.mdp3.sbe.message.SbeConstants.MESSAGE_SEQ_NUM_OFFSET;
 
-public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
+public class MDPOffHeapBuffer {
     private final static long UNDEFINED_VALUE = Integer.MAX_VALUE;
     private final MdpPacket[] data;
     private MdpPacket resultPacket = MdpPacket.allocate();
     private final MdpPacket emptyPacket = MdpPacket.allocate();
-    private boolean full;
-    private LongHashSet msgSeqNums = new LongHashSet();
-    private int index = 0;
+    private long lastMsgSeqNum = 0;
 
     public MDPOffHeapBuffer(int capacity) {
         NativeBytesStore<Void> emptyStore = NativeBytesStore.nativeStoreWithFixedCapacity(SbeConstants.MDP_PACKET_MAX_SIZE);
@@ -42,64 +36,43 @@ public class MDPOffHeapBuffer implements Buffer<MdpPacket> {
             data[i] = mdpPacket;
         }
     }
-
-    @Override
-    public synchronized void add(MdpPacket entity) {
-        if (msgSeqNums.contains(entity.getMsgSeqNum())) {
-            return;
-        }
-        msgSeqNums.add(entity.getMsgSeqNum());
-        MdpPacket mdpPacket = data[index++];
-        if (full) {
-            index = 0; // keep at 0 until no longer full because sorting will cause the older message (smallest seq num) to move to the first entry in the list
-        } else if (index >= data.length) {
-            index = 0;
-            full = true;
-        }
-        copy(entity, mdpPacket);
-        sort();
+    
+    public boolean exist(final long msgSeqNum) {
+        final int pos = (int) msgSeqNum % this.data.length;
+        final MdpPacket packet = this.data[pos];
+        return !isPacketEmpty(packet);
     }
 
-    /**
-     * It returns the entities in sorted order and removes them after.
-     * Entry was returned in previous call will be filled the data of next entry. Make sure you took data from it and don't use it anymore.
-     * @return T or null if buffer is empty.
-     */
-    @Override
-    public synchronized MdpPacket remove() {
-        MdpPacket nextPackage = data[0];
-        if(isPacketEmpty(nextPackage)){
+    public MdpPacket remove(final long msgSeqNum) {
+        final int pos = (int) msgSeqNum % this.data.length;
+        MdpPacket nextPacket = this.data[pos];        
+        if(isPacketEmpty(nextPacket)){
             return null;
         }
-        copy(nextPackage, resultPacket);
-        copy(emptyPacket, nextPackage);
-        System.arraycopy(data, 1, data, 0, data.length - 1);
-        data[data.length - 1] = nextPackage;
-        if (full) {
-            index = data.length - 1;
-            full = false;
-        } else {
-            index--;
-        }
+        copy(nextPacket, resultPacket);
+        copy(emptyPacket, nextPacket);
         
-        msgSeqNums.remove(resultPacket.getMsgSeqNum());
         return resultPacket;
     }
-
-    @Override
-    public boolean isEmpty() {
-        return !full && isPacketEmpty(data[0]);
+    
+    public void add(final long msgSeqNum, final MdpPacket packet) {
+        final int pos = (int) msgSeqNum % this.data.length;
+        MdpPacket emptyPacket = data[pos];
+        copy(packet, emptyPacket);
+        this.lastMsgSeqNum = msgSeqNum > this.lastMsgSeqNum ? msgSeqNum : this.lastMsgSeqNum;
     }
-
-    private void sort(){
-        //Arrays.sort is not the best variant here because it allocates TimSort class and array into it every time.
-    	Arrays.sort(data, 0, full ? data.length : index, (o1, o2) -> {
-            long sequence1 = o1.getMsgSeqNum();
-            long sequence2 = o2.getMsgSeqNum();
-            return Long.compare(sequence1, sequence2);
-        });
+    
+    public long getLastMsgSeqNum() {
+        return this.lastMsgSeqNum;
     }
-
+    
+    public void clear() {
+        for (int i = 0; i < data.length; i++) {
+            copy(emptyPacket, data[i]);
+        }
+        this.lastMsgSeqNum = 0;
+    }
+    
     private void copy(MdpPacket from, MdpPacket to){
         to.buffer().copyFrom(from.buffer());
         to.length(from.getPacketSize());
