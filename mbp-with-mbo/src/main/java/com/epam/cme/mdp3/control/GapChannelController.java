@@ -32,7 +32,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     private final Lock lock = new ReentrantLock();
     private final int gapThreshold;
     private final int maxNumberOfTCPAttempts;
-    private final MDPOffHeapBuffer buffer;
+    private final IMDPOffHeapBuffer buffer;
     private final SnapshotRecoveryManager snapshotRecoveryManager;
     private final ChannelController target;
     private final String channelId;
@@ -54,7 +54,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     private List<Integer> mboSnapshotMessageTemplateIds;
     
     public GapChannelController(List<ChannelListener> channelListeners, ChannelController target, SnapshotRecoveryManager snapshotRecoveryManager,
-                                MDPOffHeapBuffer buffer, int gapThreshold, final int maxNumberOfTCPAttempts, String channelId, MdpMessageTypes mdpMessageTypes,
+                                IMDPOffHeapBuffer buffer, int gapThreshold, final int maxNumberOfTCPAttempts, String channelId, MdpMessageTypes mdpMessageTypes,
                                 SnapshotCycleHandler mboCycleHandler, SnapshotCycleHandler mbpCycleHandler,
                                 ScheduledExecutorService executor, TCPMessageRequester tcpMessageRequester,     
                                 List<Integer> mboIncrementMessageTemplateIds, List<Integer> mboSnapshotMessageTemplateIds) {

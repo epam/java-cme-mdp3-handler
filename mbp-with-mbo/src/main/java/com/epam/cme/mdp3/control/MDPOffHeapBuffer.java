@@ -18,7 +18,7 @@ import net.openhft.chronicle.bytes.NativeBytesStore;
 
 import static com.epam.cme.mdp3.sbe.message.SbeConstants.MESSAGE_SEQ_NUM_OFFSET;
 
-public class MDPOffHeapBuffer {
+public class MDPOffHeapBuffer implements IMDPOffHeapBuffer {
     private final static long UNDEFINED_VALUE = Integer.MAX_VALUE;
     private final MdpPacket[] data;
     private MdpPacket resultPacket = MdpPacket.allocate();
@@ -38,14 +38,12 @@ public class MDPOffHeapBuffer {
     }
     
     public boolean exist(final long msgSeqNum) {
-        final int pos = (int) msgSeqNum % this.data.length;
-        final MdpPacket packet = this.data[pos];
+        final MdpPacket packet = this.data[index(msgSeqNum)];
         return !isPacketEmpty(packet);
     }
 
     public MdpPacket remove(final long msgSeqNum) {
-        final int pos = (int) msgSeqNum % this.data.length;
-        MdpPacket nextPacket = this.data[pos];        
+        MdpPacket nextPacket = this.data[index(msgSeqNum)];        
         if(isPacketEmpty(nextPacket)){
             return null;
         }
@@ -56,9 +54,7 @@ public class MDPOffHeapBuffer {
     }
     
     public void add(final long msgSeqNum, final MdpPacket packet) {
-        final int pos = (int) msgSeqNum % this.data.length;
-        MdpPacket emptyPacket = data[pos];
-        copy(packet, emptyPacket);
+        copy(packet, data[index(msgSeqNum)]);
         this.lastMsgSeqNum = msgSeqNum > this.lastMsgSeqNum ? msgSeqNum : this.lastMsgSeqNum;
     }
     
@@ -71,6 +67,14 @@ public class MDPOffHeapBuffer {
             copy(emptyPacket, data[i]);
         }
         this.lastMsgSeqNum = 0;
+    }
+    
+    public void clear(final long msgSeqNum) {
+        copy(emptyPacket, data[index(msgSeqNum)]);
+    }
+    
+    private int index(final long msgSeqNum) {
+        return (int) msgSeqNum % this.data.length;
     }
     
     private void copy(MdpPacket from, MdpPacket to){

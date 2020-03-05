@@ -95,7 +95,7 @@ public class LowLevelMdpChannel implements MdpChannel {
         incrementalStatistics = outputStatisticsEveryXseconds > 0 ? new IncrementalStatistics(outputStatisticsEveryXseconds) : null;
         String channelId = channelCfg.getId();
         instrumentManager = new MdpInstrumentManager(channelId, listeners);
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(incrQueueSize);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(incrQueueSize);
         List<Consumer<MdpMessage>> emptyBookConsumers = new ArrayList<>();
         ChannelController target = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes, listeners,
                 instrumentObserver, emptyBookConsumers, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);

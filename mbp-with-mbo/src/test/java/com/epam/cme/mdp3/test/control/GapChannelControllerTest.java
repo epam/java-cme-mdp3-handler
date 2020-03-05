@@ -36,7 +36,7 @@ public class GapChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(Constants.TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(bufferCapacity);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestSnapshotRecoveryManager();
         SnapshotCycleHandler mboSnapshotCycleHandler = new OffHeapSnapshotCycleHandler();
         testChannelListener = new TestChannelListener();
@@ -146,7 +146,7 @@ public class GapChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(Constants.TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(bufferCapacity);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestSnapshotRecoveryManager();
         int gapThreshold = 3;
         OffHeapSnapshotCycleHandler cycleHandler = new OffHeapSnapshotCycleHandler();
@@ -178,7 +178,7 @@ public class GapChannelControllerTest {
         ClassLoader classLoader = getClass().getClassLoader();
         MdpMessageTypes mdpMessageTypes = new MdpMessageTypes(classLoader.getResource(Constants.TEMPLATE_NAME).toURI());
         testChannelController = new TestChannelController();
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(bufferCapacity);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(bufferCapacity);
         testRecoveryManager = new TestSnapshotRecoveryManager();
         int gapThreshold = 3;
         int maxTCPAttempts = 1; // set to one to allow second attempt to test reset of number of TCP attempts after valid recovery

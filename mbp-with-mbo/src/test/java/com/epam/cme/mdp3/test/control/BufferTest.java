@@ -1,6 +1,7 @@
 package com.epam.cme.mdp3.test.control;
 
 import com.epam.cme.mdp3.MdpPacket;
+import com.epam.cme.mdp3.control.IMDPOffHeapBuffer;
 import com.epam.cme.mdp3.control.MDPOffHeapBuffer;
 import com.epam.cme.mdp3.test.ModelUtils;
 import org.junit.Test;
@@ -13,7 +14,7 @@ public class BufferTest {
 
     @Test
     public void elementsMustBeInSequenceOrder(){
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(5);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(5);
         MdpPacket n1 = MdpPacket.instance(); n1.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
         MdpPacket n2 = MdpPacket.instance(); n2.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(2));
         MdpPacket n3 = MdpPacket.instance(); n3.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(3));
@@ -33,7 +34,7 @@ public class BufferTest {
 
     @Test
     public void elementsMustNotDuplicateSequence(){
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(5);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(5);
         MdpPacket n1 = MdpPacket.instance(); n1.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
         MdpPacket n2 = MdpPacket.instance(); n2.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
         MdpPacket n3 = MdpPacket.instance(); n3.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(2));
@@ -50,7 +51,7 @@ public class BufferTest {
 
     @Test
     public void bufferMustCopyDataFromObject(){
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(3);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(3);
         MdpPacket packet = MdpPacket.instance();
         packet.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
         buffer.add(1, packet);
@@ -67,7 +68,7 @@ public class BufferTest {
 
     @Test
     public void lowElementsMustBeRemovedIfBufferIsFull(){
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(3);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(3);
         MdpPacket n1 = MdpPacket.instance(); n1.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
         MdpPacket n2 = MdpPacket.instance(); n2.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(2));
         MdpPacket n3 = MdpPacket.instance(); n3.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(3));
@@ -87,7 +88,7 @@ public class BufferTest {
     
     @Test
     public void outOfOrderAdditionAndRemoval(){
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(3);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(3);
         MdpPacket n1 = MdpPacket.instance(); n1.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
         MdpPacket n2 = MdpPacket.instance(); n2.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(2));
         MdpPacket n3 = MdpPacket.instance(); n3.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(3));
@@ -127,7 +128,7 @@ public class BufferTest {
     
     @Test
     public void addAndRemoveHalfFull(){
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(5);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(5);
         MdpPacket n1 = MdpPacket.instance(); n1.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
         MdpPacket n2 = MdpPacket.instance(); n2.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(2));
         MdpPacket n3 = MdpPacket.instance(); n3.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(3));
@@ -160,7 +161,7 @@ public class BufferTest {
     
     @Test
     public void methodRemoveShouldReturnNullIfBufferIsEmpty(){
-        MDPOffHeapBuffer buffer = new MDPOffHeapBuffer(3);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(3);
         MdpPacket n1 = MdpPacket.instance(); n1.wrapFromBuffer(ModelUtils.getMBOIncrementTestMessage(1));
         buffer.add(1, n1);
         assertEquals(1, buffer.getLastMsgSeqNum());
