@@ -32,10 +32,9 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     private final Lock lock = new ReentrantLock();
     private final int gapThreshold;
     private final int maxNumberOfTCPAttempts;
-    private final Buffer<MdpPacket> buffer;
+    private final IMDPOffHeapBuffer buffer;
     private final SnapshotRecoveryManager snapshotRecoveryManager;
     private final ChannelController target;
-    private final ChannelController targetForBuffered;
     private final String channelId;
     private final SnapshotCycleHandler mboCycleHandler;
     private final SnapshotCycleHandler mbpCycleHandler;
@@ -54,9 +53,8 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     private List<Integer> mboIncrementMessageTemplateIds;
     private List<Integer> mboSnapshotMessageTemplateIds;
     
-    public GapChannelController(List<ChannelListener> channelListeners, ChannelController target,
-                                ChannelController targetForBuffered, SnapshotRecoveryManager snapshotRecoveryManager,
-                                Buffer<MdpPacket> buffer, int gapThreshold, final int maxNumberOfTCPAttempts, String channelId, MdpMessageTypes mdpMessageTypes,
+    public GapChannelController(List<ChannelListener> channelListeners, ChannelController target, SnapshotRecoveryManager snapshotRecoveryManager,
+                                IMDPOffHeapBuffer buffer, int gapThreshold, final int maxNumberOfTCPAttempts, String channelId, MdpMessageTypes mdpMessageTypes,
                                 SnapshotCycleHandler mboCycleHandler, SnapshotCycleHandler mbpCycleHandler,
                                 ScheduledExecutorService executor, TCPMessageRequester tcpMessageRequester,     
                                 List<Integer> mboIncrementMessageTemplateIds, List<Integer> mboSnapshotMessageTemplateIds) {
@@ -70,7 +68,6 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
         this.mdpMessageTypes = mdpMessageTypes;
         this.mboCycleHandler = mboCycleHandler;
         this.mbpCycleHandler = mbpCycleHandler;
-        this.targetForBuffered = targetForBuffered;
         this.executor = executor;
         if(tcpMessageRequester != null) {
             TCPPacketListener tcpPacketListener = new TCPPacketListenerImpl();
@@ -179,7 +176,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                         }
                         processMessagesFromBuffer(feedContext);
                     } else if(pkgSequence > expectedSequence) {
-                        buffer.add(mdpPacket);
+                        buffer.add(pkgSequence, mdpPacket);
                         if(pkgSequence > (expectedSequence + gapThreshold)) {
                             if(log.isInfoEnabled()) {
                                 log.info("Past gap of {} expected {} current {}, lost count {}", gapThreshold, expectedSequence, pkgSequence, (pkgSequence - 1) - expectedSequence);
@@ -208,7 +205,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
                     break;
                 case INITIAL:
                 case OUTOFSYNC:
-                    buffer.add(mdpPacket);
+                    buffer.add(pkgSequence, mdpPacket);
                     packetsInBufferDuringInitialOrOutOfSync++;
                     if(log.isTraceEnabled()) {
                         log.trace("Feed {}:{} | handleIncrementalPacket: current state is '{}', so the packet with sequence '{}' has been put into buffer",
@@ -243,6 +240,7 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
         lastProcessedSeqNum = 0;
         smallestSnapshotSequence = 0;
         highestSnapshotSequence = 0;
+        buffer.clear();
         wasChannelResetInPrcdPacket = true;
         if(currentState != ChannelState.SYNC) {
             switchState(ChannelState.SYNC);
@@ -263,25 +261,11 @@ public class GapChannelController implements MdpChannelController, Consumer<MdpM
     }
 
     private void processMessagesFromBuffer(MdpFeedContext feedContext){
-        while (!buffer.isEmpty()) {
-            MdpPacket mdpPacket = buffer.remove();
-            long pkgSequence = mdpPacket.getMsgSeqNum();
-            long expectedSequence = lastProcessedSeqNum + 1;
-            if(pkgSequence == expectedSequence) {
+        for (long expectedSequence = lastProcessedSeqNum + 1; expectedSequence <= buffer.getLastMsgSeqNum(); expectedSequence++) {
+            MdpPacket mdpPacket = buffer.remove(expectedSequence);
+            if(mdpPacket != null) {
                 target.handleIncrementalPacket(feedContext, mdpPacket);
-                lastProcessedSeqNum = pkgSequence;
-            } else if(pkgSequence < expectedSequence && pkgSequence <= highestSnapshotSequence){
-                long expectedSmallestSequence = smallestSnapshotSequence + 1;
-                if(pkgSequence == expectedSmallestSequence){
-                    targetForBuffered.handleIncrementalPacket(feedContext, mdpPacket);
-                    smallestSnapshotSequence = expectedSmallestSequence;
-                } if(pkgSequence > expectedSmallestSequence) {
-                    buffer.add(mdpPacket);
-                    break;
-                }
-            } else if(pkgSequence > expectedSequence){
-                buffer.add(mdpPacket);
-                break;
+                lastProcessedSeqNum = mdpPacket.getMsgSeqNum();
             }
         }
     }

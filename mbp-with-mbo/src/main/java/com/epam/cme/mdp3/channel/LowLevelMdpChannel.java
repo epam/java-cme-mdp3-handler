@@ -95,7 +95,7 @@ public class LowLevelMdpChannel implements MdpChannel {
         incrementalStatistics = outputStatisticsEveryXseconds > 0 ? new IncrementalStatistics(outputStatisticsEveryXseconds) : null;
         String channelId = channelCfg.getId();
         instrumentManager = new MdpInstrumentManager(channelId, listeners);
-        Buffer<MdpPacket> buffer = new MDPOffHeapBuffer(incrQueueSize);
+        IMDPOffHeapBuffer buffer = new MDPOffHeapBuffer(incrQueueSize);
         List<Consumer<MdpMessage>> emptyBookConsumers = new ArrayList<>();
         ChannelController target = new ChannelControllerRouter(channelId, instrumentManager, mdpMessageTypes, listeners,
                 instrumentObserver, emptyBookConsumers, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);
@@ -110,15 +110,13 @@ public class LowLevelMdpChannel implements MdpChannel {
             mboCycleHandler = mbpCycleHandler;
         }
         recoveryManager = getRecoveryManager(recoveryFeedType);
-        ChannelController targetForBuffered = new BufferedMessageRouter(channelId, instrumentManager, mdpMessageTypes,
-                listeners, mboCycleHandler, instrumentObserver, emptyBookConsumers, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);
         TCPMessageRequester tcpMessageRequester = null;
         ConnectionCfg connectionCfg = channelCfg.getConnectionCfg(FeedType.H, Feed.A);
         if (connectionCfg != null) {
             TCPChannel tcpChannel = new MdpTCPChannel(connectionCfg);
             tcpMessageRequester = new MdpTCPMessageRequester<>(channelId, listeners, mdpMessageTypes, tcpChannel, tcpUsername, tcpPassword);
         }
-        this.channelController = new GapChannelController(listeners, target, targetForBuffered, recoveryManager, buffer, gapThreshold, maxNumberOfTCPAttempts,
+        this.channelController = new GapChannelController(listeners, target, recoveryManager, buffer, gapThreshold, maxNumberOfTCPAttempts,
                 channelId, mdpMessageTypes, mboCycleHandler, mbpCycleHandler, scheduledExecutorService, tcpMessageRequester, mboIncrementMessageTemplateIds, mboSnapshotMessageTemplateIds);
         emptyBookConsumers.add(channelController);
         if (scheduledExecutorService != null) initChannelStateThread();
