@@ -1,3 +1,6 @@
+2.1.4 (17/03/2020)
+NEW    Performance improvements in incremental refresh queue implementation (in MBO module).
+
 2.0.0 (10/07/2017)
 NEW    MBO support has been added.
 NEW    Gap detecting logic has been refactored and changed to handle packets level.
