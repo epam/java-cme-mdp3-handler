@@ -164,7 +164,7 @@ public class MdpFeedWorker implements Runnable {
     }
 
     private void select(final ByteBuffer byteBuffer, final MdpPacket mdpPacket) throws IOException {
-        if (selector.select() > 0) {
+        if (selector.isOpen() && selector.select() > 0) {
             Iterator<?> selectedKeys = selector.selectedKeys().iterator();
             while (selectedKeys.hasNext()) {
                 final SelectionKey key = (SelectionKey) selectedKeys.next();
