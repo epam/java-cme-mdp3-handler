@@ -461,12 +461,6 @@ Software Engineering Team Leader in EPAM's Capital Markets Competency Center
 
 Email: oleg_veramei@epam.com
 
-VIACHESLAV KOLYBELKIN
-
-Senior Software Engineer in EPAM's Capital Markets Competency Center
-
-Email: viacheslav_kolybelkin@epam.com
-
 STEVEN WARWICK
 
 Principal Software Engineer at TIBCO StreamBase
