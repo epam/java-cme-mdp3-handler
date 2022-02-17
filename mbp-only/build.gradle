@@ -31,18 +31,16 @@ task cucumber() {
     }
 }
 
-task prepareRtmLibs(type: Copy) {
-    into "$buildDir/rtmlibs/libs"
-    from configurations.runtimeClasspath
-}
-build.finalizedBy prepareRtmLibs
-
 distributions {
     main {
         distributionBaseName = "$archivesBaseName"
         contents {
-            from { '../rtmlibs' }
             from { '../dist' }
+            from jar
+            from sourcesJar
+            into('libs') {
+                from(project.configurations.runtimeClasspath)
+            }
         }
     }
 }

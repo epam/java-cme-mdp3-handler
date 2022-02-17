@@ -20,16 +20,14 @@ distributions {
         distributionBaseName = "$archivesBaseName"
         contents {
             from { '../dist' }
-            from { "$buildDir/rtm-libs" }
+            from jar
+            from sourcesJar
+            into('libs') {
+                from(project.configurations.runtimeClasspath)
+            }
         }
     }
 }
-
-task prepareRtmLibs(type: Copy) {
-    into "$buildDir/rtm-libs"
-    from configurations.runtimeClasspath
-}
-build.finalizedBy prepareRtmLibs
 
 task testJar(type: Jar) {
     classifier = 'tests'
