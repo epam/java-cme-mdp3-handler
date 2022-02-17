@@ -1,62 +1,35 @@
 plugins {
-    id "java"
-    id "maven"
-    id "java-library-distribution"
     id "me.champeau.gradle.jmh" version "0.5.0-rc-1"
+    id 'distribution'
 }
 
-group = 'com.epam.cme'
-version = '2.1.4'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
-jar {
-    baseName 'b2bits-jmdp3'
-}
+archivesBaseName = "$moduleNamePrefix-mbo"
 
 dependencies {
-    compile project(':core')
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.5'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.5'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
-    runtime group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.5'
-    compile group: 'net.openhft', name: 'koloboke-api-jdk8', version: '0.6.8'
-    runtime group: 'net.openhft', name: 'koloboke-impl-jdk8', version: '0.6.8'
-    compile group: 'net.openhft', name: 'chronicle-core', version: '1.7.6'
-    compile group: 'org.agrona', name: 'agrona', version: '0.9.5'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'uk.co.real-logic', name: 'sbe-tool', version: '1.6.0'
-    testCompile group: 'javax.annotation', name: 'javax.annotation-api', version: '1.3.2'
+    implementation project(':core')
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: "$commonsLang3Version"
+    implementation group: 'org.agrona', name: 'agrona', version: "$agronaVersion"
+    implementation group: 'net.openhft', name: 'koloboke-api-jdk8', version: "$openhftKolobokeVersion"
+    runtimeOnly group: 'net.openhft', name: 'koloboke-impl-jdk8', version: "$openhftKolobokeVersion"
+    testImplementation group: 'uk.co.real-logic', name: 'sbe-tool', version: '1.6.0'
+    testImplementation group: 'javax.annotation', name: 'javax.annotation-api', version: '1.3.2'
 }
 
 distributions {
     main {
-        baseName = 'b2bits-jmdp3'
+        distributionBaseName = "$archivesBaseName"
         contents {
             from { '../dist' }
+            from { "$buildDir/rtm-libs" }
         }
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-    baseName 'b2bits-jmdp3'
+task prepareRtmLibs(type: Copy) {
+    into "$buildDir/rtm-libs"
+    from configurations.runtimeClasspath
 }
-
-artifacts {
-    archives sourcesJar    
-}
-
-task copyToLib(type: Copy) {
-    into "$buildDir/libs/lib"
-    from configurations.runtime
-}
-build.dependsOn(copyToLib)
+build.finalizedBy prepareRtmLibs
 
 task testJar(type: Jar) {
     classifier = 'tests'

@@ -1,1 +1,32 @@
+plugins {
+    id 'org.sonarqube' version "$sonarQubeVersion"
+    id 'distribution'
+}
+
+configure(subprojects) {
+    apply(plugin: 'java')
+
+    java {
+        withSourcesJar()
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation "org.apache.logging.log4j:log4j-api:$log4jVersion"
+        implementation "org.apache.logging.log4j:log4j-core:$log4jVersion"
+        runtimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
+        implementation "net.openhft:chronicle-bytes:$openhftBytesVersion"
+        implementation "net.openhft:chronicle-core:$openhftCoreVersion"
+        implementation "commons-configuration:commons-configuration:$commonsCfgVersion"
+
+        testImplementation "junit:junit:$junitVersion"
+    }
+}
+
+group "$projectGroup"
+version "$projectVersion"
+
 defaultTasks 'clean', 'build', 'distZip', 'distTar'

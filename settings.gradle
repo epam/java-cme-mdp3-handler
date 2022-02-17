@@ -1,3 +1,5 @@
+rootProject.name = 'java-cme-mdp3-handler'
+
 include 'core'
 include 'mbp-only'
 include 'mbp-with-mbo'

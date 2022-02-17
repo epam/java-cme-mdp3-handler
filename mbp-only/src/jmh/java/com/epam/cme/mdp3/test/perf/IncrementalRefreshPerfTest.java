@@ -26,7 +26,7 @@ import com.epam.cme.mdp3.sbe.message.meta.SbeFieldType;
 import com.epam.cme.mdp3.sbe.message.meta.SbePrimitiveType;
 import com.epam.cme.mdp3.sbe.schema.MdpMessageTypeBuildException;
 import com.epam.cme.mdp3.test.SbeDataDumpHelper;
-import net.openhft.chronicle.bytes.NativeBytesStore;
+import net.openhft.chronicle.bytes.internal.NativeBytesStore;
 import org.openjdk.jmh.annotations.*;
 
 import java.net.URISyntaxException;

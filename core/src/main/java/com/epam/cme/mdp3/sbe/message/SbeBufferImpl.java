@@ -80,7 +80,7 @@ public class SbeBufferImpl extends AbstractSbeBuffer implements SbeBuffer {
 
     @Override
     public void release() {
-        this.bytes.release();
+        this.bytes.releaseLast();
     }
 
     @Override
