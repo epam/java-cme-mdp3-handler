@@ -1,6 +1,6 @@
 ## Synopsis
 
-Java Market Data Handler for CME Market Data (MDP 3.0) was designed to take advantage of the new low-latency data feed.
+Java Market Data Handler for CME Market Data Platform (MDP 3.0) was designed to take advantage of the new low-latency data feed.
 It fully supports features of the CME Globex MDP3.0 market data platform(https://www.cmegroup.com/confluence/display/EPICSANDBOX/CME+MDP+3.0+Market+Data),
 helps feeding CME market data directly into the client application. The handler delivers market data updates from socket to your application in a few microseconds.
 
