@@ -2,7 +2,7 @@ package com.epam.cme.mdp3.test;
 
 
 import com.epam.cme.mdp3.test.gen.*;
-import net.openhft.chronicle.bytes.NativeBytesStore;
+import net.openhft.chronicle.bytes.internal.NativeBytesStore;
 import org.agrona.ExpandableArrayBuffer;
 import org.agrona.MutableDirectBuffer;
 

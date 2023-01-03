@@ -16,7 +16,7 @@ import com.epam.cme.mdp3.MdpGroupEntry;
 import com.epam.cme.mdp3.MutableMdpGroupEntry;
 import com.epam.cme.mdp3.sbe.message.SbeBuffer;
 import com.epam.cme.mdp3.sbe.message.meta.SbeGroupType;
-import net.openhft.chronicle.bytes.NativeBytesStore;
+import net.openhft.chronicle.bytes.internal.NativeBytesStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.epam.cme.mdp3.core.control.IncrementalRefreshQueue.IncrementalRefreshQueueEntry;
@@ -43,7 +43,7 @@ public class IncrementalRefreshHolder {
             this.incrPcktSeqNum = queueEntry.incrPcktSeqNum;
 
             if (store.capacity() < entrySize) {
-                store.release();
+                store.releaseLast();
                 store = NativeBytesStore.nativeStoreWithFixedCapacity(entrySize);
             }
             incrEntry.buffer().copyTo(incrEntry.getAbsoluteEntryOffset(), this.store, entrySize);
@@ -81,6 +81,6 @@ public class IncrementalRefreshHolder {
 
     public void release() {
         rptSeqNumHolder = 0;
-        this.store.release();
+        this.store.releaseLast();
     }
 }

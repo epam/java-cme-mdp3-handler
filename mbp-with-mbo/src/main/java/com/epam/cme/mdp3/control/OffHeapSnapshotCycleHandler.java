@@ -13,7 +13,7 @@
 package com.epam.cme.mdp3.control;
 
 import net.openhft.chronicle.bytes.BytesStore;
-import net.openhft.chronicle.bytes.NativeBytesStore;
+import net.openhft.chronicle.bytes.internal.NativeBytesStore;
 import org.agrona.collections.Long2ObjectHashMap;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -132,7 +132,7 @@ public class OffHeapSnapshotCycleHandler implements SnapshotCycleHandler {
         }
 
         public void reInit(long length){
-            bytes.release();
+            bytes.releaseLast();
             this.bytes = NativeBytesStore.nativeStore(length * Long.BYTES);
             this.length = length;
         }
